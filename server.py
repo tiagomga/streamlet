@@ -28,6 +28,5 @@ class Server:
                 while True:
                     data = client.recv(1024)
                     if data:
-                        Server.log.append(data)
-                        print(Server.messages)
+                        Server.log.append(data.decode())
                         client, addr = s.accept()
