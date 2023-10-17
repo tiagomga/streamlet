@@ -5,6 +5,7 @@ from block import Block
 class Server:
 
     total_servers = 0
+    log = []
 
     def __init__(self):
         self.id = 0
@@ -17,3 +18,16 @@ class Server:
     
     def get_current_epoch(self):
         return self.epoch
+    
+    def run(self, host="127.0.0.1", port=50000):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind((host, port))
+            s.listen(1)
+            client, addr = s.accept()
+            with client:
+                while True:
+                    data = client.recv(1024)
+                    if data:
+                        Server.log.append(data)
+                        print(Server.messages)
+                        client, addr = s.accept()
