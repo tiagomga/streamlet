@@ -25,3 +25,10 @@ class Block:
         if block.parent_hash == self_hash:
             return True
         return False
+    
+    def is_child(self, block):
+        # Replace hash() with proper function
+        block_hash = hash(block)
+        if self.parent_hash == block_hash:
+            return True
+        return False
