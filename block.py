@@ -12,3 +12,6 @@ class Block:
         self.parent_hash = ""
         self.transactions = []
         self.length = Block.length + 1
+
+    def get_length(self):
+        return self.length
