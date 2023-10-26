@@ -6,9 +6,6 @@ from communicationsystem import CommunicationSystem
 
 class Server:
 
-    total_servers = 0
-    log = []
-
     def __init__(self, servers_configuration, id):
         # Server information
         self.id = id
@@ -26,8 +23,7 @@ class Server:
         # Queues
         self.receive_queue = Queue()
         self.send_queue = Queue()
-
-        Server.total_servers += 1
+        
 
     def get_epoch_leader(self):
         return self.get_current_epoch() % Server.total_servers
