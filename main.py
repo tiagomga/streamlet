@@ -1,6 +1,7 @@
 import socket
 import sys
 from server import Server
+import multiprocessing
 
 HOST = "127.0.0.1"
 PORT = 10000
@@ -24,4 +25,5 @@ def main():
     server = Server(SERVERS_CONFIGURATION, server_id)
 
 if __name__ == "__main__":
+    multiprocessing.set_start_method("fork")
     main()
