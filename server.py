@@ -35,14 +35,14 @@ class Server:
     def get_current_epoch(self):
         return self.epoch
     
-    def run(self, host="127.0.0.1", port=50000):
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.bind((host, port))
-            s.listen(1)
-            client, addr = s.accept()
-            with client:
-                while True:
-                    data = client.recv(1024)
-                    if data:
-                        Server.log.append(data.decode())
-                        client, addr = s.accept()
+    def run(self):
+        receiver_process = Process(target=self.receive)
+        receiver_process.start()
+
+        protocol_process = Process(target=self.start_new_epoch)
+        protocol_process.start()
+
+
+    def receive(self):
+        print(f"Server {self.id} is ready to receive.")
+        self.communication.receive(self.receive_queue)
