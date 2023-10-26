@@ -14,7 +14,6 @@ SERVERS_CONFIGURATION = {
 }
 
 def main():
-    print(SERVERS_CONFIGURATION)
     if len(sys.argv) != 2:
         print("Usage: python3 main.py <server_id>", file=sys.stderr, flush=True)
         sys.exit(1)
@@ -23,6 +22,7 @@ def main():
     except ValueError:
         sys.exit(1)
     server = Server(SERVERS_CONFIGURATION, server_id)
+    server.run()
 
 if __name__ == "__main__":
     multiprocessing.set_start_method("fork")
