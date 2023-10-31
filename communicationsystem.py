@@ -32,8 +32,14 @@ class CommunicationSystem:
             if i != self.server_id:
                 receiver_info = self.configuration[i]
                 receiver_address = (receiver_info[0], receiver_info[1])
-                sender_socket.connect(receiver_address)
-                sender_socket.send(message)
+                try:
+                    sender_socket.send(message)
+                except BrokenPipeError:
+                    sender_socket.connect(receiver_address)
+                    sender_socket.send(message)
+                except ConnectionRefusedError:
+                    # Handle refused connections
+                    pass
     
     
     def receive(self, queue, num_servers=4):
