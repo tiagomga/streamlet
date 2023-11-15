@@ -67,6 +67,15 @@ class CommunicationSystem:
             if data:
                 queue.put(data.decode())
 
+
+    def listen(self):
+        while True:
+            events = self.selector.select()
+            for key, mask in events:
+                callback = key.data
+                callback(key.fileobj)
+
+
     def start(self):
         multiprocessing.set_start_method("fork")
         receiver_process = multiprocessing.Process(target=accept)
