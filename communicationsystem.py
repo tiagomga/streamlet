@@ -1,3 +1,5 @@
+import multiprocessing
+
 class CommunicationSystem:
     """
     Manages communication between replicas.
@@ -62,3 +64,8 @@ class CommunicationSystem:
             data = sender_socket.recv(1024)
             if data:
                 queue.put(data.decode())
+
+    def start(self):
+        multiprocessing.set_start_method("fork")
+        receiver_process = multiprocessing.Process(target=accept)
+        receiver_process.start()
