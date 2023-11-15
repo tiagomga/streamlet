@@ -46,26 +46,16 @@ class CommunicationSystem:
                     pass
     
     
-    def receive(self, queue, num_servers=4):
+    def receive(self, socket):
         """
         Handles receiving messages from all replicas.
 
         Args:
-            queue (Queue): queue for received messages
-            num_servers (int): number of servers
+            socket (Socket): socket for receiving data
         """
-        # Get address (IP and port) and socket from receiver
-        receiver_info = self.configuration[self.server_id]
-        receiver_socket = receiver_info[2]
-
-        # Wait for connections
-        receiver_socket.listen(num_servers)
-
-        while True:
-            sender_socket, sender_address = receiver_socket.accept()
-            data = sender_socket.recv(1024)
-            if data:
-                queue.put(data.decode())
+        data = socket.recv(1024)
+        if data:
+            self.received_queue.put(data.decode())
 
 
     def accept(self, socket):
