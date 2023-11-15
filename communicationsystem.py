@@ -78,5 +78,5 @@ class CommunicationSystem:
 
     def start(self):
         multiprocessing.set_start_method("fork")
-        receiver_process = multiprocessing.Process(target=accept)
+        receiver_process = multiprocessing.Process(target=self.listen)
         receiver_process.start()
