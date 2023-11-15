@@ -68,6 +68,12 @@ class CommunicationSystem:
                 queue.put(data.decode())
 
 
+    def accept(self, socket):
+        connection_socket, connection_address = socket.accept()
+        connection_socket.setblocking(False)
+        self.selector.register(connection_socket, selectors.EVENT_READ, self.receive)
+
+
     def listen(self):
         while True:
             events = self.selector.select()
