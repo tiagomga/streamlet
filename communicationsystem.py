@@ -1,4 +1,5 @@
 import multiprocessing
+import selectors
 
 class CommunicationSystem:
     """
@@ -15,6 +16,7 @@ class CommunicationSystem:
         """
         self.configuration = configuration
         self.server_id = server_id
+        self.selector = selectors.DefaultSelector()
     
 
     def send(self, message, num_servers=4):
