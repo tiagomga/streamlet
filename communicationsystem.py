@@ -17,6 +17,9 @@ class CommunicationSystem:
         self.configuration = configuration
         self.server_id = server_id
         self.selector = selectors.DefaultSelector()
+        self.ip = configuration[server_id][0]
+        self.port = configuration[server_id][1]
+        self.socket = configuration[server_id][2]
     
 
     def send(self, message, num_servers=4):
