@@ -20,6 +20,7 @@ class CommunicationSystem:
         self.ip = configuration[server_id][0]
         self.port = configuration[server_id][1]
         self.socket = configuration[server_id][2]
+        self.received_queue = Queue()
     
 
     def send(self, message, num_servers=4):
