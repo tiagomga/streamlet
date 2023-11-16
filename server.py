@@ -1,7 +1,5 @@
 import rsa
-from multiprocessing import Process, Queue
 from communicationsystem import CommunicationSystem
-import time
 
 class Server:
 
