@@ -16,5 +16,10 @@ class Message:
         return pickle.dumps(message)
 
 
+    @staticmethod
+    def from_bytes(bytes):
+        return pickle.loads(bytes)
+
+
     def __str__(self):
         return f"({self.type}, {self.content}, {self.sender_id})"
