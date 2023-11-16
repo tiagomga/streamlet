@@ -62,6 +62,12 @@ class CommunicationSystem:
 
 
     def accept(self, socket):
+        """
+        Accept new connections.
+
+        Args:
+            socket (Socket): current server socket
+        """
         connection_socket, connection_address = socket.accept()
         connection_socket.setblocking(False)
         self.selector.register(connection_socket, selectors.EVENT_READ, self.receive)
