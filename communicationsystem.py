@@ -85,6 +85,9 @@ class CommunicationSystem:
 
 
     def start(self):
+        """
+        Prepare socket for listening to connections and launch process to handle all received data.
+        """
         self.socket.bind((self.ip, self.port))
         self.socket.listen(100)
         self.socket.setblocking(False)
