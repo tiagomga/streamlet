@@ -1,4 +1,4 @@
-import multiprocessing
+from multiprocessing import Process, Queue
 import selectors
 
 class CommunicationSystem:
@@ -76,6 +76,9 @@ class CommunicationSystem:
 
 
     def start(self):
-        multiprocessing.set_start_method("fork")
-        receiver_process = multiprocessing.Process(target=self.listen)
+        self.socket.bind((self.ip, self.port))
+        self.socket.listen(100)
+        self.socket.setblocking(False)
+        self.selector.register(self.socket, selectors.EVENT_READ, self.accept)
+        receiver_process = Process(target=self.listen)
         receiver_process.start()
