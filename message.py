@@ -13,6 +13,15 @@ class Message:
 
     @staticmethod
     def to_bytes(message):
+        """
+        Convert Message to bytes.
+
+        Args:
+            message (Message)
+
+        Returns:
+            bytes: bytes of Message object
+        """
         return pickle.dumps(message)
 
 
