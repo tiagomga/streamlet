@@ -1,4 +1,5 @@
 from multiprocessing import Process, Queue
+from message import Message
 import selectors
 
 class CommunicationSystem:
@@ -56,7 +57,9 @@ class CommunicationSystem:
         """
         data = socket.recv(1024)
         if data:
-            self.received_queue.put(data.decode())
+            self.received_queue.put(Message.from_bytes(data))
+            # Print received data
+            # print(Message.from_bytes(data))
 
 
     def accept(self, socket):
