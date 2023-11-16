@@ -1,8 +1,10 @@
+from message import Message
+from messagetype import MessageType
 import socket
 import sys
 
 HOST = "127.0.0.1"
-PORT = 50000
+PORT = 10000
 
 def print_operations():
     print("OPERATIONS:")
@@ -13,10 +15,12 @@ def print_operations():
 def send_value():
     receiver_id = input("Receiver ID: ")
     value = input("Value: ")
-    data = f"({receiver_id}, {value})".encode()
+    data = value.encode()
+    msg = Message(MessageType.REQUEST, data, None)
+    msg_bytes = Message.to_bytes(msg)
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT))
-        s.sendall(data)
+        s.sendall(msg_bytes)
 
 def main():
     print_operations()
