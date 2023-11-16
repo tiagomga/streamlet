@@ -1,3 +1,7 @@
+from block import Block
+from message import Message
+from messagetype import MessageType
+    
 class Streamlet:
     """
     Streamlet protocol.
@@ -21,8 +25,12 @@ class Streamlet:
 
 
     def propose(self, block):
-        #TODO
-        pass
+        requests = get_requests()
+        latest_notarized_block = get_latest_notarized()
+        proposed_block = Block(self.epoch, requests, latest_notarized_block.get_hash())
+        proposed_block.sign()
+        propose_message = Message(MessageType.PROPOSE, proposed_block, self.server_id)
+        self.communication.send(propose_message)
 
 
     def vote(self, block):
