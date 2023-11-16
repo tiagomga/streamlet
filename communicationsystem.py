@@ -74,6 +74,9 @@ class CommunicationSystem:
 
 
     def listen(self):
+        """
+        Listen for new or existing connections.
+        """
         while True:
             events = self.selector.select()
             for key, mask in events:
