@@ -1,3 +1,5 @@
+import pickle
+
 class Message:
     """
     Class that sets the structure of a message.
@@ -7,7 +9,12 @@ class Message:
         self.type = type
         self.content = content
         self.sender_id = sender_id
-    
+
+
+    @staticmethod
+    def to_bytes(message):
+        return pickle.dumps(message)
+
 
     def __str__(self):
         return f"({self.type}, {self.content}, {self.sender_id})"
