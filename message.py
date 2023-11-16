@@ -40,4 +40,10 @@ class Message:
 
 
     def __str__(self):
+        """
+        String representation of Message.
+
+        Returns:
+            str: string representation of Message
+        """
         return f"({self.type}, {self.content}, {self.sender_id})"
