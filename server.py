@@ -11,4 +11,7 @@ class Server:
 
 
     def run(self):
+        """
+        Start server execution.
+        """
         self.communication.start()
