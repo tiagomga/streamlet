@@ -31,18 +31,15 @@ class CommunicationSystem:
             message (Message): message to send
             num_servers (int): number of servers
         """
-        # Get address (IP and port) and socket from sender
-        sender_info = self.configuration[self.server_id]
-        sender_socket = sender_info[2]
-
         # Establish connection with the receivers and send message
         for i in range(num_servers):
             if i != self.server_id:
                 receiver_info = self.configuration[i]
                 receiver_address = (receiver_info[0], receiver_info[1])
+                sender_socket = receiver_info[2]
                 try:
                     sender_socket.send(message)
-                except BrokenPipeError:
+                except OSError:
                     sender_socket.connect(receiver_address)
                     sender_socket.send(message)
                 except ConnectionRefusedError:
