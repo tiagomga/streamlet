@@ -55,4 +55,10 @@ class Streamlet:
 
 
     def get_epoch_leader(self):
+        """
+        Get leader's id of the current epoch.
+
+        Returns:
+            int: leader's id
+        """
         return self.epoch % self.num_replicas
