@@ -17,6 +17,9 @@ class Streamlet:
 
 
     def start_new_epoch(self):
+        """
+        Start a new epoch.
+        """
         epoch_leader = self.get_epoch_leader()
         if epoch_leader == self.server_id:
             self.propose()
