@@ -52,7 +52,7 @@ class Streamlet:
             raise Exception
         leader_public_key = get_public_key(leader_id)
         longest_notarized_block = self.blockchain.get_longest_notarized_block()
-        valid_block = proposed_block.check_validity(leader_public_key, self.epoch, longest_notarized_block.get_parent_hash())
+        valid_block = proposed_block.check_validity(leader_public_key, self.epoch, longest_notarized_block)
         if not valid_block:
             raise Exception
         proposed_block.sign()
