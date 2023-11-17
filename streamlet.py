@@ -19,15 +19,15 @@ class Streamlet:
     def start_new_epoch(self, block):
         epoch_leader = self.get_epoch_leader()
         if epoch_leader == self.server_id:
-            self.propose(block)
+            self.propose()
         else:
             self.vote(block)
 
 
-    def propose(self, block):
+    def propose(self):
         requests = get_requests()
-        latest_notarized_block = get_latest_notarized()
-        proposed_block = Block(self.epoch, requests, latest_notarized_block.get_hash())
+        latest_notarized_block = Blockchain.get_latest_notarized_block()
+        proposed_block = Block(self.server_id, self.epoch, requests, latest_notarized_block.get_hash())
         proposed_block.sign()
         propose_message = Message(MessageType.PROPOSE, proposed_block, self.server_id)
         self.communication.send(propose_message)
