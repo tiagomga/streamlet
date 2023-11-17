@@ -11,6 +11,7 @@ class Block:
         Constructor.
 
         Args:
+            proposer_id (int): id of the proposer
             epoch (int): block's epoch
             transactions (list): clients' transactions
             parent_hash (str): hash of the last notarized block
@@ -18,7 +19,9 @@ class Block:
         self.proposer_id = proposer_id
         self.epoch = epoch
         self.transactions = transactions
+        self.hash = None
         self.parent_hash = parent_hash
+        self.signature = None
 
 
     def get_proposer_id(self):
