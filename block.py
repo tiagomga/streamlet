@@ -3,12 +3,21 @@ class Block:
     Class that represents a block containing:
     - Hash of the (block) parent hash
     - Set of transactions
-    - Block length
+    - Epoch number
     """
 
-    def __init__(self):
-        self.parent_hash = ""
-        self.transactions = []
+    def __init__(self, epoch, transactions, parent_hash):
+        """
+        Constructor.
+
+        Args:
+            epoch (int): block's epoch
+            transactions (list): clients' transactions
+            parent_hash (str): hash of the last notarized block
+        """
+        self.epoch = epoch
+        self.transactions = transactions
+        self.parent_hash = parent_hash
 
 
     def get_length(self):
