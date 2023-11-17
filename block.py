@@ -6,12 +6,9 @@ class Block:
     - Block length
     """
 
-    length = 0
-
     def __init__(self):
         self.parent_hash = ""
         self.transactions = []
-        self.length = Block.length + 1
 
 
     def get_length(self):
