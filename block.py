@@ -6,7 +6,7 @@ class Block:
     - Epoch number
     """
 
-    def __init__(self, epoch, transactions, parent_hash):
+    def __init__(self, proposer_id, epoch, transactions, parent_hash):
         """
         Constructor.
 
@@ -15,6 +15,7 @@ class Block:
             transactions (list): clients' transactions
             parent_hash (str): hash of the last notarized block
         """
+        self.proposer_id = proposer_id
         self.epoch = epoch
         self.transactions = transactions
         self.parent_hash = parent_hash
