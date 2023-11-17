@@ -16,12 +16,12 @@ class Streamlet:
         self.num_replicas = num_replicas
 
 
-    def start_new_epoch(self, block):
+    def start_new_epoch(self):
         epoch_leader = self.get_epoch_leader()
         if epoch_leader == self.server_id:
             self.propose()
         else:
-            self.vote(block)
+            self.vote()
         self.epoch += 1
 
 
@@ -34,7 +34,7 @@ class Streamlet:
         self.communication.send(propose_message)
 
 
-    def vote(self, block):
+    def vote(self):
         leader_id = self.get_epoch_leader()
         proposed_block = get_proposed_block()
         if proposed_block.get_proposer_id() != leader_id:
