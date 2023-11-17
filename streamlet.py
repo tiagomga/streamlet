@@ -29,6 +29,9 @@ class Streamlet:
 
 
     def propose(self):
+        """
+        Propose a new block to the blockchain.
+        """
         requests = get_requests()
         latest_notarized_block = Blockchain.get_latest_notarized_block()
         proposed_block = Block(self.server_id, self.epoch, requests, latest_notarized_block.get_hash())
