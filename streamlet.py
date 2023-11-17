@@ -1,6 +1,7 @@
 from block import Block
 from message import Message
 from messagetype import MessageType
+from blockchain import Blockchain
     
 class Streamlet:
     """
@@ -14,6 +15,7 @@ class Streamlet:
         self.server_id = server_id
         self.epoch = 0
         self.num_replicas = num_replicas
+        self.blockchain = Blockchain()
 
 
     def start_new_epoch(self):
@@ -33,7 +35,7 @@ class Streamlet:
         Propose a new block to the blockchain.
         """
         requests = get_requests()
-        latest_notarized_block = Blockchain.get_latest_notarized_block()
+        latest_notarized_block = self.blockchain.get_longest_notarized_block()
         proposed_block = Block(self.server_id, self.epoch, requests, latest_notarized_block.get_hash())
         proposed_block.sign()
         propose_message = Message(MessageType.PROPOSE, proposed_block, self.server_id)
@@ -49,7 +51,7 @@ class Streamlet:
         if proposed_block.get_proposer_id() != leader_id:
             raise Exception
         leader_public_key = get_public_key(leader_id)
-        longest_notarized_block = Blockchain.get_longest_notarized_block()
+        longest_notarized_block = self.blockchain.get_longest_notarized_block()
         valid_block = proposed_block.check_validity(leader_public_key, self.epoch, longest_notarized_block.get_parent_hash())
         if not valid_block:
             raise Exception
