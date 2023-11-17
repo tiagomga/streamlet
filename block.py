@@ -43,3 +43,21 @@ class Block:
         if self.parent_hash == block_hash:
             return True
         return False
+
+
+    def check_validity(self, public_key, epoch, longest_notarized_block):
+        # Check block's signature
+        valid_signature = self.check_signature(public_key)
+        if not valid_signature:
+            return False
+        
+        # Check if block's epoch matches with current epoch
+        if self.epoch != epoch:
+            return False
+        
+        # Check if block extends from the longest notarized chain
+        if not self.is_child(longest_notarized_block):
+            return False
+        
+        # If all previous conditions are met, block is valid
+        return True
