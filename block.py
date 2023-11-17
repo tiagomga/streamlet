@@ -21,10 +21,6 @@ class Block:
         self.parent_hash = parent_hash
 
 
-    def get_length(self):
-        return self.length
-
-
     def get_parent_hash(self):
         return self.parent_hash
 
