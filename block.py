@@ -13,19 +13,23 @@ class Block:
         self.transactions = []
         self.length = Block.length + 1
 
+
     def get_length(self):
         return self.length
-    
+
+
     def get_parent_hash(self):
         return self.parent_hash
-    
+
+
     def is_parent(self, block):
         # Replace hash() with proper function
         self_hash = hash(self)
         if block.parent_hash == self_hash:
             return True
         return False
-    
+
+
     def is_child(self, block):
         # Replace hash() with proper function
         block_hash = hash(block)
