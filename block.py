@@ -21,6 +21,10 @@ class Block:
         self.parent_hash = parent_hash
 
 
+    def get_proposer_id(self):
+        return self.proposer_id
+
+
     def get_parent_hash(self):
         return self.parent_hash
 
