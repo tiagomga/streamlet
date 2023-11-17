@@ -41,6 +41,9 @@ class Streamlet:
 
 
     def vote(self):
+        """
+        Vote for the proposed block.
+        """
         leader_id = self.get_epoch_leader()
         proposed_block = get_proposed_block()
         if proposed_block.get_proposer_id() != leader_id:
