@@ -34,9 +34,19 @@ class Streamlet:
 
 
     def vote(self, block):
-        #TODO
-        pass
-
+        leader_id = self.get_epoch_leader()
+        proposed_block = get_proposed_block()
+        if proposed_block.get_proposer_id() != leader_id:
+            raise Exception
+        leader_public_key = get_public_key(leader_id)
+        longest_notarized_block = Blockchain.get_longest_notarized_block()
+        valid_block = proposed_block.check_validity(leader_public_key, self.epoch, longest_notarized_block.get_parent_hash())
+        if not valid_block:
+            raise Exception
+        proposed_block.sign()
+        vote_message = Message(MessageType.VOTE, proposed_block, self.server_id)
+        self.communication.send(vote_message)
+    
 
     def finalize(self, block):
         #TODO
