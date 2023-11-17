@@ -22,6 +22,7 @@ class Streamlet:
             self.propose()
         else:
             self.vote(block)
+        self.epoch += 1
 
 
     def propose(self):
