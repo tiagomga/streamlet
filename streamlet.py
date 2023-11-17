@@ -55,8 +55,8 @@ class Streamlet:
         valid_block = proposed_block.check_validity(leader_public_key, self.epoch, longest_notarized_block)
         if not valid_block:
             raise Exception
-        proposed_block.sign()
-        vote_message = Message(MessageType.VOTE, proposed_block, self.server_id)
+        _vote = proposed_block.create_vote()
+        vote_message = Message(MessageType.VOTE, _vote, self.server_id)
         self.communication.send(vote_message)
     
 
