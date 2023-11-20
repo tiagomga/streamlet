@@ -38,6 +38,12 @@ class Block:
 
 
     def get_parent_hash(self):
+        """
+        Get block's parent hash.
+
+        Returns:
+            str: parent hash
+        """
         return self.parent_hash
 
 
