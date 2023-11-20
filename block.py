@@ -65,6 +65,15 @@ class Block:
 
 
     def is_child(self, block):
+        """
+        Check if this block is child of the other block.
+
+        Args:
+            block (Block): other block to be compared to
+
+        Returns:
+            bool: True, if and only if this block is child of the other block, else return False
+        """
         # Replace hash() with proper function
         block_hash = hash(block)
         if self.parent_hash == block_hash:
