@@ -28,6 +28,12 @@ class Block:
 
 
     def get_proposer_id(self):
+        """
+        Get block proposer's ID.
+
+        Returns:
+            int: ID of the proposer
+        """
         return self.proposer_id
 
 
