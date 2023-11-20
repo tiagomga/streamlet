@@ -92,5 +92,11 @@ class Block:
 
 
     def to_bytes(self):
+        """
+        Convert Block to bytes.
+
+        Returns:
+            bytes: bytes from Block object
+        """
         data = (self.parent_hash, self.epoch, self.transactions)
         return pickle.dumps(data)
