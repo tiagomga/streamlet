@@ -75,6 +75,16 @@ class Block:
         self.signature = signature
 
 
+    def check_signature(self, public_key):
+        block_bytes = self.to_bytes()
+        try:
+            hash_algorithm = rsa.verify(block_bytes, self.signature, public_key)
+            if hash_algorithm == 'SHA-256':
+                return True
+        except rsa.VerificationError:
+            return False
+
+
     def to_bytes(self):
         data = (self.parent_hash, self.epoch, self.transactions)
         return pickle.dumps(data)
