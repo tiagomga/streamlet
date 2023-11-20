@@ -82,6 +82,15 @@ class Block:
 
 
     def check_signature(self, public_key):
+        """
+        Check block's signature validity.
+
+        Args:
+            public_key (PublicKey): server's public key
+
+        Returns:
+            bool: True, if and only if block's signature is valid, else return False
+        """
         block_bytes = self.to_bytes()
         try:
             hash_algorithm = rsa.verify(block_bytes, self.signature, public_key)
