@@ -82,6 +82,19 @@ class Block:
 
 
     def check_validity(self, public_key, epoch, longest_notarized_block):
+        """
+        Check block's validity by checking its signature, epoch and if it
+        extends from the longest notarized chain.
+
+        Args:
+            public_key (PublicKey): server's public key
+            epoch (int): epoch number
+            longest_notarized_block (Block): latest block from the longest
+            notarized chain
+
+        Returns:
+            bool: True, if and only if the block meets all conditions, else return False
+        """
         # Check block's signature
         valid_signature = self.check_signature(public_key)
         if not valid_signature:
