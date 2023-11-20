@@ -1,3 +1,6 @@
+import rsa
+import pickle
+
 class Block:
     """
     Class that represents a block containing:
@@ -64,3 +67,14 @@ class Block:
         
         # If all previous conditions are met, block is valid
         return True
+    
+
+    def sign(self, private_key):
+        block_bytes = self.to_bytes()
+        signature = rsa.sign(block_bytes, private_key, 'SHA-256')
+        self.signature = signature
+
+
+    def to_bytes(self):
+        data = (self.parent_hash, self.epoch, self.transactions)
+        return pickle.dumps(data)
