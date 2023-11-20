@@ -70,6 +70,12 @@ class Block:
     
 
     def sign(self, private_key):
+        """
+        Sign block's data - used by epoch's leader.
+
+        Args:
+            private_key (PrivateKey): server's private key
+        """
         block_bytes = self.to_bytes()
         signature = rsa.sign(block_bytes, private_key, 'SHA-256')
         self.signature = signature
