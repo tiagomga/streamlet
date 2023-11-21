@@ -46,3 +46,25 @@ class Blockchain:
                 if self.chain[pos].status == BlockStatus.NOTARIZED:
                     return self.chain[pos]
                 i -= 1
+
+
+    def find_fork(self):
+        # Count parent hashes in the blockchain (find parent hash "collision")
+        hash_count = {}
+        for block in self.chain.values():
+            if block.status != BlockStatus.NOTARIZED:
+                continue
+            parent_hash = block.get_parent_hash()
+            if parent_hash in hash_count:
+                hash_count[parent_hash] += 1
+            else:
+                hash_count[parent_hash] = 1
+        
+        # If there are parent hashes that have a count higher than 1,
+        # there is at least one fork
+        fork_location = []
+        for hash in hash_count.keys():
+            if hash_count[hash] > 1:
+                fork_location.append((hash, hash_count[hash]))
+        
+        return fork_location
