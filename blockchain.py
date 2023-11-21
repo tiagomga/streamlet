@@ -23,16 +23,26 @@ class Blockchain:
         self.chain[epoch] = block
 
 
-    def get_latest_notarized_block(self):
+    def get_longest_notarized_block(self):
         """
-        Get latest notarized block from the blockchain.
+        Get latest block from blockchain's longest notarized chain.
 
         Returns:
             Block: latest notarized block
         """
         epochs = list(self.chain.keys()).sort()
-        i = len(epochs) - 1
-        while i >= 0:
-            if self.chain[i].status == BlockStatus.NOTARIZED:
-                return self.chain[i]
-            i -= 1
+        forks = self.find_fork()
+        if len(forks) == 1:
+            alternate_chains = self.generate_alternate_chains(forks[0], epochs)
+        elif len(forks) > 1:
+            alternate_chains = []
+            for fork in forks:
+                alternate_chains.extend(self.generate_alternate_chains(fork, epochs))
+                # Handle forks within forks
+        else:
+            i = len(epochs) - 1
+            while i >= 0:
+                pos = epochs[i]
+                if self.chain[pos].status == BlockStatus.NOTARIZED:
+                    return self.chain[pos]
+                i -= 1
