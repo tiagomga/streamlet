@@ -49,6 +49,13 @@ class Blockchain:
 
 
     def find_fork(self):
+        """
+        Find forks in the blockchain.
+
+        Returns:
+            (str, int): tuple with the hash of the block where the fork
+            was created with the corresponding number of forks
+        """
         # Count parent hashes in the blockchain (find parent hash "collision")
         hash_count = {}
         for block in self.chain.values():
