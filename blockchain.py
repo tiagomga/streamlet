@@ -68,3 +68,34 @@ class Blockchain:
                 fork_location.append((hash, hash_count[hash]))
         
         return fork_location
+
+
+    def generate_alternate_chains(self, fork_location, epochs):
+        # Store epochs of blocks that were already included in a chain
+        iterated_epochs = []
+
+        # Store lists of alternate chains in chains variable
+        chains = []
+        fork, fork_count = fork_location
+
+        for i in range(fork_count):
+            alternate_chain = []
+            for epoch in epochs:
+                block = self.chain[epoch]
+
+                # Ignore blocks that were already included in other alternate chain
+                if epoch in iterated_epochs:
+                    continue
+
+                # Add first block to the chain and ensure only one fork child is added
+                elif len(alternate_chain) == 0 and block.get_parent_hash() == fork:
+                    alternate_chain.append(block)
+                    iterated_epochs.append(epoch)
+
+                # Add child block of the last block added to the alternate chain
+                elif len(alternate_chain) > 0 and block.get_parent_hash() == alternate_chain[-1].get_hash():
+                    alternate_chain.append(block)
+                    iterated_epochs.append(epoch)
+                else:
+                    continue
+            chains.append(alternate_chain)
