@@ -78,6 +78,14 @@ class Blockchain:
 
 
     def generate_alternate_chains(self, fork_location, epochs):
+        """
+        Generate chains for the corresponding forks (fork_location).
+
+        Args:
+            fork_location (tuple): tuple with the hash of the block where the fork
+            was created with the corresponding number of forks
+            epochs (int): epoch number
+        """
         # Store epochs of blocks that were already included in a chain
         iterated_epochs = []
 
