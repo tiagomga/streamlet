@@ -37,6 +37,10 @@ class Block:
         return self.proposer_id
 
 
+    def get_hash(self):
+        return self.hash
+
+
     def get_parent_hash(self):
         """
         Get block's parent hash.
