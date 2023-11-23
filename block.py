@@ -38,6 +38,12 @@ class Block:
 
 
     def get_hash(self):
+        """
+        Get block's hash.
+
+        Returns:
+            str: hash
+        """
         return self.hash
 
 
