@@ -1,3 +1,4 @@
+import random
 from block import Block
 from message import Message
 from messagetype import MessageType
@@ -16,6 +17,7 @@ class Streamlet:
         self.epoch = 0
         self.num_replicas = num_replicas
         self.blockchain = Blockchain()
+        random.seed(0)
 
 
     def start_new_epoch(self):
@@ -72,4 +74,4 @@ class Streamlet:
         Returns:
             int: leader's id
         """
-        return self.epoch % self.num_replicas
+        return random.randrange(0, self.num_replicas)
