@@ -9,13 +9,14 @@ class Streamlet:
     Streamlet protocol.
     """
 
-    def __init__(self, server_id, num_replicas=4):
+    def __init__(self, server_id, f=1):
         """
         Constructor.
         """
         self.server_id = server_id
         self.epoch = 0
-        self.num_replicas = num_replicas
+        self.f = f
+        self.num_replicas = 3*f + 1
         self.blockchain = Blockchain()
         random.seed(0)
 
