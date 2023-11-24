@@ -15,6 +15,9 @@ class Message:
         return self.type
 
 
+    def get_content(self):
+        return self.content
+
     @staticmethod
     def to_bytes(message):
         """
