@@ -11,6 +11,10 @@ class Message:
         self.sender_id = sender_id
 
 
+    def get_type(self):
+        return self.type
+
+
     @staticmethod
     def to_bytes(message):
         """
