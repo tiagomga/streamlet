@@ -26,6 +26,12 @@ class Message:
 
 
     def get_sender(self):
+        """
+        Get sender's ID of message.
+
+        Returns:
+            int: ID of the sender
+        """
         return self.sender_id
 
 
