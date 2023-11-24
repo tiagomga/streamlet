@@ -1,4 +1,5 @@
 from multiprocessing import Process, Queue
+from threading import Thread
 from message import Message
 import selectors
 
@@ -59,7 +60,7 @@ class CommunicationSystem:
         if data:
             self.received_queue.put(Message.from_bytes(data))
             # Print received data
-            # print(Message.from_bytes(data))
+            print(Message.from_bytes(data))
 
 
     def accept(self, socket):
@@ -93,5 +94,5 @@ class CommunicationSystem:
         self.socket.listen(100)
         self.socket.setblocking(False)
         self.selector.register(self.socket, selectors.EVENT_READ, self.accept)
-        receiver_process = Process(target=self.listen)
+        receiver_process = Thread(target=self.listen)
         receiver_process.start()
