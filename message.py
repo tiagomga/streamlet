@@ -12,6 +12,12 @@ class Message:
 
 
     def get_type(self):
+        """
+        Get type of message.
+
+        Returns:
+            MessageType: type of message (REQUEST, PROPOSE, VOTE)
+        """
         return self.type
 
 
