@@ -18,6 +18,11 @@ class Message:
     def get_content(self):
         return self.content
 
+
+    def get_sender(self):
+        return self.sender_id
+
+
     @staticmethod
     def to_bytes(message):
         """
