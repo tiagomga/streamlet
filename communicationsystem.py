@@ -1,7 +1,8 @@
+import selectors
 from multiprocessing import Process, Queue
 from threading import Thread
 from message import Message
-import selectors
+from messagetype import MessageType
 
 class CommunicationSystem:
     """
@@ -112,3 +113,11 @@ class CommunicationSystem:
             content = message.get_content()
             public_keys[sender] = content
         return public_keys
+
+
+    def get_proposed_block(self):
+        message = self.received_queue.get()
+        while message.get_type() != MessageType.PROPOSE:
+            self.received_queue.put(message)
+            message = self.received_queue.get()
+        return (message.get_sender(), message.get_content())
