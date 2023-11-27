@@ -71,6 +71,12 @@ class Block:
 
 
     def get_parent_epoch(self):
+        """
+        Get parent block's epoch.
+
+        Returns:
+            int: epoch of parent block
+        """
         return self.parent_epoch
 
 
