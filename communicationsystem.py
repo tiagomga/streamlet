@@ -121,3 +121,11 @@ class CommunicationSystem:
             self.received_queue.put(message)
             message = self.received_queue.get()
         return (message.get_sender(), message.get_content())
+
+
+    def get_votes(self):
+        message = self.received_queue.get()
+        while message.get_type() != MessageType.VOTE:
+            self.received_queue.put(message)
+            message = self.received_queue.get()
+        return (message.get_sender(), message.get_content())
