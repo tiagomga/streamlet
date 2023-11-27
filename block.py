@@ -1,5 +1,6 @@
 import rsa
 import pickle
+from hashlib import sha256
 from blockstatus import BlockStatus
 
 class Block:
@@ -122,6 +123,11 @@ class Block:
         if self.parent_hash == block_hash:
             return True
         return False
+
+
+    def calculate_hash(self):
+        block_bytes = self.to_bytes()
+        self.hash = sha256(block_bytes).hexdigest()
 
 
     def check_validity(self, public_key, epoch, longest_notarized_block):
