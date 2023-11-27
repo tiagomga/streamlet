@@ -15,7 +15,7 @@ class Streamlet:
         """
         self.server_id = server_id
         self.communication = communication
-        self.epoch = 0
+        self.epoch = 1
         self.f = f
         self.num_replicas = 3*f + 1
         self.blockchain = Blockchain()
