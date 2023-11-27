@@ -126,6 +126,9 @@ class Block:
 
 
     def calculate_hash(self):
+        """
+        Calculate block's hash.
+        """
         block_bytes = self.to_bytes()
         self.hash = sha256(block_bytes).hexdigest()
 
