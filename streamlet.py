@@ -9,12 +9,13 @@ class Streamlet:
     Streamlet protocol.
     """
 
-    def __init__(self, server_id, communication, servers_public_key, f=1):
+    def __init__(self, server_id, communication, private_key, servers_public_key, f=1):
         """
         Constructor.
         """
         self.server_id = server_id
         self.communication = communication
+        self.private_key = private_key
         self.servers_public_key = servers_public_key
         self.epoch = 1
         self.f = f
@@ -49,7 +50,7 @@ class Streamlet:
             latest_notarized_block.get_hash(),
             latest_notarized_block.get_epoch()
         )
-        proposed_block.sign()
+        proposed_block.sign(self.private_key)
         self.blockchain.add_block(proposed_block)
         propose_message = Message(MessageType.PROPOSE, proposed_block, self.server_id).to_bytes()
         self.communication.send(propose_message)
