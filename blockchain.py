@@ -1,4 +1,5 @@
 from blockstatus import BlockStatus
+from block import Block
 
 class Blockchain:
     """
@@ -9,7 +10,9 @@ class Blockchain:
         """
         Constructor.
         """
-        self.chain = {}
+        self.chain = {
+            0: Block(None, 0, None, None)
+        }
 
 
     def add_block(self, epoch, block):
