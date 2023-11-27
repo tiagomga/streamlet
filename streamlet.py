@@ -42,6 +42,7 @@ class Streamlet:
         latest_notarized_block = self.blockchain.get_longest_notarized_block()
         proposed_block = Block(self.server_id, self.epoch, requests, latest_notarized_block.get_hash())
         proposed_block.sign()
+        self.blockchain.add_block(proposed_block)
         propose_message = Message(MessageType.PROPOSE, proposed_block, self.server_id)
         self.communication.send(propose_message)
 
@@ -59,6 +60,7 @@ class Streamlet:
         valid_block = proposed_block.check_validity(leader_public_key, self.epoch, longest_notarized_block)
         if not valid_block:
             raise Exception
+        self.blockchain.add_block(proposed_block)
         _vote = proposed_block.create_vote()
         vote_message = Message(MessageType.VOTE, _vote, self.server_id)
         self.communication.send(vote_message)
