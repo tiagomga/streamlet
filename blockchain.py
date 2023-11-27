@@ -15,7 +15,7 @@ class Blockchain:
         }
 
 
-    def add_block(self, epoch, block):
+    def add_block(self, block):
         """
         Add block to the blockchain.
 
@@ -23,7 +23,8 @@ class Blockchain:
             epoch (int): block's epoch
             block (Block): block to be added to the blockchain
         """
-        self.chain[epoch] = block
+        block.calculate_hash()
+        self.chain[block.get_epoch()] = block
 
 
     def get_longest_notarized_block(self):
