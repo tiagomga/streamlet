@@ -10,6 +10,13 @@ class Server:
         self.servers_configuration = servers_configuration
         self.communication = CommunicationSystem(id, servers_configuration)
         self.public_key, self.private_key = rsa.newkeys(512)
+        self.servers_public_key = None
+
+
+    def exchange_public_keys(self):
+        public_key = Message(None, self.public_key, self.id).to_bytes()
+        self.communication.send(public_key)
+        self.servers_public_key = self.communication.get_public_keys()
 
 
     def run(self):
@@ -19,15 +26,15 @@ class Server:
         self.communication.start()
         
         # Test for communication between replicas
-        try:
-            time.sleep(5)
-            data = f"Hey (from replica {self.id})"
-            m = Message(None, data, self.id)
-            m_byte = Message.to_bytes(m)
-            self.communication.send(m_byte)
-        except Exception:
-            pass
-        self.show_queue()
+        # try:
+        #     time.sleep(5)
+        #     data = f"Hey (from replica {self.id})"
+        #     m = Message(None, data, self.id)
+        #     m_byte = Message.to_bytes(m)
+        #     self.communication.send(m_byte)
+        # except Exception:
+        #     pass
+        # self.show_queue()
 
 
     def show_queue(self):
