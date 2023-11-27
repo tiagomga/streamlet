@@ -60,6 +60,10 @@ class Block:
         return self.parent_hash
 
 
+    def get_status(self):
+        return self.status
+
+
     def is_parent(self, block):
         """
         Check if this block is parent of the other block.
