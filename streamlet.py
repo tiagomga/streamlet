@@ -39,9 +39,9 @@ class Streamlet:
         """
         Propose a new block to the blockchain.
         """
-        requests = get_requests()
+        # requests = get_requests()
         latest_notarized_block = self.blockchain.get_longest_notarized_block()
-        proposed_block = Block(self.server_id, self.epoch, requests, latest_notarized_block.get_hash())
+        proposed_block = Block(self.server_id, self.epoch, [f"request {self.epoch}"], latest_notarized_block.get_hash())
         proposed_block.sign()
         self.blockchain.add_block(proposed_block)
         propose_message = Message(MessageType.PROPOSE, proposed_block, self.server_id)
