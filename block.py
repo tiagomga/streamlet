@@ -61,6 +61,12 @@ class Block:
 
 
     def get_status(self):
+        """
+        Get block's status.
+
+        Returns:
+            BlockStatus: block's status
+        """
         return self.status
 
 
