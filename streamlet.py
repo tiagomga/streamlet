@@ -50,7 +50,7 @@ class Streamlet:
         )
         proposed_block.sign()
         self.blockchain.add_block(proposed_block)
-        propose_message = Message(MessageType.PROPOSE, proposed_block, self.server_id)
+        propose_message = Message(MessageType.PROPOSE, proposed_block, self.server_id).to_bytes()
         self.communication.send(propose_message)
 
 
