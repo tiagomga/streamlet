@@ -24,6 +24,8 @@ class Server:
         Start server execution.
         """
         self.communication.start()
+        time.sleep(1)
+        self.exchange_public_keys()
         
         # Test for communication between replicas
         # try:
