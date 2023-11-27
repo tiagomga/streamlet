@@ -31,6 +31,7 @@ class Streamlet:
             self.propose()
         else:
             self.vote()
+        self.notarize()
         self.epoch += 1
 
 
@@ -64,7 +65,11 @@ class Streamlet:
         _vote = proposed_block.create_vote()
         vote_message = Message(MessageType.VOTE, _vote, self.server_id)
         self.communication.send(vote_message)
-    
+
+
+    def notarize(self):
+        pass
+
 
     def finalize(self, block):
         #TODO
