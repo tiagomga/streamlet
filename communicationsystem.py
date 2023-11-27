@@ -99,6 +99,12 @@ class CommunicationSystem:
 
 
     def get_public_keys(self):
+        """
+        Get public keys from all servers.
+
+        Returns:
+            dict: dictionary with ID of the server as key and PublicKey as value
+        """
         public_keys = {}
         while len(public_keys) != 3:
             message = self.received_queue.get()
