@@ -35,18 +35,14 @@ class Message:
         return self.sender_id
 
 
-    @staticmethod
-    def to_bytes(message):
+    def to_bytes(self):
         """
         Convert Message to bytes.
-
-        Args:
-            message (Message)
 
         Returns:
             bytes: bytes of Message object
         """
-        return pickle.dumps(message)
+        return pickle.dumps(self)
 
 
     @staticmethod
