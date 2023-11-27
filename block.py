@@ -64,6 +64,10 @@ class Block:
         return self.status
 
 
+    def get_parent_epoch(self):
+        return self.parent_epoch
+
+
     def is_parent(self, block):
         """
         Check if this block is parent of the other block.
