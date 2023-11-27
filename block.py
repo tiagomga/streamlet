@@ -1,5 +1,6 @@
 import rsa
 import pickle
+from blockstatus import BlockStatus
 
 class Block:
     """
@@ -25,6 +26,7 @@ class Block:
         self.hash = None
         self.parent_hash = parent_hash
         self.signature = None
+        self.status = BlockStatus.PROPOSED
 
 
     def get_proposer_id(self):
