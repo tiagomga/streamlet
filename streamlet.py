@@ -9,11 +9,12 @@ class Streamlet:
     Streamlet protocol.
     """
 
-    def __init__(self, server_id, f=1):
+    def __init__(self, server_id, communication, f=1):
         """
         Constructor.
         """
         self.server_id = server_id
+        self.communication = communication
         self.epoch = 0
         self.f = f
         self.num_replicas = 3*f + 1
@@ -50,7 +51,7 @@ class Streamlet:
         Vote for the proposed block.
         """
         leader_id = self.get_epoch_leader()
-        proposed_block = get_proposed_block()
+        proposed_block = self.communication.get_proposed_block()
         if proposed_block.get_proposer_id() != leader_id:
             raise Exception
         leader_public_key = get_public_key(leader_id)
