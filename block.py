@@ -25,6 +25,7 @@ class Block:
         self.transactions = transactions
         self.hash = None
         self.parent_hash = parent_hash
+        self.parent_epoch = None
         self.signature = None
         self.status = BlockStatus.PROPOSED
 
