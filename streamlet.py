@@ -60,8 +60,8 @@ class Streamlet:
         Vote for the proposed block.
         """
         leader_id = self.get_epoch_leader()
-        proposed_block = self.communication.get_proposed_block()
-        if proposed_block.get_proposer_id() != leader_id:
+        proposer_id, proposed_block = self.communication.get_proposed_block()
+        if proposer_id != leader_id:
             raise Exception
         leader_public_key = self.servers_public_key[leader_id]
         longest_notarized_block = self.blockchain.get_longest_notarized_block()
