@@ -41,6 +41,12 @@ class Block:
 
 
     def get_epoch(self):
+        """
+        Get block's epoch.
+
+        Returns:
+            int: epoch of the block
+        """
         return self.epoch
 
 
