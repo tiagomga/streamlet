@@ -102,8 +102,7 @@ class Block:
             bool: True, if and only if this block is parent of the other block, else return False
         """
         # Replace hash() with proper function
-        self_hash = hash(self)
-        if block.parent_hash == self_hash:
+        if block.parent_hash == self.hash:
             return True
         return False
 
@@ -119,8 +118,7 @@ class Block:
             bool: True, if and only if this block is child of the other block, else return False
         """
         # Replace hash() with proper function
-        block_hash = hash(block)
-        if self.parent_hash == block_hash:
+        if self.parent_hash == block.hash:
             return True
         return False
 
