@@ -96,3 +96,13 @@ class CommunicationSystem:
         self.selector.register(self.socket, selectors.EVENT_READ, self.accept)
         receiver_process = Thread(target=self.listen)
         receiver_process.start()
+
+
+    def get_public_keys(self):
+        public_keys = {}
+        while len(public_keys) != 3:
+            message = self.received_queue.get()
+            sender = message.get_sender()
+            content = message.get_content()
+            public_keys[sender] = content
+        return public_keys
