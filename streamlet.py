@@ -41,7 +41,13 @@ class Streamlet:
         """
         # requests = get_requests()
         latest_notarized_block = self.blockchain.get_longest_notarized_block()
-        proposed_block = Block(self.server_id, self.epoch, [f"request {self.epoch}"], latest_notarized_block.get_hash())
+        proposed_block = Block(
+            self.server_id,
+            self.epoch,
+            [f"request {self.epoch}"],
+            latest_notarized_block.get_hash(),
+            latest_notarized_block.get_epoch()
+        )
         proposed_block.sign()
         self.blockchain.add_block(proposed_block)
         propose_message = Message(MessageType.PROPOSE, proposed_block, self.server_id)
