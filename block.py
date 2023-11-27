@@ -40,6 +40,10 @@ class Block:
         return self.proposer_id
 
 
+    def get_epoch(self):
+        return self.epoch
+
+
     def get_hash(self):
         """
         Get block's hash.
