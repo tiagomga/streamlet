@@ -11,7 +11,7 @@ class Blockchain:
         Constructor.
         """
         self.chain = {
-            0: Block(None, 0, None, None)
+            0: Block(None, 0, None, None, None)
         }
 
 
