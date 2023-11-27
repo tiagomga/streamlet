@@ -9,12 +9,13 @@ class Streamlet:
     Streamlet protocol.
     """
 
-    def __init__(self, server_id, communication, f=1):
+    def __init__(self, server_id, communication, servers_public_key, f=1):
         """
         Constructor.
         """
         self.server_id = server_id
         self.communication = communication
+        self.servers_public_key = servers_public_key
         self.epoch = 1
         self.f = f
         self.num_replicas = 3*f + 1
@@ -62,7 +63,7 @@ class Streamlet:
         proposed_block = self.communication.get_proposed_block()
         if proposed_block.get_proposer_id() != leader_id:
             raise Exception
-        leader_public_key = get_public_key(leader_id)
+        leader_public_key = self.servers_public_key[leader_id]
         longest_notarized_block = self.blockchain.get_longest_notarized_block()
         valid_block = proposed_block.check_validity(leader_public_key, self.epoch, longest_notarized_block)
         if not valid_block:
