@@ -11,7 +11,7 @@ class Block:
     - Epoch number
     """
 
-    def __init__(self, proposer_id, epoch, transactions, parent_hash):
+    def __init__(self, proposer_id, epoch, transactions, parent_hash, parent_epoch):
         """
         Constructor.
 
@@ -26,7 +26,7 @@ class Block:
         self.transactions = transactions
         self.hash = None
         self.parent_hash = parent_hash
-        self.parent_epoch = None
+        self.parent_epoch = parent_epoch
         self.signature = None
         self.status = BlockStatus.PROPOSED
 
