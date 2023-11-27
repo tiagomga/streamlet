@@ -30,22 +30,20 @@ class Blockchain:
         Returns:
             Block: latest notarized block
         """
-        epochs = list(self.chain.keys()).sort()
-        forks = self.find_fork()
-        if len(forks) == 1:
-            alternate_chains = self.generate_alternate_chains(forks[0], epochs)
-        elif len(forks) > 1:
-            alternate_chains = []
-            for fork in forks:
-                alternate_chains.extend(self.generate_alternate_chains(fork, epochs))
-                # Handle forks within forks
-        else:
-            i = len(epochs) - 1
-            while i >= 0:
-                pos = epochs[i]
-                if self.chain[pos].status == BlockStatus.NOTARIZED:
-                    return self.chain[pos]
-                i -= 1
+        epochs = list(self.chain.keys())
+        epochs.sort()
+        i = len(epochs) - 1
+        notarized_chain = []
+        while i >= 0:
+            epoch = epochs[i]
+            block = self.chain[epoch]
+            if block.get_status() == BlockStatus.NOTARIZED:
+                parent_epoch = block.get_parent_epoch()
+                parent_block = self.chain[parent_epoch]
+                if block.get_parent_hash() == parent_block.get_hash():
+                    notarized_chain.append(self.chain[epoch])
+            i -= 1
+        return notarized_chain[0]
 
 
     def find_fork(self):
