@@ -75,7 +75,18 @@ class Streamlet:
 
 
     def notarize(self):
-        pass
+        proposed_block = self.blockchain.get_block(self.epoch)
+        proposed_block_bytes = proposed_block.to_bytes()
+        votes = self.communication.get_votes(self.epoch, self.f)
+        num_votes = 0
+        for sender, vote in votes:
+            public_key = self.servers_public_key[sender]
+            valid_vote = vote.check_signature(public_key, content=proposed_block_bytes)
+            if valid_vote:
+                num_votes += 1
+                proposed_block.add_vote((sender, vote))
+        if num_votes == 2*self.f:
+            proposed_block.notarize()
 
 
     def finalize(self, block):
