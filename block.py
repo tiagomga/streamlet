@@ -207,6 +207,10 @@ class Block:
             return False
 
 
+    def notarize(self):
+        self.status = BlockStatus.NOTARIZED
+
+
     def to_bytes(self):
         """
         Convert Block to bytes.
