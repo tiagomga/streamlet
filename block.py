@@ -208,6 +208,9 @@ class Block:
 
 
     def notarize(self):
+        """
+        Change status to notarized.
+        """
         self.status = BlockStatus.NOTARIZED
 
 
