@@ -125,14 +125,13 @@ class CommunicationSystem:
         Returns:
             tuple: tuple with ID of the sender/leader and proposed block
         """
-        message = self.received_queue.get()
         while True:
+            message = self.received_queue.get()
             block_epoch = message.get_content().get_epoch()
 
             # Accept only propose messages
             if message.get_type() != MessageType.PROPOSE:
                 self.received_queue.put(message)
-                message = self.received_queue.get()
                 continue
 
             # Accept only proposed blocks from current epoch
