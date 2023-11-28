@@ -2,6 +2,7 @@ import rsa
 import time
 from communicationsystem import CommunicationSystem
 from message import Message
+from streamlet import Streamlet
 
 class Server:
 
@@ -26,6 +27,11 @@ class Server:
         self.communication.start()
         time.sleep(1)
         self.exchange_public_keys()
+
+        protocol = Streamlet(self.id, self.communication, self.private_key, self.servers_public_key)
+        while True:
+            protocol.start_new_epoch()
+            time.sleep(5)
         
         # Test for communication between replicas
         # try:
