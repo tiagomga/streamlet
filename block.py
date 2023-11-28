@@ -234,3 +234,7 @@ class Block:
         """
         data = (self.parent_hash, self.epoch, self.transactions)
         return pickle.dumps(data)
+
+
+    def __str__(self):
+        return f"({self.epoch}, {self.transactions}, {self.parent_hash})"
