@@ -237,4 +237,10 @@ class Block:
 
 
     def __str__(self):
+        """
+        Represent Block in a string.
+
+        Returns:
+            str: string representation of Block
+        """
         return f"({self.epoch}, {self.transactions}, {self.parent_hash})"
