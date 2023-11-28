@@ -116,6 +116,15 @@ class CommunicationSystem:
 
 
     def get_proposed_block(self, current_epoch):
+        """
+        Get proposed block for the current epoch.
+
+        Args:
+            current_epoch (int): current epoch
+
+        Returns:
+            tuple: tuple with ID of the sender/leader and proposed block
+        """
         message = self.received_queue.get()
         while True:
             block_epoch = message.get_content().get_epoch()
