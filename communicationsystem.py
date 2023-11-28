@@ -1,8 +1,11 @@
 import selectors
+import logging
 from multiprocessing import Process, Queue
 from threading import Thread
 from message import Message
 from messagetype import MessageType
+
+logging.basicConfig(level=logging.DEBUG)
 
 class CommunicationSystem:
     """
@@ -61,7 +64,7 @@ class CommunicationSystem:
         if data:
             self.received_queue.put(Message.from_bytes(data))
             # Print received data
-            print(Message.from_bytes(data))
+            logging.debug(f"Received message - {Message.from_bytes(data)}")
 
 
     def accept(self, socket):
@@ -106,6 +109,7 @@ class CommunicationSystem:
         Returns:
             dict: dictionary with ID of the server as key and PublicKey as value
         """
+        logging.info("Getting public keys from other servers...")
         public_keys = {}
         while len(public_keys) != 3:
             message = self.received_queue.get()
