@@ -142,9 +142,20 @@ class CommunicationSystem:
                 self.received_queue.put(message)
 
 
-    def get_votes(self):
-        message = self.received_queue.get()
-        while message.get_type() != MessageType.VOTE:
-            self.received_queue.put(message)
+    def get_votes(self, current_epoch, f):
+        votes = []
+        while len(votes) < 2*f:
             message = self.received_queue.get()
-        return (message.get_sender(), message.get_content())
+            block_epoch = message.get_content().get_epoch()
+
+            # Accept only vote messages
+            if message.get_type() != MessageType.VOTE:
+                self.received_queue.put(message)
+                continue
+
+            # Accept only votes from current epoch
+            if block_epoch == current_epoch:
+                votes.append((message.get_sender(), message.get_content()))
+            else:
+                self.received_queue.put(message)
+        return votes
