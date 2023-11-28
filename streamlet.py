@@ -32,7 +32,7 @@ class Streamlet:
         if epoch_leader == self.server_id:
             self.propose()
         else:
-            self.vote()
+            self.vote(epoch_leader)
         self.notarize()
         self.epoch += 1
 
@@ -56,11 +56,10 @@ class Streamlet:
         self.communication.send(propose_message)
 
 
-    def vote(self):
+    def vote(self, leader_id):
         """
         Vote for the proposed block.
         """
-        leader_id = self.get_epoch_leader()
         proposer_id, proposed_block = self.communication.get_proposed_block()
         if proposer_id != leader_id:
             raise Exception
