@@ -70,7 +70,7 @@ class Streamlet:
         if not valid_block:
             raise Exception
         self.blockchain.add_block(proposed_block)
-        _vote = proposed_block.create_vote()
+        _vote = proposed_block.create_vote(self.private_key)
         vote_message = Message(MessageType.VOTE, _vote, self.server_id).to_bytes()
         self.communication.send(vote_message)
 
