@@ -28,6 +28,7 @@ class Block:
         self.parent_hash = parent_hash
         self.parent_epoch = parent_epoch
         self.signature = None
+        self.votes = []
         self.status = BlockStatus.PROPOSED
 
 
@@ -205,6 +206,10 @@ class Block:
                 return True
         except rsa.VerificationError:
             return False
+
+
+    def add_vote(self, vote):
+        self.votes.append(vote)
 
 
     def notarize(self):
