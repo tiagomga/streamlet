@@ -27,6 +27,10 @@ class Blockchain:
         self.chain[block.get_epoch()] = block
 
 
+    def get_block(self, epoch):
+        return self.chain[epoch]
+
+
     def get_longest_notarized_block(self):
         """
         Get latest block from blockchain's longest notarized chain.
