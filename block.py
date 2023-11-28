@@ -174,6 +174,20 @@ class Block:
         self.signature = signature
 
 
+    def create_vote(self, private_key):
+        block_bytes = self.to_bytes()
+        signature = rsa.sign(block_bytes, private_key, 'SHA-256')
+        block = Block(
+            self.get_proposer_id(),
+            self.epoch,
+            None,
+            self.get_parent_hash,
+            None
+        )
+        block.signature = signature
+        return block
+
+
     def check_signature(self, public_key):
         """
         Check block's signature validity.
