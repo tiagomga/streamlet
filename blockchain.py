@@ -60,6 +60,11 @@ class Blockchain:
                 if block.get_parent_hash() == parent_block.get_hash():
                     notarized_chain.append(self.chain[epoch])
             i -= 1
+        
+        # Return genesis block, when no block is notarized
+        if len(self.chain) <= 2 and len(notarized_chain) == 0:
+            return self.chain[0]
+        
         return notarized_chain[0]
 
 
