@@ -209,6 +209,12 @@ class Block:
 
 
     def add_vote(self, vote):
+        """
+        Add vote to the block.
+
+        Args:
+            vote (tuple): tuple with ID of the voter and empty Block with signature
+        """
         self.votes.append(vote)
 
 
