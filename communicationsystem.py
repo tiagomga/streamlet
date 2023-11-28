@@ -143,6 +143,16 @@ class CommunicationSystem:
 
 
     def get_votes(self, current_epoch, f):
+        """
+        Get 2f votes from the current epoch.
+
+        Args:
+            current_epoch (int): current epoch
+            f (int): number of faults
+
+        Returns:
+            tuple: tuple with ID of the sender and vote
+        """
         votes = []
         while len(votes) < 2*f:
             message = self.received_queue.get()
