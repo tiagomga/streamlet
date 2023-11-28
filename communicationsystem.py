@@ -115,12 +115,22 @@ class CommunicationSystem:
         return public_keys
 
 
-    def get_proposed_block(self):
+    def get_proposed_block(self, current_epoch):
         message = self.received_queue.get()
-        while message.get_type() != MessageType.PROPOSE:
-            self.received_queue.put(message)
-            message = self.received_queue.get()
-        return (message.get_sender(), message.get_content())
+        while True:
+            block_epoch = message.get_content().get_epoch()
+
+            # Accept only propose messages
+            if message.get_type() != MessageType.PROPOSE:
+                self.received_queue.put(message)
+                message = self.received_queue.get()
+                continue
+
+            # Accept only proposed blocks from current epoch
+            if block_epoch == current_epoch:
+                return (message.get_sender(), message.get_content())
+            else:
+                self.received_queue.put(message)
 
 
     def get_votes(self):
