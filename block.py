@@ -189,7 +189,7 @@ class Block:
         return block
 
 
-    def check_signature(self, public_key):
+    def check_signature(self, public_key, content=None):
         """
         Check block's signature validity.
 
@@ -199,9 +199,10 @@ class Block:
         Returns:
             bool: True, if and only if block's signature is valid, else return False
         """
-        block_bytes = self.to_bytes()
+        if content == None:
+            content = self.to_bytes()
         try:
-            hash_algorithm = rsa.verify(block_bytes, self.signature, public_key)
+            hash_algorithm = rsa.verify(content, self.signature, public_key)
             if hash_algorithm == 'SHA-256':
                 return True
         except rsa.VerificationError:
