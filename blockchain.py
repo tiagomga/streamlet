@@ -28,6 +28,15 @@ class Blockchain:
 
 
     def get_block(self, epoch):
+        """
+        Get epoch's block from blockchain.
+
+        Args:
+            epoch (int): epoch's number
+
+        Returns:
+            Block: blockchain block
+        """
         return self.chain[epoch]
 
 
