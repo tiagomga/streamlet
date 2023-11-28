@@ -60,7 +60,7 @@ class Streamlet:
         """
         Vote for the proposed block.
         """
-        proposer_id, proposed_block = self.communication.get_proposed_block()
+        proposer_id, proposed_block = self.communication.get_proposed_block(self.epoch)
         if proposer_id != leader_id:
             raise Exception
         leader_public_key = self.servers_public_key[leader_id]
