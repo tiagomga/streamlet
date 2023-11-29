@@ -15,6 +15,9 @@ class Server:
 
 
     def exchange_public_keys(self):
+        """
+        Exchange public keys between all servers.
+        """
         public_key = Message(None, self.public_key, self.id).to_bytes()
         self.communication.send(public_key)
         self.servers_public_key = self.communication.get_public_keys()
