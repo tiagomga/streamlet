@@ -104,9 +104,15 @@ class Streamlet:
         """
         Notarize block after getting 2f + 1 votes.
         """
+        # Get proposed block for the current epoch from server's blockchain
         proposed_block = self.blockchain.get_block(self.epoch)
         proposed_block_bytes = proposed_block.to_bytes()
+
+        # Get votes from other servers
         votes = self.communication.get_votes(self.epoch, self.f)
+
+        # For every vote, check its signature validity
+        # If it is valid, add vote to the proposed block
         num_votes = 0
         for sender, vote in votes:
             public_key = self.servers_public_key[sender]
@@ -114,6 +120,8 @@ class Streamlet:
             if valid_vote:
                 num_votes += 1
                 proposed_block.add_vote((sender, vote))
+        
+        # Check if there are sufficient valid votes; then, notarize the proposed block
         if num_votes == 2*self.f:
             proposed_block.notarize()
 
