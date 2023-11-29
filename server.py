@@ -7,6 +7,14 @@ from streamlet import Streamlet
 class Server:
 
     def __init__(self, servers_configuration, id):
+        """
+        Constructor.
+
+        Args:
+            servers_configuration (dict): dictionary that contains
+            information about every server (host, port and socket)
+            id (int): server's ID
+        """
         self.id = id
         self.servers_configuration = servers_configuration
         self.communication = CommunicationSystem(id, servers_configuration)
