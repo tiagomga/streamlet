@@ -71,16 +71,31 @@ class Streamlet:
         """
         Vote for the proposed block.
         """
+        # Get proposed block for the current epoch
         proposer_id, proposed_block = self.communication.get_proposed_block(self.epoch)
+
+        # Check if the proposer's ID matches with the leader's ID
         if proposer_id != leader_id:
             raise Exception
+        
+        # Get leader's public key
         leader_public_key = self.servers_public_key[leader_id]
+
+        # Get latest block from the longest notarized chain
         longest_notarized_block = self.blockchain.get_longest_notarized_block()
+
+        # Check if the proposed block is valid
         valid_block = proposed_block.check_validity(leader_public_key, self.epoch, longest_notarized_block)
         if not valid_block:
             raise Exception
+        
+        # Add proposed block to server's blockchain
         self.blockchain.add_block(proposed_block)
+
+        # Create vote for the proposed block using server's private key
         _vote = proposed_block.create_vote(self.private_key)
+
+        # Send vote to every server participating in the protocol
         vote_message = Message(MessageType.VOTE, _vote, self.server_id).to_bytes()
         self.communication.send(vote_message)
 
