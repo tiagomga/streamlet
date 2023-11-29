@@ -75,6 +75,9 @@ class Streamlet:
 
 
     def notarize(self):
+        """
+        Notarize block after getting 2f + 1 votes.
+        """
         proposed_block = self.blockchain.get_block(self.epoch)
         proposed_block_bytes = proposed_block.to_bytes()
         votes = self.communication.get_votes(self.epoch, self.f)
