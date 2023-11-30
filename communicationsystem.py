@@ -22,7 +22,7 @@ class CommunicationSystem:
         """
         self.configuration = configuration
         self.server_id = server_id
-        self.selector = selectors.DefaultSelector()
+        self.selector = None
         self.ip = configuration[server_id][0]
         self.port = configuration[server_id][1]
         self.socket = configuration[server_id][2]
@@ -83,6 +83,8 @@ class CommunicationSystem:
         """
         Listen for new or existing connections.
         """
+        self.selector = selectors.DefaultSelector()
+        self.selector.register(self.socket, selectors.EVENT_READ, self.accept)
         while True:
             events = self.selector.select()
             for key, mask in events:
@@ -97,8 +99,7 @@ class CommunicationSystem:
         self.socket.bind((self.ip, self.port))
         self.socket.listen(100)
         self.socket.setblocking(False)
-        self.selector.register(self.socket, selectors.EVENT_READ, self.accept)
-        receiver_process = Thread(target=self.listen)
+        receiver_process = Process(target=self.listen)
         receiver_process.start()
 
 
