@@ -98,6 +98,12 @@ class Blockchain:
 
 
     def __str__(self):
+        """
+        Represent Blockchain in a string.
+
+        Returns:
+            str: string representation of Blockchain
+        """
         string = ""
         for key, value in self.chain.items():
             string += f"{key} : {value} || "
