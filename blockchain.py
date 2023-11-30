@@ -95,3 +95,10 @@ class Blockchain:
                 fork_location.append((hash, hash_count[hash]))
         
         return fork_location
+
+
+    def __str__(self):
+        string = ""
+        for key, value in self.chain.items():
+            string += f"{key} : {value} || "
+        return string
