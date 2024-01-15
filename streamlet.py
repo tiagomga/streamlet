@@ -51,7 +51,6 @@ class Streamlet:
 
         # Create block proposal
         proposed_block = Block(
-            self.server_id,
             self.epoch.value,
             [f"request {self.epoch.value}"],
             latest_notarized_block.get_hash(),

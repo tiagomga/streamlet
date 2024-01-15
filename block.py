@@ -11,17 +11,15 @@ class Block:
     - Epoch number
     """
 
-    def __init__(self, proposer_id, epoch, transactions, parent_hash, parent_epoch):
+    def __init__(self, epoch, transactions, parent_hash, parent_epoch):
         """
         Constructor.
 
         Args:
-            proposer_id (int): id of the proposer
             epoch (int): block's epoch
             transactions (list): clients' transactions
             parent_hash (str): hash of the last notarized block
         """
-        self.proposer_id = proposer_id
         self.epoch = epoch
         self.transactions = transactions
         self.hash = None
@@ -30,16 +28,6 @@ class Block:
         self.signature = None
         self.votes = []
         self.status = BlockStatus.PROPOSED
-
-
-    def get_proposer_id(self):
-        """
-        Get block proposer's ID.
-
-        Returns:
-            int: ID of the proposer
-        """
-        return self.proposer_id
 
 
     def get_epoch(self):
@@ -177,7 +165,6 @@ class Block:
         block_bytes = self.to_bytes()
         signature = rsa.sign(block_bytes, private_key, 'SHA-256')
         block = Block(
-            self.get_proposer_id(),
             self.epoch,
             None,
             self.get_parent_hash,
