@@ -1,4 +1,5 @@
 import random
+from multiprocessing import Value
 from block import Block
 from message import Message
 from messagetype import MessageType
@@ -17,7 +18,7 @@ class Streamlet:
         self.communication = communication
         self.private_key = private_key
         self.servers_public_key = servers_public_key
-        self.epoch = 1
+        self.epoch = Value("i", 1)
         self.f = f
         self.num_replicas = 3*f + 1
         self.blockchain = Blockchain()
@@ -34,7 +35,7 @@ class Streamlet:
         else:
             self.vote(epoch_leader)
         self.notarize()
-        self.epoch += 1
+        self.epoch.value += 1
 
 
     def propose(self):
@@ -50,8 +51,8 @@ class Streamlet:
         # Create block proposal
         proposed_block = Block(
             self.server_id,
-            self.epoch,
-            [f"request {self.epoch}"],
+            self.epoch.value,
+            [f"request {self.epoch.value}"],
             latest_notarized_block.get_hash(),
             latest_notarized_block.get_epoch()
         )
@@ -72,7 +73,7 @@ class Streamlet:
         Vote for the proposed block.
         """
         # Get proposed block for the current epoch
-        proposer_id, proposed_block = self.communication.get_proposed_block(self.epoch)
+        proposer_id, proposed_block = self.communication.get_proposed_block(self.epoch.value)
 
         # Check if the proposer's ID matches with the leader's ID
         if proposer_id != leader_id:
@@ -85,7 +86,7 @@ class Streamlet:
         longest_notarized_block = self.blockchain.get_longest_notarized_block()
 
         # Check if the proposed block is valid
-        valid_block = proposed_block.check_validity(leader_public_key, self.epoch, longest_notarized_block)
+        valid_block = proposed_block.check_validity(leader_public_key, self.epoch.value, longest_notarized_block)
         if not valid_block:
             raise Exception
         
@@ -105,11 +106,11 @@ class Streamlet:
         Notarize block after getting 2f + 1 votes.
         """
         # Get proposed block for the current epoch from server's blockchain
-        proposed_block = self.blockchain.get_block(self.epoch)
+        proposed_block = self.blockchain.get_block(self.epoch.value)
         proposed_block_bytes = proposed_block.to_bytes()
 
         # Get votes from other servers
-        votes = self.communication.get_votes(self.epoch, self.f)
+        votes = self.communication.get_votes(self.epoch.value, self.f)
 
         # For every vote, check its signature validity
         # If it is valid, add vote to the proposed block
