@@ -7,3 +7,4 @@ class MessageType(Enum):
     REQUEST = 0
     PROPOSE = 1
     VOTE = 2
+    ECHO = 3
