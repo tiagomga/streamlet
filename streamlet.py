@@ -22,7 +22,8 @@ class Streamlet:
         self.f = f
         self.num_replicas = 3*f + 1
         self.blockchain = Blockchain()
-        random.seed(0)
+        self.random_object = random.Random()
+        self.random_object.seed(0)
 
 
     def start_new_epoch(self):
@@ -139,4 +140,4 @@ class Streamlet:
         Returns:
             int: leader's id
         """
-        return random.randrange(0, self.num_replicas)
+        return self.random_object.randrange(0, self.num_replicas)
