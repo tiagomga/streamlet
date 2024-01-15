@@ -60,9 +60,16 @@ class CommunicationSystem:
         Args:
             socket (Socket): socket for receiving data
         """
-        data = socket.recv(1024)
+        data = socket.recv(2048)
         if data:
-            self.received_queue.put(Message.from_bytes(data))
+            message = Message.from_bytes(data)
+            if message.get_type() == MessageType.ECHO:
+                self.received_queue.put(message.get_content())
+            else:
+                self.received_queue.put(message)
+                if message.get_type() != None:
+                    echo_message = Message(MessageType.ECHO, message, self.server_id).to_bytes()
+                    self.send(echo_message)
             # Print received data
             logging.debug(f"Received message - {Message.from_bytes(data)}")
 
