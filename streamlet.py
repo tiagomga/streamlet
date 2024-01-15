@@ -128,7 +128,11 @@ class Streamlet:
             proposed_block.notarize()
 
 
-    def finalize(self, block):
+    def finalize(self):
+        """
+        Finalize the notarized chain up to the second of the three blocks,
+        after observing three adjacent blocks with consecutive epochs.
+        """
         #TODO
         pass
 
