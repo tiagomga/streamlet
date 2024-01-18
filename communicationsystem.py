@@ -128,7 +128,7 @@ class CommunicationSystem:
         return public_keys
 
 
-    def get_proposed_block(self, current_epoch):
+    def get_proposed_block(self, current_epoch, start_time):
         """
         Get proposed block for the current epoch.
 
@@ -139,6 +139,7 @@ class CommunicationSystem:
             tuple: tuple with ID of the sender/leader and proposed block
         """
         while True:
+            self.timeout(start_time)
             message = self.received_queue.get()
             block_epoch = message.get_content().get_epoch()
 
@@ -154,7 +155,7 @@ class CommunicationSystem:
                 self.received_queue.put(message)
 
 
-    def get_votes(self, current_epoch, f):
+    def get_votes(self, current_epoch, f, start_time):
         """
         Get 2f votes from the current epoch.
 
@@ -167,6 +168,7 @@ class CommunicationSystem:
         """
         votes = []
         while len(votes) < 2*f:
+            self.timeout(start_time)
             message = self.received_queue.get()
             block_epoch = message.get_content().get_epoch()
 
