@@ -185,7 +185,7 @@ class CommunicationSystem:
         return votes
 
 
-    def timeout(start_time):
+    def timeout(self, start_time):
         """
         Check if epoch's duration is within the specified interval.
 
