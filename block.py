@@ -229,6 +229,14 @@ class Block:
         return pickle.dumps(data)
 
 
+    @staticmethod
+    def from_bytes(bytes):
+        data = pickle.loads(bytes)
+        block = Block(data[1], data[2], data[0], None)
+        block.signature = data[3]
+        return block
+
+
     def __str__(self):
         """
         Represent Block in a string.
