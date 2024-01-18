@@ -184,5 +184,14 @@ class CommunicationSystem:
 
 
     def timeout(start_time):
+        """
+        Check if epoch's duration is within the specified interval.
+
+        Args:
+            start_time (float): time recorded at the beginning of the epoch
+
+        Raises:
+            TimeoutError: if epoch's duration is longer than the specified
+        """
         if time.time() - start_time > 5:
             raise TimeoutError("Epoch timeout.")
