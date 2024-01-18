@@ -215,6 +215,10 @@ class Block:
         """
         Convert Block to bytes.
 
+        Args:
+            include_signature (bool): if set to True, block's signature
+            is included
+
         Returns:
             bytes: bytes from Block object
         """
