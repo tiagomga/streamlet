@@ -1,4 +1,5 @@
 import random
+import time
 from multiprocessing import Value
 from block import Block
 from message import Message
@@ -18,7 +19,7 @@ class Streamlet:
         self.communication = communication
         self.private_key = private_key
         self.servers_public_key = servers_public_key
-        self.epoch = Value("i", 1)
+        self.epoch = Value("i", 0)
         self.f = f
         self.num_replicas = 3*f + 1
         self.blockchain = Blockchain()
@@ -30,13 +31,14 @@ class Streamlet:
         """
         Start a new epoch.
         """
+        start_time = time.time()
+        self.epoch.value += 1
         epoch_leader = self.get_epoch_leader()
         if epoch_leader == self.server_id:
             self.propose()
         else:
-            self.vote(epoch_leader)
-        self.notarize()
-        self.epoch.value += 1
+            self.vote(epoch_leader, start_time)
+        self.notarize(start_time)
 
 
     def propose(self):
@@ -68,12 +70,12 @@ class Streamlet:
         self.communication.send(propose_message)
 
 
-    def vote(self, leader_id):
+    def vote(self, leader_id, start_time):
         """
         Vote for the proposed block.
         """
         # Get proposed block for the current epoch
-        proposer_id, proposed_block = self.communication.get_proposed_block(self.epoch.value)
+        proposer_id, proposed_block = self.communication.get_proposed_block(self.epoch.value, start_time)
 
         # Check if the proposer's ID matches with the leader's ID
         if proposer_id != leader_id:
@@ -101,7 +103,7 @@ class Streamlet:
         self.communication.send(vote_message)
 
 
-    def notarize(self):
+    def notarize(self, start_time):
         """
         Notarize block after getting 2f + 1 votes.
         """
@@ -110,7 +112,7 @@ class Streamlet:
         proposed_block_bytes = proposed_block.to_bytes()
 
         # Get votes from other servers
-        votes = self.communication.get_votes(self.epoch.value, self.f)
+        votes = self.communication.get_votes(self.epoch.value, self.f, start_time)
 
         # For every vote, check its signature validity
         # If it is valid, add vote to the proposed block
