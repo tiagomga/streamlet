@@ -211,14 +211,17 @@ class Block:
         self.status = BlockStatus.NOTARIZED
 
 
-    def to_bytes(self):
+    def to_bytes(self, include_signature=False):
         """
         Convert Block to bytes.
 
         Returns:
             bytes: bytes from Block object
         """
-        data = (self.parent_hash, self.epoch, self.transactions)
+        if include_signature:
+            data = (self.parent_hash, self.epoch, self.transactions, self.signature)
+        else:
+            data = (self.parent_hash, self.epoch, self.transactions)
         return pickle.dumps(data)
 
 
