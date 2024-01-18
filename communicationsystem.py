@@ -1,5 +1,6 @@
 import selectors
 import logging
+import time
 from multiprocessing import Process, Queue
 from threading import Thread
 from message import Message
@@ -180,3 +181,8 @@ class CommunicationSystem:
             else:
                 self.received_queue.put(message)
         return votes
+
+
+    def timeout(start_time):
+        if time.time() - start_time > 5:
+            raise TimeoutError("Epoch timeout.")
