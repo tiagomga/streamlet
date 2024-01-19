@@ -11,7 +11,7 @@ class Block:
     - Epoch number
     """
 
-    def __init__(self, epoch, transactions, parent_hash, parent_epoch):
+    def __init__(self, epoch, transactions, parent_hash, parent_epoch=None):
         """
         Constructor.
 
@@ -178,7 +178,6 @@ class Block:
             self.epoch,
             None,
             self.get_parent_hash,
-            None
         )
         block.signature = signature
         return block
@@ -251,7 +250,7 @@ class Block:
             Block: Block object from bytes
         """
         data = pickle.loads(bytes)
-        block = Block(data[1], data[2], data[0], None)
+        block = Block(data[1], data[2], data[0])
         block.signature = data[3]
         return block
 
