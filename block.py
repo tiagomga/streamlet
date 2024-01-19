@@ -231,6 +231,15 @@ class Block:
 
     @staticmethod
     def from_bytes(bytes):
+        """
+        Convert bytes to Block.
+
+        Args:
+            bytes (bytes): Block in serialized form
+
+        Returns:
+            Block: Block object from bytes
+        """
         data = pickle.loads(bytes)
         block = Block(data[1], data[2], data[0], None)
         block.signature = data[3]
