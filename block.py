@@ -81,6 +81,12 @@ class Block:
 
 
     def set_parent_epoch(self, parent_epoch):
+        """
+        Set parent block's epoch.
+
+        Args:
+            parent_epoch (int): epoch of parent block
+        """
         self.parent_epoch = parent_epoch
 
 
