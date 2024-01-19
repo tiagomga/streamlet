@@ -80,6 +80,10 @@ class Block:
         return self.parent_epoch
 
 
+    def set_parent_epoch(self, parent_epoch):
+        self.parent_epoch = parent_epoch
+
+
     def is_parent(self, block):
         """
         Check if this block is parent of the other block.
