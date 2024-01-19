@@ -3,6 +3,7 @@ import logging
 import time
 from multiprocessing import Process, Queue
 from threading import Thread
+from block import Block
 from message import Message
 from messagetype import MessageType
 
@@ -141,7 +142,8 @@ class CommunicationSystem:
         while True:
             self.timeout(start_time)
             message = self.received_queue.get()
-            block_epoch = message.get_content().get_epoch()
+            block = Block.from_bytes(message.get_content())
+            block_epoch = block.get_epoch()
 
             # Accept only propose messages
             if message.get_type() != MessageType.PROPOSE:
@@ -150,7 +152,7 @@ class CommunicationSystem:
 
             # Accept only proposed blocks from current epoch
             if block_epoch == current_epoch:
-                return (message.get_sender(), message.get_content())
+                return (message.get_sender(), block)
             else:
                 self.received_queue.put(message)
 
@@ -170,7 +172,8 @@ class CommunicationSystem:
         while len(votes) < 2*f:
             self.timeout(start_time)
             message = self.received_queue.get()
-            block_epoch = message.get_content().get_epoch()
+            vote = Block.from_bytes(message.get_content())
+            vote_epoch = vote.get_epoch()
 
             # Accept only vote messages
             if message.get_type() != MessageType.VOTE:
@@ -178,8 +181,8 @@ class CommunicationSystem:
                 continue
 
             # Accept only votes from current epoch
-            if block_epoch == current_epoch:
-                votes.append((message.get_sender(), message.get_content()))
+            if vote_epoch == current_epoch:
+                votes.append((message.get_sender(), vote))
             else:
                 self.received_queue.put(message)
         return votes
