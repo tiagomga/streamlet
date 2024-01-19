@@ -97,6 +97,7 @@ class Streamlet:
             raise Exception
         
         # Add proposed block to server's blockchain
+        proposed_block.set_parent_epoch(longest_notarized_block.get_epoch())
         self.blockchain.add_block(proposed_block)
 
         # Create vote for the proposed block using server's private key
