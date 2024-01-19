@@ -66,7 +66,11 @@ class Streamlet:
         self.blockchain.add_block(proposed_block)
 
         # Send block proposal to every server participating in the protocol
-        propose_message = Message(MessageType.PROPOSE, proposed_block, self.server_id).to_bytes()
+        propose_message = Message(
+            MessageType.PROPOSE,
+            proposed_block.to_bytes(include_signature=True),
+            self.server_id
+        ).to_bytes()
         self.communication.send(propose_message)
 
 
@@ -99,7 +103,11 @@ class Streamlet:
         _vote = proposed_block.create_vote(self.private_key)
 
         # Send vote to every server participating in the protocol
-        vote_message = Message(MessageType.VOTE, _vote, self.server_id).to_bytes()
+        vote_message = Message(
+            MessageType.VOTE,
+            _vote.to_bytes(include_signature=True),
+            self.server_id
+        ).to_bytes()
         self.communication.send(vote_message)
 
 
