@@ -96,12 +96,13 @@ class Streamlet:
         if not valid_block:
             raise Exception
         
+        # Create vote for the proposed block using server's private key
+        _vote = proposed_block.create_vote(self.private_key)
+        proposed_block.add_vote((self.server_id, _vote))
+
         # Add proposed block to server's blockchain
         proposed_block.set_parent_epoch(longest_notarized_block.get_epoch())
         self.blockchain.add_block(proposed_block)
-
-        # Create vote for the proposed block using server's private key
-        _vote = proposed_block.create_vote(self.private_key)
 
         # Send vote to every server participating in the protocol
         vote_message = Message(
