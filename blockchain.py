@@ -26,6 +26,9 @@ class Blockchain:
 
 
     def add_genesis_block(self):
+        """
+        Add genesis block to the blockchain.
+        """
         genesis_block = Block(0, None, None)
         genesis_block.notarize()
         self.add_block(genesis_block)
