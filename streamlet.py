@@ -144,8 +144,11 @@ class Streamlet:
         Finalize the notarized chain up to the second of the three blocks,
         after observing three adjacent blocks with consecutive epochs.
         """
-        #TODO
-        pass
+        if self.epoch.value > 2:
+            finalized_blocks = self.blockchain.finalize()
+            # Execute clients' transactions
+            # if finalized_blocks:
+            #     execute_transactions(finalized_blocks)
 
 
     def get_epoch_leader(self):
