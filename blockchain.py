@@ -10,9 +10,7 @@ class Blockchain:
         """
         Constructor.
         """
-        self.chain = {
-            0: Block(0, None, None, None)
-        }
+        self.chain = {}
 
 
     def add_block(self, block):
@@ -25,6 +23,12 @@ class Blockchain:
         """
         block.calculate_hash()
         self.chain[block.get_epoch()] = block
+
+
+    def add_genesis_block(self):
+        genesis_block = Block(0, None, None)
+        genesis_block.notarize()
+        self.add_block(genesis_block)
 
 
     def get_block(self, epoch):
