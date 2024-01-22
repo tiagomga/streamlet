@@ -162,6 +162,9 @@ class Streamlet:
 
 
     def start(self):
+        """
+        Start Streamlet.
+        """
         self.blockchain.add_genesis_block()
         while True:
             try:
