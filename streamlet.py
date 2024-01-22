@@ -159,3 +159,17 @@ class Streamlet:
             int: leader's id
         """
         return self.random_object.randrange(0, self.num_replicas)
+
+
+    def start(self):
+        self.blockchain.add_genesis_block()
+        while True:
+            try:
+                start_time = time.time()
+                self.start_new_epoch()
+                end_time = time.time()
+                epoch_duration = end_time - start_time
+                if epoch_duration < 5:
+                    time.sleep(5 - epoch_duration)
+            except TimeoutError:
+                pass
