@@ -11,6 +11,7 @@ class Blockchain:
         Constructor.
         """
         self.chain = {}
+        self.longest_notarized_chain = []
 
 
     def add_block(self, block):
@@ -47,6 +48,30 @@ class Blockchain:
         return self.chain[epoch]
 
 
+    def update_longest_notarized_chain(self):
+        self.longest_notarized_chain = []
+        latest_epoch = max(self.chain)
+
+        while latest_epoch >= 0:
+            block = self.chain[latest_epoch]
+            if block.get_status() == BlockStatus.NOTARIZED:
+                break
+            latest_epoch -= 1
+
+        while True:
+            parent_epoch = block.get_parent_epoch()
+            if parent_epoch != None:
+                parent_block = self.chain[parent_epoch]
+                if block.is_child(parent_block) and block.get_status() == BlockStatus.NOTARIZED:
+                    self.longest_notarized_chain.append(block)
+                    block = parent_block
+                else:
+                    break
+            else:
+                self.longest_notarized_chain.append(block)
+                break
+
+
     def get_longest_notarized_block(self):
         """
         Get latest block from blockchain's longest notarized chain.
@@ -54,25 +79,8 @@ class Blockchain:
         Returns:
             Block: latest notarized block
         """
-        epochs = list(self.chain.keys())
-        epochs.sort()
-        i = len(epochs) - 1
-        notarized_chain = []
-        while i >= 0:
-            epoch = epochs[i]
-            block = self.chain[epoch]
-            if block.get_status() == BlockStatus.NOTARIZED:
-                parent_epoch = block.get_parent_epoch()
-                parent_block = self.chain[parent_epoch]
-                if block.get_parent_hash() == parent_block.get_hash():
-                    notarized_chain.append(self.chain[epoch])
-            i -= 1
-        
-        # Return genesis block, when no block is notarized
-        if len(self.chain) <= 2 and len(notarized_chain) == 0:
-            return self.chain[0]
-        
-        return notarized_chain[0]
+        self.update_longest_notarized_chain()
+        return self.longest_notarized_chain[0]
 
 
     def find_fork(self):
