@@ -39,6 +39,7 @@ class Streamlet:
         else:
             self.vote(epoch_leader, start_time)
         self.notarize(start_time)
+        self.finalize()
 
 
     def propose(self):
