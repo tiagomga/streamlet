@@ -42,17 +42,6 @@ class Server:
 
         protocol = Streamlet(self.id, self.communication, self.private_key, self.servers_public_key)
         protocol.start()
-        
-        # Test for communication between replicas
-        # try:
-        #     time.sleep(5)
-        #     data = f"Hey (from replica {self.id})"
-        #     m = Message(None, data, self.id)
-        #     m_byte = Message.to_bytes(m)
-        #     self.communication.send(m_byte)
-        # except Exception:
-        #     pass
-        # self.show_queue()
 
 
     def show_queue(self):
