@@ -85,6 +85,10 @@ class Blockchain:
 
 
     def finalize(self):
+        """
+        Finalize the notarized chain up to the second of the three blocks,
+        after observing three adjacent blocks with consecutive epochs.
+        """
         self.update_longest_notarized_chain()
         finalized_blocks = []
         consecutive_epochs = 1
@@ -110,7 +114,7 @@ class Blockchain:
                 child_block = self.longest_notarized_chain[i+1]
                 if block.get_epoch() == child_block.get_epoch() + 1:
                     consecutive_epochs += 1
-        
+
         # If there are 3 blocks with consecutive epochs,
         # finalize prefix chain up to the 2nd of the 3 blocks
         if consecutive_epochs == 3:
