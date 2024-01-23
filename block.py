@@ -221,6 +221,9 @@ class Block:
 
 
     def finalize(self):
+        """
+        Change status to finalized.
+        """
         self.status = BlockStatus.FINALIZED
 
 
