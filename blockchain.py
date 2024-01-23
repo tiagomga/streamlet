@@ -12,6 +12,7 @@ class Blockchain:
         """
         self.chain = {}
         self.longest_notarized_chain = []
+        self.finalized_chain = []
 
 
     def add_block(self, block):
@@ -81,6 +82,45 @@ class Blockchain:
         """
         self.update_longest_notarized_chain()
         return self.longest_notarized_chain[0]
+
+
+    def finalize(self):
+        self.update_longest_notarized_chain()
+        finalized_blocks = []
+        consecutive_epochs = 1
+        
+        # Skip if notarized chain is too short for finalization
+        if len(self.longest_notarized_chain) <= 1:
+            return finalized_blocks
+        
+        # When blocks with consecutive epochs include a finalized block
+        elif len(self.longest_notarized_chain) == 2 and self.finalized_chain:
+            block = self.longest_notarized_chain[0]
+            child_block = self.longest_notarized_chain[1]
+            grandchild_block = self.finalized_chain[-1]
+            if block.get_epoch() == child_block.get_epoch() + 1:
+                consecutive_epochs += 1
+                if child_block.get_epoch() == grandchild_block.get_epoch() + 1:
+                    consecutive_epochs += 1
+        
+        # When blocks with consecutive epochs are all notarized
+        elif len(self.longest_notarized_chain) > 2:
+            for i in range(2):
+                block = self.longest_notarized_chain[i]
+                child_block = self.longest_notarized_chain[i+1]
+                if block.get_epoch() == child_block.get_epoch() + 1:
+                    consecutive_epochs += 1
+        
+        # If there are 3 blocks with consecutive epochs,
+        # finalize prefix chain up to the 2nd of the 3 blocks
+        if consecutive_epochs == 3:
+            for block in self.longest_notarized_chain[1:]:
+                block.finalize()
+                finalized_blocks.append(block)
+        
+        finalized_blocks.reverse()
+        self.finalized_chain.extend(finalized_blocks)
+        return finalized_blocks
 
 
     def find_fork(self):
