@@ -7,8 +7,6 @@ from block import Block
 from message import Message
 from messagetype import MessageType
 
-logging.basicConfig(level=logging.DEBUG)
-
 class CommunicationSystem:
     """
     Manages communication between replicas.

@@ -1,7 +1,8 @@
-import socket
 import sys
-from server import Server
+import socket
+import logging
 import multiprocessing
+from server import Server
 
 HOST = "127.0.0.1"
 PORT = 10000
@@ -25,5 +26,6 @@ def main():
     server.run()
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
     multiprocessing.set_start_method("fork")
     main()
