@@ -220,6 +220,10 @@ class Block:
         self.status = BlockStatus.NOTARIZED
 
 
+    def finalize(self):
+        self.status = BlockStatus.FINALIZED
+
+
     def to_bytes(self, include_signature=False):
         """
         Convert Block to bytes.
