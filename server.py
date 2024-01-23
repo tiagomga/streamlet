@@ -41,9 +41,7 @@ class Server:
         self.exchange_public_keys()
 
         protocol = Streamlet(self.id, self.communication, self.private_key, self.servers_public_key)
-        while True:
-            protocol.start_new_epoch()
-            time.sleep(5)
+        protocol.start()
         
         # Test for communication between replicas
         # try:
