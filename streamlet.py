@@ -1,11 +1,12 @@
 import random
 import time
+import logging
 from multiprocessing import Value
 from block import Block
 from message import Message
 from messagetype import MessageType
 from blockchain import Blockchain
-    
+
 class Streamlet:
     """
     Streamlet protocol.
@@ -173,6 +174,7 @@ class Streamlet:
                 self.start_new_epoch()
                 end_time = time.time()
                 epoch_duration = end_time - start_time
+                logging.info(f"Blockchain - {self.blockchain}\n\n")
                 if epoch_duration < 5:
                     time.sleep(5 - epoch_duration)
             except TimeoutError:
