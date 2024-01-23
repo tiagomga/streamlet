@@ -39,7 +39,6 @@ class Server:
         self.communication.start()
         time.sleep(1)
         self.exchange_public_keys()
-
         protocol = Streamlet(self.id, self.communication, self.private_key, self.servers_public_key)
         protocol.start()
 
