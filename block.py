@@ -177,7 +177,7 @@ class Block:
         block = Block(
             self.epoch,
             None,
-            self.get_parent_hash,
+            self.parent_hash,
         )
         block.signature = signature
         return block
