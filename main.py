@@ -16,7 +16,7 @@ SERVERS_CONFIGURATION = {
 
 def main():
     if len(sys.argv) != 2:
-        print("Usage: python3 main.py <server_id>", file=sys.stderr, flush=True)
+        logging.error("Usage: python3 main.py <server_id>")
         sys.exit(1)
     try:
         server_id = int(sys.argv[1])
