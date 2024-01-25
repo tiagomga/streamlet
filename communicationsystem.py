@@ -127,6 +127,10 @@ class CommunicationSystem:
         return public_keys
 
 
+    def get_message(self, timeout):
+        return self.received_queue.get(timeout=timeout)
+
+
     def get_proposed_block(self, current_epoch, start_time):
         """
         Get proposed block for the current epoch.
