@@ -81,7 +81,7 @@ class Streamlet:
         Vote for the proposed block.
         """
         # Get proposed block for the current epoch
-        proposer_id, proposed_block = self.communication.get_proposed_block(self.epoch.value, start_time)
+        proposer_id, proposed_block = self.get_message(start_time)
 
         # Check if the proposer's ID matches with the leader's ID
         if proposer_id != leader_id:
@@ -123,13 +123,11 @@ class Streamlet:
         proposed_block = self.blockchain.get_block(self.epoch.value)
         proposed_block_bytes = proposed_block.to_bytes()
 
-        # Get votes from other servers
-        votes = self.communication.get_votes(self.epoch.value, self.f, start_time)
-
         # For every vote, check its signature validity
         # If it is valid, add vote to the proposed block
         num_votes = 0
-        for sender, vote in votes:
+        for i in range(2):
+            sender, vote = self.get_message(start_time)
             public_key = self.servers_public_key[sender]
             valid_vote = vote.check_signature(public_key, content=proposed_block_bytes)
             if valid_vote:
@@ -179,3 +177,42 @@ class Streamlet:
                     time.sleep(5 - epoch_duration)
             except TimeoutError:
                 pass
+
+
+    def get_message(self, start_time):
+        while True:
+            remaining_time = 5 - (time.time() - start_time)
+            message = self.communication.get_message(remaining_time)
+            sender = message.get_sender()
+            block = Block.from_bytes(message.get_content())
+            block_epoch = block.get_epoch()
+            logging.debug(f"Message type - {message.get_type()}\n\n")
+
+            # Return propose message if proposed block is new to the blockchain
+            if message.get_type() == MessageType.PROPOSE:
+                if block_epoch == self.epoch.value:
+                    try:
+                        self.blockchain.get_block(block_epoch)
+                    except KeyError:
+                        logging.debug(f"New proposal (epoch: {self.epoch.value} | proposer: {sender})\n\n")
+                        return (sender, block)
+            
+            # Return vote message if vote is new to the proposed block
+            elif message.get_type() == MessageType.VOTE:
+                blockchain_block = self.blockchain.get_block(block_epoch)
+                blockchain_block_votes = blockchain_block.get_votes()
+                repeated_vote = False
+                for vote in blockchain_block_votes:
+                    if sender == vote[0]:
+                        repeated_vote = True
+                        break
+                if not repeated_vote:
+                    if block_epoch == self.epoch.value:
+                        logging.debug(f"New vote for current epoch (epoch: {self.epoch.value} | voter: {sender})\n\n")
+                        return (sender, block)
+                    else:
+                        public_key = self.servers_public_key[sender]
+                        valid_block = block.check_signature(public_key, content=blockchain_block.to_bytes())
+                        if valid_block:
+                            blockchain_block.add_vote((sender, block))
+                            logging.debug(f"New vote for past epoch (epoch: {blockchain_block.get_epoch()} | voter: {sender})\n\n")
