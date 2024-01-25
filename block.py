@@ -80,6 +80,10 @@ class Block:
         return self.parent_epoch
 
 
+    def get_votes(self):
+        return self.votes
+
+
     def set_parent_epoch(self, parent_epoch):
         """
         Set parent block's epoch.
