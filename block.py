@@ -233,6 +233,12 @@ class Block:
 
 
     def write(self, filename="blockchain"):
+        """
+        Write block to a file.
+
+        Args:
+            filename (str, optional): name of the file - defaults to "blockchain"
+        """
         data = {
             "epoch": self.epoch,
             "parent_hash": self.parent_hash,
