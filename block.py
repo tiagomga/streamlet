@@ -1,5 +1,6 @@
 import rsa
 import pickle
+import json
 from hashlib import sha256
 from blockstatus import BlockStatus
 
@@ -229,6 +230,16 @@ class Block:
         Change status to finalized.
         """
         self.status = BlockStatus.FINALIZED
+
+
+    def write(self, filename="blockchain"):
+        data = {
+            "epoch": self.epoch,
+            "parent_hash": self.parent_hash,
+            "transactions": self.transactions
+        }
+        with open(filename, "a") as blockchain:
+            blockchain.write(json.dumps(data) + ",")
 
 
     def to_bytes(self, include_signature=False):
