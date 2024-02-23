@@ -1,6 +1,7 @@
 import random
 import time
 import logging
+from queue import Empty
 from multiprocessing import Value
 from block import Block
 from message import Message
@@ -200,13 +201,15 @@ class Streamlet:
                 logging.info(f"Blockchain - {self.blockchain}\n\n")
                 if epoch_duration < 5:
                     time.sleep(5 - epoch_duration)
-            except TimeoutError:
-                pass
+            except (Empty, TimeoutError):
+                logging.debug("Epoch ended abruptly.")
 
 
     def get_message(self, start_time):
         while True:
             remaining_time = 5 - (time.time() - start_time)
+            if remaining_time <= 0:
+                raise TimeoutError
             message = self.communication.get_message(remaining_time)
             sender = message.get_sender()
             block = Block.from_bytes(message.get_content())
