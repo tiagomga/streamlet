@@ -49,27 +49,49 @@ class Blockchain:
 
 
     def update_longest_notarized_chain(self):
-        self.longest_notarized_chain = []
+        pass
+
+
+    def get_notarized_chains(self):
         latest_epoch = max(self.chain)
+        notarized_chains = []
+        iterated_epochs = []
 
-        while latest_epoch >= 0:
-            block = self.chain[latest_epoch]
-            if block.get_status() == BlockStatus.NOTARIZED:
-                break
-            latest_epoch -= 1
-
+        # First iteration: start chain (from the end) with notarized block
+        # with highest epoch number
+        # -------------------------------------------------------------------
+        # Further iterations: start chain (from the end) with notarized block
+        # that was not present in other notarized chains (fork chain)
         while True:
-            parent_epoch = block.get_parent_epoch()
-            if parent_epoch != None:
-                parent_block = self.chain[parent_epoch]
-                if block.is_child(parent_block) and block.get_status() == BlockStatus.NOTARIZED:
-                    self.longest_notarized_chain.append(block)
-                    block = parent_block
-                else:
+            while latest_epoch >= 0:
+                block = self.chain[latest_epoch]
+                if block.get_status() == BlockStatus.NOTARIZED and latest_epoch not in iterated_epochs:
                     break
-            else:
-                self.longest_notarized_chain.append(block)
+                latest_epoch -= 1
+            
+            # Exit loop after iterating through every epoch number
+            if latest_epoch < 0:
                 break
+            
+            chain = []
+            end_chain = False
+            while not end_chain:
+                parent_epoch = block.get_parent_epoch()
+                if parent_epoch != None:
+                    parent_block = self.chain[parent_epoch]
+                    if block.is_child(parent_block) and block.get_status() == BlockStatus.NOTARIZED:
+                        chain.append(block)
+                        iterated_epochs.append(block.get_epoch())
+                        block = parent_block
+                    else:
+                        end_chain = True
+                else:
+                    chain.append(block)
+                    iterated_epochs.append(block.get_epoch())
+                    end_chain = True
+            notarized_chains.append(chain)
+
+        return notarized_chains
 
 
     def get_longest_notarized_block(self):
