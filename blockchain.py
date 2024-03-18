@@ -1,3 +1,4 @@
+import random
 from blockstatus import BlockStatus
 from block import Block
 
@@ -12,6 +13,7 @@ class Blockchain:
         """
         self.chain = {}
         self.longest_notarized_chain = []
+        random.seed(0)
 
 
     def add_block(self, block):
@@ -49,7 +51,18 @@ class Blockchain:
 
 
     def update_longest_notarized_chain(self):
-        pass
+        notarized_chains = self.get_notarized_chains()
+        if len(notarized_chains) == 1:
+            self.longest_notarized_chain = notarized_chains[0]
+        else:
+            notarized_chains_length = [len(chain) for chain in notarized_chains]
+            longest_chain_length = max(notarized_chains_length)
+            if notarized_chains_length.count(longest_chain_length) == 1:
+                longest_chain_index = notarized_chains.index(longest_chain_length)
+                self.longest_notarized_chain = notarized_chains[longest_chain_index]
+            else:
+                notarized_chains = list(filter(lambda x: len(x) == longest_chain_length, notarized_chains))
+                self.longest_notarized_chain = random.choice(notarized_chains)
 
 
     def get_notarized_chains(self):
