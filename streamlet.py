@@ -248,3 +248,12 @@ class Streamlet:
                             logging.debug(f"New vote for past epoch (epoch: {blockchain_block.get_epoch()} | voter: {sender})\n\n")
                             if blockchain_block.get_status() == BlockStatus.PROPOSED and len(blockchain_block.get_votes()) >= 2*self.f:
                                 blockchain_block.notarize()
+
+
+    def send_echo(self, message):
+        echo_message = Message(
+            MessageType.ECHO,
+            message,
+            self.server_id
+        ).to_bytes()
+        self.communication.send(echo_message)
