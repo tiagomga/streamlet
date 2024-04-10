@@ -230,6 +230,12 @@ class Streamlet:
 
 
     def send_echo(self, message):
+        """
+        Send echo message.
+
+        Args:
+            message (Message): message to be echoed
+        """
         echo_message = Message(
             MessageType.ECHO,
             message,
