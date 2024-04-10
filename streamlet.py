@@ -86,19 +86,6 @@ class Streamlet:
         # Get proposed block for the current epoch
         proposer_id, proposed_block = self.get_message(start_time)
 
-        # Echo received proposal
-        message = Message(
-            MessageType.PROPOSE,
-            proposed_block.to_bytes(include_signature=True),
-            proposer_id
-        )
-        echo_message = Message(
-            MessageType.ECHO,
-            message,
-            self.server_id
-        ).to_bytes()
-        self.communication.send(echo_message)
-
         # Check if the proposer's ID matches with the leader's ID
         if proposer_id != leader_id:
             raise Exception
@@ -149,18 +136,6 @@ class Streamlet:
             if valid_vote:
                 num_votes += 1
                 proposed_block.add_vote((sender, vote))
-            # Echo received vote
-            message = Message(
-                MessageType.VOTE,
-                vote.to_bytes(include_signature=True),
-                sender
-            )
-            echo_message = Message(
-                MessageType.ECHO,
-                message,
-                self.server_id
-            ).to_bytes()
-            self.communication.send(echo_message)
         
         # Check if there are sufficient valid votes; then, notarize the proposed block
         if num_votes == 2*self.f:
@@ -225,6 +200,8 @@ class Streamlet:
                         self.blockchain.get_block(block_epoch)
                     except KeyError:
                         logging.debug(f"New proposal (epoch: {self.epoch.value} | proposer: {sender})\n\n")
+                        # Echo received proposal
+                        self.send_echo(message)
                         return (sender, block)
             
             # Return vote message if vote is new to the proposed block
@@ -237,6 +214,8 @@ class Streamlet:
                         repeated_vote = True
                         break
                 if not repeated_vote:
+                    # Echo received vote
+                    self.send_echo(message)
                     if block_epoch == self.epoch.value:
                         logging.debug(f"New vote for current epoch (epoch: {self.epoch.value} | voter: {sender})\n\n")
                         return (sender, block)
