@@ -23,6 +23,7 @@ class Streamlet:
         self.private_key = private_key
         self.servers_public_key = servers_public_key
         self.epoch = Value("i", 0)
+        self.epoch_duration = 5
         self.f = f
         self.num_replicas = 3*f + 1
         self.blockchain = Blockchain()
@@ -200,15 +201,15 @@ class Streamlet:
                 end_time = time.time()
                 epoch_duration = end_time - start_time
                 logging.info(f"Blockchain - {self.blockchain}\n\n")
-                if epoch_duration < 5:
-                    time.sleep(5 - epoch_duration)
+                if epoch_duration < self.epoch_duration:
+                    time.sleep(self.epoch_duration - epoch_duration)
             except (Empty, TimeoutError):
                 logging.debug("Epoch ended abruptly.")
 
 
     def get_message(self, start_time):
         while True:
-            remaining_time = 5 - (time.time() - start_time)
+            remaining_time = self.epoch_duration - (time.time() - start_time)
             if remaining_time <= 0:
                 raise TimeoutError
             message = self.communication.get_message(remaining_time)
