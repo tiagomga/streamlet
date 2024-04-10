@@ -4,6 +4,7 @@ import logging
 from queue import Empty
 from multiprocessing import Value
 from block import Block
+from blockstatus import BlockStatus
 from message import Message
 from messagetype import MessageType
 from blockchain import Blockchain
@@ -244,3 +245,5 @@ class Streamlet:
                         if valid_block:
                             blockchain_block.add_vote((sender, block))
                             logging.debug(f"New vote for past epoch (epoch: {blockchain_block.get_epoch()} | voter: {sender})\n\n")
+                            if blockchain_block.get_status() == BlockStatus.PROPOSED and len(blockchain_block.get_votes()) >= 2*self.f:
+                                blockchain_block.notarize()
