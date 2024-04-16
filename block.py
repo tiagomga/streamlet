@@ -90,6 +90,10 @@ class Block:
         return self.signature
 
 
+    def set_signature(self, signature):
+        self.signature = signature
+
+
     def set_parent_epoch(self, parent_epoch):
         """
         Set parent block's epoch.
