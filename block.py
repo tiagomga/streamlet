@@ -86,6 +86,10 @@ class Block:
         return self.votes
 
 
+    def get_signature(self):
+        return self.signature
+
+
     def set_parent_epoch(self, parent_epoch):
         """
         Set parent block's epoch.
