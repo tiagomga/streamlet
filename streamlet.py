@@ -67,6 +67,15 @@ class Streamlet:
         # Sign the block
         proposed_block.sign(self.private_key)
 
+        # Add leader's vote to the proposed block
+        vote = Block(
+            proposed_block.get_epoch(),
+            None,
+            proposed_block.get_parent_hash()
+        )
+        vote.set_signature(proposed_block.get_signature())
+        proposed_block.add_vote((self.server_id, vote))
+
         # Add block to server's blockchain
         self.blockchain.add_block(proposed_block)
 
@@ -101,6 +110,15 @@ class Streamlet:
         if not valid_block:
             raise Exception
         
+        # Add leader's vote to the proposed block
+        leader_vote = Block(
+            proposed_block.get_epoch(),
+            None,
+            proposed_block.get_parent_hash()
+        )
+        leader_vote.set_signature(proposed_block.get_signature())
+        proposed_block.add_vote((proposer_id, leader_vote))
+        
         # Create vote for the proposed block using server's private key
         _vote = proposed_block.create_vote(self.private_key)
         proposed_block.add_vote((self.server_id, _vote))
@@ -128,7 +146,7 @@ class Streamlet:
 
         # For every vote, check its signature validity
         # If it is valid, add vote to the proposed block
-        num_votes = 0
+        num_votes = len(proposed_block.get_votes())
         for i in range(2*self.f):
             sender, vote = self.get_message(start_time)
             public_key = self.servers_public_key[sender]
@@ -138,7 +156,7 @@ class Streamlet:
                 proposed_block.add_vote((sender, vote))
         
         # Check if there are sufficient valid votes; then, notarize the proposed block
-        if num_votes == 2*self.f:
+        if num_votes >= 2*self.f+1:
             proposed_block.notarize()
 
 
@@ -225,7 +243,7 @@ class Streamlet:
                         if valid_block:
                             blockchain_block.add_vote((sender, block))
                             logging.debug(f"New vote for past epoch (epoch: {blockchain_block.get_epoch()} | voter: {sender})\n\n")
-                            if blockchain_block.get_status() == BlockStatus.PROPOSED and len(blockchain_block.get_votes()) >= 2*self.f:
+                            if blockchain_block.get_status() == BlockStatus.PROPOSED and len(blockchain_block.get_votes()) >= 2*self.f+1:
                                 blockchain_block.notarize()
 
 
