@@ -1,3 +1,4 @@
+import os
 import rsa
 import pickle
 import json
@@ -232,7 +233,7 @@ class Block:
         self.status = BlockStatus.FINALIZED
 
 
-    def write(self, filename="blockchain"):
+    def write(self, filename=f"Desktop/blockchain_{os.getpid()}"):
         """
         Write block to a file.
 
