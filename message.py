@@ -41,7 +41,7 @@ class Message:
         Get quorum certificate for the freshest notarized block.
 
         Returns:
-            Certificate: quorum certificate
+            tuple: quorum certificate
         """
         return self.certificate
 
