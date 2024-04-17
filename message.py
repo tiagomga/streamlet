@@ -5,9 +5,10 @@ class Message:
     Class that sets the structure of a message.
     """
 
-    def __init__(self, type, content, sender_id):
+    def __init__(self, type, content, sender_id, certificate=None):
         self.type = type
         self.content = content
+        self.certificate = certificate
         self.sender_id = sender_id
 
 
@@ -33,6 +34,16 @@ class Message:
             int: ID of the sender
         """
         return self.sender_id
+
+
+    def get_certificate(self):
+        """
+        Get quorum certificate for the freshest notarized block.
+
+        Returns:
+            Certificate: quorum certificate
+        """
+        return self.certificate
 
 
     def to_bytes(self):
@@ -66,4 +77,4 @@ class Message:
         Returns:
             str: string representation of Message
         """
-        return f"({self.type}, {self.content}, {self.sender_id})"
+        return f"({self.type}, {self.content}, {self.certificate}, {self.sender_id})"
