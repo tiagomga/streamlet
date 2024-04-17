@@ -1,8 +1,9 @@
 import rsa
 import time
-from communicationsystem import CommunicationSystem
 from message import Message
 from streamlet import Streamlet
+from messagetype import MessageType
+from communicationsystem import CommunicationSystem
 
 class Server:
 
@@ -26,7 +27,7 @@ class Server:
         """
         Exchange public keys between all servers.
         """
-        public_key = Message(None, self.public_key, self.id).to_bytes()
+        public_key = Message(MessageType.PK_EXCHANGE, self.public_key, self.id).to_bytes()
         self.communication.send(public_key)
         self.servers_public_key = self.communication.get_public_keys()
         self.servers_public_key[self.id] = self.public_key
