@@ -8,3 +8,4 @@ class MessageType(Enum):
     PROPOSE = 1
     VOTE = 2
     ECHO = 3
+    PK_EXCHANGE = 4
