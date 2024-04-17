@@ -54,14 +54,14 @@ class Streamlet:
         # requests = get_requests()
 
         # Get latest block from the longest notarized chain
-        latest_notarized_block = self.blockchain.get_longest_notarized_block()
+        freshest_notarized_block = self.blockchain.get_freshest_notarized_block()
 
         # Create block proposal
         proposed_block = Block(
             self.epoch.value,
             [f"request {self.epoch.value}"],
-            latest_notarized_block.get_hash(),
-            latest_notarized_block.get_epoch()
+            freshest_notarized_block.get_hash(),
+            freshest_notarized_block.get_epoch()
         )
 
         # Sign the block
@@ -103,10 +103,10 @@ class Streamlet:
         leader_public_key = self.servers_public_key[leader_id]
 
         # Get latest block from the longest notarized chain
-        longest_notarized_block = self.blockchain.get_longest_notarized_block()
+        freshest_notarized_block = self.blockchain.get_freshest_notarized_block()
 
         # Check if the proposed block is valid
-        valid_block = proposed_block.check_validity(leader_public_key, self.epoch.value, longest_notarized_block)
+        valid_block = proposed_block.check_validity(leader_public_key, self.epoch.value, freshest_notarized_block)
         if not valid_block:
             raise Exception
         
@@ -124,7 +124,7 @@ class Streamlet:
         proposed_block.add_vote((self.server_id, _vote))
 
         # Add proposed block to server's blockchain
-        proposed_block.set_parent_epoch(longest_notarized_block.get_epoch())
+        proposed_block.set_parent_epoch(freshest_notarized_block.get_epoch())
         self.blockchain.add_block(proposed_block)
 
         # Send vote to every server participating in the protocol
@@ -165,7 +165,7 @@ class Streamlet:
         Finalize the notarized chain up to the second of the three blocks,
         after observing three adjacent blocks with consecutive epochs.
         """
-        if self.epoch.value > 2:
+        if self.epoch.value > 1:
             finalized_blocks = self.blockchain.finalize()
             # Execute clients' transactions
             # if finalized_blocks:
