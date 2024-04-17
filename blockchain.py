@@ -58,7 +58,7 @@ class Blockchain:
             notarized_chains_length = [len(chain) for chain in notarized_chains]
             longest_chain_length = max(notarized_chains_length)
             if notarized_chains_length.count(longest_chain_length) == 1:
-                longest_chain_index = notarized_chains.index(longest_chain_length)
+                longest_chain_index = notarized_chains_length.index(longest_chain_length)
                 self.longest_notarized_chain = notarized_chains[longest_chain_index]
             else:
                 notarized_chains = list(filter(lambda x: len(x) == longest_chain_length, notarized_chains))
