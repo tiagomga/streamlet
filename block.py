@@ -241,7 +241,7 @@ class Block:
         self.status = BlockStatus.FINALIZED
 
 
-    def write(self, filename=f"Desktop/blockchain_{os.getpid()}"):
+    def write(self, filename=f"blockchain/blockchain_{os.getpid()}"):
         """
         Write block to a file.
 
