@@ -197,6 +197,14 @@ class Block:
         return block
 
 
+    @classmethod
+    def create_certificate(cls, block):
+        votes = []
+        for sender, vote in block.votes:
+            votes.append((block.epoch, sender, block.hash, vote.signature))
+        return votes
+
+
     def check_signature(self, public_key, content=None):
         """
         Check block's signature validity.
