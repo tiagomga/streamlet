@@ -79,11 +79,17 @@ class Streamlet:
         # Add block to server's blockchain
         self.blockchain.add_block(proposed_block)
 
+        # Create certificate for the freshest notarized block
+        certificate = None
+        if self.epoch.value > 1:
+            certificate = Block.create_certificate(freshest_notarized_block)
+
         # Send block proposal to every server participating in the protocol
         propose_message = Message(
             MessageType.PROPOSE,
             proposed_block.to_bytes(include_signature=True),
-            self.server_id
+            self.server_id,
+            certificate
         ).to_bytes()
         self.communication.send(propose_message)
 
@@ -93,7 +99,7 @@ class Streamlet:
         Vote for the proposed block.
         """
         # Get proposed block for the current epoch
-        proposer_id, proposed_block = self.get_message(start_time)
+        proposer_id, proposed_block, certificate = self.get_message(start_time)
 
         # Check if the proposer's ID matches with the leader's ID
         if proposer_id != leader_id:
@@ -208,6 +214,7 @@ class Streamlet:
             message = self.communication.get_message(remaining_time)
             sender = message.get_sender()
             block = Block.from_bytes(message.get_content())
+            certificate = message.get_certificate()
             block_epoch = block.get_epoch()
             logging.debug(f"Message type - {message.get_type()}\n\n")
 
@@ -220,7 +227,7 @@ class Streamlet:
                         logging.debug(f"New proposal (epoch: {self.epoch.value} | proposer: {sender})\n\n")
                         # Echo received proposal
                         self.send_echo(message)
-                        return (sender, block)
+                        return (sender, block, certificate)
             
             # Return vote message if vote is new to the proposed block
             elif message.get_type() == MessageType.VOTE:
