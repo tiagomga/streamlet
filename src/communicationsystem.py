@@ -63,10 +63,7 @@ class CommunicationSystem:
         data = socket.recv(2048)
         if data:
             message = Message.from_bytes(data)
-            if message.get_type() == MessageType.ECHO:
-                self.received_queue.put(message.get_content())
-            else:
-                self.received_queue.put(message)
+            self.received_queue.put(message)
             # Print received data
             logging.debug(f"Received message - {Message.from_bytes(data)}")
 

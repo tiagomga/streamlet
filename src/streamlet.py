@@ -237,8 +237,6 @@ class Streamlet:
                         self.blockchain.get_block(block_epoch)
                     except KeyError:
                         logging.debug(f"New proposal (epoch: {self.epoch.value} | proposer: {sender})\n\n")
-                        # Echo received proposal
-                        self.send_echo(message)
                         return (sender, block, certificate)
             
             # Return vote message if vote is new to the proposed block
@@ -251,8 +249,6 @@ class Streamlet:
                         repeated_vote = True
                         break
                 if not repeated_vote:
-                    # Echo received vote
-                    self.send_echo(message)
                     if block_epoch == self.epoch.value:
                         logging.debug(f"New vote for current epoch (epoch: {self.epoch.value} | voter: {sender})\n\n")
                         return (sender, block)
@@ -264,18 +260,3 @@ class Streamlet:
                             logging.debug(f"New vote for past epoch (epoch: {blockchain_block.get_epoch()} | voter: {sender})\n\n")
                             if blockchain_block.get_status() == BlockStatus.PROPOSED and len(blockchain_block.get_votes()) >= 2*self.f+1:
                                 blockchain_block.notarize()
-
-
-    def send_echo(self, message):
-        """
-        Send echo message.
-
-        Args:
-            message (Message): message to be echoed
-        """
-        echo_message = Message(
-            MessageType.ECHO,
-            message,
-            self.server_id
-        ).to_bytes()
-        self.communication.send(echo_message)
