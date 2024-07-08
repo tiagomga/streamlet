@@ -37,3 +37,8 @@ class Certificate:
                 except rsa.VerificationError:
                     continue
         return valid_votes >= min_votes
+
+
+    def to_bytes(self):
+        data = (self.epoch, self.block_hash, self.votes)
+        return pickle.dumps(data)
