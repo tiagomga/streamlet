@@ -42,3 +42,13 @@ class Certificate:
     def to_bytes(self):
         data = (self.epoch, self.block_hash, self.votes)
         return pickle.dumps(data)
+
+
+    @staticmethod
+    def from_bytes(bytes):
+        data = pickle.loads(bytes)
+        certificate = Certificate()
+        certificate.epoch = data[0]
+        certificate.block_hash = data[1]
+        certificate.votes = data[2]
+        return certificate
