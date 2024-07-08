@@ -8,6 +8,7 @@ from blockstatus import BlockStatus
 from message import Message
 from messagetype import MessageType
 from blockchain import Blockchain
+from certificate import Certificate
 
 class Streamlet:
     """
@@ -82,7 +83,8 @@ class Streamlet:
         # Create certificate for the freshest notarized block
         certificate = None
         if self.epoch.value > 1:
-            certificate = Block.create_certificate(freshest_notarized_block)
+            certificate = Certificate(freshest_notarized_block)
+            certificate = certificate.to_bytes()
 
         # Send block proposal to every server participating in the protocol
         propose_message = Message(
@@ -110,6 +112,14 @@ class Streamlet:
 
         # Get latest block from the longest notarized chain
         freshest_notarized_block = self.blockchain.get_freshest_notarized_block()
+
+        if certificate is not None:
+            if certificate.check_validity(freshest_notarized_block, self.servers_public_key, 2*self.f+1):
+                if not certificate.extends_freshest_chain(freshest_notarized_block):
+                    # Start recovery
+                    pass
+            else:
+                return
 
         # Check if the proposed block is valid
         valid_block = proposed_block.check_validity(leader_public_key, self.epoch.value, freshest_notarized_block)
@@ -215,6 +225,8 @@ class Streamlet:
             sender = message.get_sender()
             block = Block.from_bytes(message.get_content())
             certificate = message.get_certificate()
+            if certificate is not None:
+                certificate = Certificate.from_bytes(certificate)
             block_epoch = block.get_epoch()
             logging.debug(f"Message type - {message.get_type()}\n\n")
 
