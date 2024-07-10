@@ -7,7 +7,7 @@ from communicationsystem import CommunicationSystem
 
 class Server:
 
-    def __init__(self, servers_configuration, id):
+    def __init__(self, servers_configuration: dict, id: int) -> None:
         """
         Constructor.
 
@@ -23,7 +23,7 @@ class Server:
         self.servers_public_key = None
 
 
-    def exchange_public_keys(self):
+    def exchange_public_keys(self) -> None:
         """
         Exchange public keys between all servers.
         """
@@ -33,7 +33,7 @@ class Server:
         self.servers_public_key[self.id] = self.public_key
 
 
-    def run(self):
+    def run(self) -> None:
         """
         Start server execution.
         """
@@ -44,7 +44,7 @@ class Server:
         protocol.start()
 
 
-    def show_queue(self):
+    def show_queue(self) -> None:
         """
         Debug method to see what's in the queue.
         """

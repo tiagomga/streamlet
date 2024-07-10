@@ -3,18 +3,21 @@ import time
 import logging
 from queue import Empty
 from multiprocessing import Value
+from typing import NoReturn
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
 from block import Block
 from blockstatus import BlockStatus
 from message import Message
 from messagetype import MessageType
 from blockchain import Blockchain
+from communicationsystem import CommunicationSystem
 
 class Streamlet:
     """
     Streamlet protocol.
     """
 
-    def __init__(self, server_id, communication, private_key, servers_public_key, f=1):
+    def __init__(self, server_id: int, communication: CommunicationSystem, private_key: RSAPrivateKey, servers_public_key: dict, f: int = 1) -> None:
         """
         Constructor.
         """
@@ -31,7 +34,7 @@ class Streamlet:
         self.random_object.seed(0)
 
 
-    def start_new_epoch(self):
+    def start_new_epoch(self) -> None:
         """
         Start a new epoch.
         """
@@ -46,7 +49,7 @@ class Streamlet:
         self.finalize()
 
 
-    def propose(self):
+    def propose(self) -> None:
         """
         Propose a new block to the blockchain.
         """
@@ -88,7 +91,7 @@ class Streamlet:
         self.communication.send(propose_message)
 
 
-    def vote(self, leader_id, start_time):
+    def vote(self, leader_id: int, start_time: float) -> None:
         """
         Vote for the proposed block.
         """
@@ -136,7 +139,7 @@ class Streamlet:
         self.communication.send(vote_message)
 
 
-    def notarize(self, start_time):
+    def notarize(self, start_time: float) -> None:
         """
         Notarize block after getting 2f + 1 votes.
         """
@@ -160,7 +163,7 @@ class Streamlet:
             proposed_block.notarize()
 
 
-    def finalize(self):
+    def finalize(self) -> None:
         """
         Finalize the notarized chain up to the second of the three blocks,
         after observing three adjacent blocks with consecutive epochs.
@@ -172,7 +175,7 @@ class Streamlet:
             #     execute_transactions(finalized_blocks)
 
 
-    def get_epoch_leader(self):
+    def get_epoch_leader(self) -> int:
         """
         Get leader's id of the current epoch.
 
@@ -182,7 +185,7 @@ class Streamlet:
         return self.random_object.randrange(0, self.num_replicas)
 
 
-    def start(self):
+    def start(self) -> NoReturn:
         """
         Start Streamlet.
         """
@@ -200,7 +203,7 @@ class Streamlet:
                 logging.debug("Epoch ended abruptly.")
 
 
-    def get_message(self, start_time):
+    def get_message(self, start_time: float) -> tuple:
         while True:
             remaining_time = self.epoch_duration - (time.time() - start_time)
             if remaining_time <= 0:
@@ -247,7 +250,7 @@ class Streamlet:
                                 blockchain_block.notarize()
 
 
-    def send_echo(self, message):
+    def send_echo(self, message: Message) -> None:
         """
         Send echo message.
 

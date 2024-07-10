@@ -3,6 +3,8 @@ import rsa
 import pickle
 import json
 from hashlib import sha256
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey, RSAPublicKey
+from block import Block
 from blockstatus import BlockStatus
 
 class Block:
@@ -13,14 +15,15 @@ class Block:
     - Epoch number
     """
 
-    def __init__(self, epoch, transactions, parent_hash, parent_epoch=None):
+    def __init__(self, epoch: int, transactions: list, parent_hash: str, parent_epoch: int | None = None) -> None:
         """
         Constructor.
 
         Args:
             epoch (int): block's epoch
             transactions (list): clients' transactions
-            parent_hash (str): hash of the last notarized block
+            parent_hash (str): hash of the parent block
+            parent_epoch (int or None): epoch of the parent block
         """
         self.epoch = epoch
         self.transactions = transactions
@@ -32,7 +35,7 @@ class Block:
         self.status = BlockStatus.PROPOSED
 
 
-    def get_epoch(self):
+    def get_epoch(self) -> int:
         """
         Get block's epoch.
 
@@ -42,7 +45,7 @@ class Block:
         return self.epoch
 
 
-    def get_hash(self):
+    def get_hash(self) -> str:
         """
         Get block's hash.
 
@@ -52,7 +55,7 @@ class Block:
         return self.hash
 
 
-    def get_parent_hash(self):
+    def get_parent_hash(self) -> str:
         """
         Get block's parent hash.
 
@@ -62,7 +65,7 @@ class Block:
         return self.parent_hash
 
 
-    def get_status(self):
+    def get_status(self) -> BlockStatus:
         """
         Get block's status.
 
@@ -72,7 +75,7 @@ class Block:
         return self.status
 
 
-    def get_parent_epoch(self):
+    def get_parent_epoch(self) -> int:
         """
         Get parent block's epoch.
 
@@ -82,19 +85,19 @@ class Block:
         return self.parent_epoch
 
 
-    def get_votes(self):
+    def get_votes(self) -> list:
         return self.votes
 
 
-    def get_signature(self):
+    def get_signature(self) -> str:
         return self.signature
 
 
-    def set_signature(self, signature):
+    def set_signature(self, signature: str) -> None:
         self.signature = signature
 
 
-    def set_parent_epoch(self, parent_epoch):
+    def set_parent_epoch(self, parent_epoch: int) -> None:
         """
         Set parent block's epoch.
 
@@ -104,7 +107,7 @@ class Block:
         self.parent_epoch = parent_epoch
 
 
-    def is_parent(self, block):
+    def is_parent(self, block: Block) -> bool:
         """
         Check if this block is parent of the other block.
 
@@ -119,7 +122,7 @@ class Block:
         return False
 
 
-    def is_child(self, block):
+    def is_child(self, block: Block) -> bool:
         """
         Check if this block is child of the other block.
 
@@ -134,7 +137,7 @@ class Block:
         return False
 
 
-    def calculate_hash(self):
+    def calculate_hash(self) -> None:
         """
         Calculate block's hash.
         """
@@ -142,13 +145,13 @@ class Block:
         self.hash = sha256(block_bytes).hexdigest()
 
 
-    def check_validity(self, public_key, epoch, longest_notarized_block):
+    def check_validity(self, public_key: RSAPublicKey, epoch: int, longest_notarized_block: Block) -> bool:
         """
         Check block's validity by checking its signature, epoch and if it
         extends from the longest notarized chain.
 
         Args:
-            public_key (PublicKey): server's public key
+            public_key (RSAPublicKey): server's public key
             epoch (int): epoch number
             longest_notarized_block (Block): latest block from the longest
             notarized chain
@@ -173,19 +176,19 @@ class Block:
         return True
     
 
-    def sign(self, private_key):
+    def sign(self, private_key: RSAPrivateKey) -> None:
         """
         Sign block's data - used by epoch's leader.
 
         Args:
-            private_key (PrivateKey): server's private key
+            private_key (RSAPrivateKey): server's private key
         """
         block_bytes = self.to_bytes()
         signature = rsa.sign(block_bytes, private_key, 'SHA-256')
         self.signature = signature
 
 
-    def create_vote(self, private_key):
+    def create_vote(self, private_key: RSAPrivateKey) -> Block:
         block_bytes = self.to_bytes()
         signature = rsa.sign(block_bytes, private_key, 'SHA-256')
         block = Block(
@@ -197,12 +200,12 @@ class Block:
         return block
 
 
-    def check_signature(self, public_key, content=None):
+    def check_signature(self, public_key: RSAPublicKey, content: bytes | None = None) -> bool:
         """
         Check block's signature validity.
 
         Args:
-            public_key (PublicKey): server's public key
+            public_key (RSAPublicKey): server's public key
 
         Returns:
             bool: True, if and only if block's signature is valid, else return False
@@ -217,7 +220,7 @@ class Block:
             return False
 
 
-    def add_vote(self, vote):
+    def add_vote(self, vote: tuple) -> None:
         """
         Add vote to the block.
 
@@ -227,21 +230,21 @@ class Block:
         self.votes.append(vote)
 
 
-    def notarize(self):
+    def notarize(self) -> None:
         """
         Change status to notarized.
         """
         self.status = BlockStatus.NOTARIZED
 
 
-    def finalize(self):
+    def finalize(self) -> None:
         """
         Change status to finalized.
         """
         self.status = BlockStatus.FINALIZED
 
 
-    def write(self, filename=f"blockchain/blockchain_{os.getpid()}"):
+    def write(self, filename: str = f"blockchain/blockchain_{os.getpid()}") -> None:
         """
         Write block to a file.
 
@@ -257,7 +260,7 @@ class Block:
             blockchain.write(json.dumps(data) + ",")
 
 
-    def to_bytes(self, include_signature=False):
+    def to_bytes(self, include_signature: bool = False) -> bytes:
         """
         Convert Block to bytes.
 
@@ -276,7 +279,7 @@ class Block:
 
 
     @staticmethod
-    def from_bytes(bytes):
+    def from_bytes(bytes: bytes) -> Block:
         """
         Convert bytes to Block.
 
@@ -292,7 +295,7 @@ class Block:
         return block
 
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Represent Block in a string.
 
