@@ -7,4 +7,6 @@ class MessageType(Enum):
     REQUEST = 0
     PROPOSE = 1
     VOTE = 2
-    PK_EXCHANGE = 3
+    RECOVERY_REQUEST = 3
+    RECOVERY_REPLY = 4
+    PK_EXCHANGE = 5
