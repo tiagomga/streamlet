@@ -4,7 +4,6 @@ import pickle
 import json
 from hashlib import sha256
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey, RSAPublicKey
-from block import Block
 from blockstatus import BlockStatus
 
 class Block:
@@ -107,7 +106,7 @@ class Block:
         self.parent_epoch = parent_epoch
 
 
-    def is_parent(self, block: Block) -> bool:
+    def is_parent(self, block: 'Block') -> bool:
         """
         Check if this block is parent of the other block.
 
@@ -122,7 +121,7 @@ class Block:
         return False
 
 
-    def is_child(self, block: Block) -> bool:
+    def is_child(self, block: 'Block') -> bool:
         """
         Check if this block is child of the other block.
 
@@ -145,7 +144,7 @@ class Block:
         self.hash = sha256(block_bytes).hexdigest()
 
 
-    def check_validity(self, public_key: RSAPublicKey, epoch: int, longest_notarized_block: Block) -> bool:
+    def check_validity(self, public_key: RSAPublicKey, epoch: int, longest_notarized_block: 'Block') -> bool:
         """
         Check block's validity by checking its signature, epoch and if it
         extends from the longest notarized chain.
@@ -188,7 +187,7 @@ class Block:
         self.signature = signature
 
 
-    def create_vote(self, private_key: RSAPrivateKey) -> Block:
+    def create_vote(self, private_key: RSAPrivateKey) -> 'Block':
         block_bytes = self.to_bytes()
         signature = rsa.sign(block_bytes, private_key, 'SHA-256')
         block = Block(
@@ -279,7 +278,7 @@ class Block:
 
 
     @staticmethod
-    def from_bytes(bytes: bytes) -> Block:
+    def from_bytes(bytes: bytes) -> 'Block':
         """
         Convert bytes to Block.
 
