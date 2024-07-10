@@ -1,7 +1,10 @@
 import random
 import time
 import logging
+import sys
+import socket
 from queue import Empty
+from multiprocessing import Process
 from multiprocessing import Value
 from block import Block
 from blockstatus import BlockStatus
@@ -20,6 +23,7 @@ class Streamlet:
         Constructor.
         """
         self.server_id = server_id
+        self.recovery_port = 15000
         self.communication = communication
         self.private_key = private_key
         self.servers_public_key = servers_public_key
@@ -117,7 +121,7 @@ class Streamlet:
             if certificate.check_validity(freshest_notarized_block, self.servers_public_key, 2*self.f+1):
                 if not certificate.extends_freshest_chain(freshest_notarized_block):
                     # Start recovery
-                    pass
+                    self.start_recovery_request(certificate.get_epoch())
             else:
                 return
 
@@ -260,3 +264,73 @@ class Streamlet:
                             logging.debug(f"New vote for past epoch (epoch: {blockchain_block.get_epoch()} | voter: {sender})\n\n")
                             if blockchain_block.get_status() == BlockStatus.PROPOSED and len(blockchain_block.get_votes()) >= 2*self.f+1:
                                 blockchain_block.notarize()
+            
+            # Prepare and send recovery reply in parallel
+            elif message.get_type() == MessageType.RECOVERY_REQUEST:
+                process = Process(target=self.start_recovery_reply, args=(message, self.blockchain))
+                process.start()
+
+
+    def start_recovery_reply(self, message, blockchain):
+        sender = message.get_sender()
+        epoch = Block.from_bytes(message.get_content()).get_epoch()
+        block = blockchain.get_block(epoch)
+
+        message = Message(
+            MessageType.RECOVERY_REPLY,
+            block.to_bytes(include_signature=True, include_votes=True),
+            self.server_id
+        ).to_bytes()
+
+        reply_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        reply_socket.connect('127.0.0.1', self.recovery_port+sender)
+        reply_socket.send(message)
+        reply_socket.close()
+        sys.exit(0)
+
+
+    def start_recovery_request(self, epoch):
+        block_request = Block(epoch, [], "")
+
+        message = Message(
+            MessageType.RECOVERY_REQUEST,
+            block_request.to_bytes(),
+            self.server_id
+        ).to_bytes()
+
+        servers_id = list(self.servers_public_key.keys())
+        servers_id.remove(self.server_id)
+        random_server = random.choice(servers_id)
+        servers_id.remove(random_server)
+        self.communication.send(message, random_server)
+        
+        recovery_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        recovery_socket.bind(("127.0.0.1", self.recovery_port+self.server_id))
+        recovery_socket.listen()
+
+        while True:
+            reply_socket, address = recovery_socket.accept()
+            data = reply_socket.recv(2048)
+            if data:
+                reply_message = Message.from_bytes(data)
+                if reply_message.get_type() == MessageType.RECOVERY_REPLY:
+                    missing_block = Block.from_bytes(reply_message.get_content())
+                    valid_votes = 0
+                    for sender, vote in missing_block.get_votes():
+                        if vote.check_signature(self.servers_public_key[sender], content=missing_block.to_bytes()):
+                            valid_votes += 1
+                    if valid_votes >= 2*self.f+1:
+                        missing_block.notarize()
+                        self.blockchain.add_block(missing_block)
+                        try:
+                            reply_socket.close()
+                            self.blockchain.get_block(missing_block.get_parent_epoch())
+                            break
+                        except KeyError:
+                            self.start_recovery_request(missing_block.get_parent_epoch())
+                random_server = random.choice(servers_id)
+                servers_id.remove(random_server)
+                self.communication.send(message, random_server)
+            reply_socket.close()
+
+        recovery_socket.close()
