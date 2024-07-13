@@ -28,4 +28,7 @@ def main():
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     multiprocessing.set_start_method("fork")
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        logging.error("Aborted execution.")

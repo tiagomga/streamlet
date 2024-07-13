@@ -90,11 +90,14 @@ class CommunicationSystem:
         """
         self.selector = selectors.DefaultSelector()
         self.selector.register(self.socket, selectors.EVENT_READ, self.accept)
-        while True:
-            events = self.selector.select()
-            for key, mask in events:
-                callback = key.data
-                callback(key.fileobj)
+        try:
+            while True:
+                events = self.selector.select()
+                for key, mask in events:
+                    callback = key.data
+                    callback(key.fileobj)
+        except KeyboardInterrupt:
+            self.selector.close()
 
 
     def start(self) -> None:
