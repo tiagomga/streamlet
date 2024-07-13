@@ -1,4 +1,5 @@
 import pickle
+from typing import Self
 from block import Block
 from messagetype import MessageType
 
@@ -7,7 +8,7 @@ class Message:
     Class that sets the structure of a message.
     """
 
-    def __init__(self, type: MessageType, content: Block | 'Message', sender_id: int) -> None:
+    def __init__(self, type: MessageType, content: Block | Self, sender_id: int) -> None:
         self.type = type
         self.content = content
         self.sender_id = sender_id
@@ -23,7 +24,7 @@ class Message:
         return self.type
 
 
-    def get_content(self) -> Block | 'Message':
+    def get_content(self) -> Block | Self:
         return self.content
 
 
@@ -48,7 +49,7 @@ class Message:
 
 
     @staticmethod
-    def from_bytes(bytes: bytes) -> 'Message':
+    def from_bytes(bytes: bytes) -> Self:
         """
         Convert bytes to Message.
 
