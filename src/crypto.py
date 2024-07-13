@@ -20,7 +20,7 @@ def generate_keys(key_size: int = 2048) -> tuple[rsa.RSAPublicKey, rsa.RSAPrivat
     return (public_key, private_key)
 
 
-def compute_hash(content: bytes) -> str:
+def calculate_hash(content: bytes) -> str:
     """
     Calculate hash of `content`.
 
