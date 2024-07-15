@@ -122,3 +122,16 @@ def serialize_public_key(public_key: rsa.RSAPublicKey) -> bytes:
         format=serialization.PublicFormat.SubjectPublicKeyInfo
     )
     return pem
+
+
+def load_public_key(serialized_key: bytes) -> rsa.RSAPublicKey:
+    """
+    Load `serialized_key`.
+
+    Args:
+        serialized_key (bytes): serialized public key
+
+    Returns:
+        rsa.RSAPublicKey: public key
+    """
+    return serialization.load_pem_public_key(serialized_key)
