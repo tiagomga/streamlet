@@ -196,6 +196,11 @@ class Block:
         return block
 
 
+    @classmethod
+    def check_vote(cls, vote: Self, proposed_block: Self, public_key: RSAPublicKey) -> bool:
+        return crypto.verify_signature(vote.signature, proposed_block.hash, public_key)
+
+
     def check_signature(self, public_key: RSAPublicKey) -> bool:
         """
         Check block's signature validity.

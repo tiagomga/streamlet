@@ -145,15 +145,13 @@ class Streamlet:
         """
         # Get proposed block for the current epoch from server's blockchain
         proposed_block = self.blockchain.get_block(self.epoch.value)
-        proposed_block_bytes = proposed_block.to_bytes()
 
         # For every vote, check its signature validity
         # If it is valid, add vote to the proposed block
         num_votes = len(proposed_block.get_votes())
         for i in range(2*self.f):
             sender, vote = self.get_message(start_time)
-            public_key = self.servers_public_key[sender]
-            valid_vote = vote.check_signature(public_key, content=proposed_block_bytes)
+            valid_vote = Block.check_vote(vote, proposed_block, self.servers_public_key[sender])
             if valid_vote:
                 num_votes += 1
                 proposed_block.add_vote((sender, vote))
@@ -241,8 +239,7 @@ class Streamlet:
                         logging.debug(f"New vote for current epoch (epoch: {self.epoch.value} | voter: {sender})\n\n")
                         return (sender, block)
                     else:
-                        public_key = self.servers_public_key[sender]
-                        valid_block = block.check_signature(public_key, content=blockchain_block.to_bytes())
+                        valid_block = Block.check_vote(block, blockchain_block, self.servers_public_key[sender])
                         if valid_block:
                             blockchain_block.add_vote((sender, block))
                             logging.debug(f"New vote for past epoch (epoch: {blockchain_block.get_epoch()} | voter: {sender})\n\n")
