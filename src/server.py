@@ -57,15 +57,3 @@ class Server:
         self.exchange_public_keys()
         protocol = Streamlet(self.id, self.communication, self.private_key, self.servers_public_key)
         protocol.start()
-
-
-    def show_queue(self) -> None:
-        """
-        Debug method to see what's in the queue.
-        """
-        result = []
-        while not self.communication.received_queue.empty():
-            result.append(self.communication.received_queue.get().__str__())
-        for i in result:
-            self.communication.received_queue.put(i)
-        print(result)
