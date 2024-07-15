@@ -2,13 +2,14 @@ import pickle
 from typing import Self
 from block import Block
 from messagetype import MessageType
+from certificate import Certificate
 
 class Message:
     """
     Class that sets the structure of a message.
     """
 
-    def __init__(self, type: MessageType, content: Block | Self, sender_id, certificate=None: int) -> None:
+    def __init__(self, type: MessageType, content: Block | Self, sender_id: int, certificate: Certificate = None) -> None:
         self.type = type
         self.content = content
         self.certificate = certificate
@@ -39,7 +40,7 @@ class Message:
         return self.sender_id
 
 
-    def get_certificate(self):
+    def get_certificate(self) -> Certificate:
         """
         Get quorum certificate for the freshest notarized block.
 
