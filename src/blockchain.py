@@ -23,7 +23,6 @@ class Blockchain:
         Args:
             block (Block): block to be added to the blockchain
         """
-        block.calculate_hash()
         self.chain[block.get_epoch()] = block
 
 
@@ -33,6 +32,7 @@ class Blockchain:
         """
         genesis_block = Block(0, None, None)
         genesis_block.notarize()
+        genesis_block.calculate_hash()
         self.add_block(genesis_block)
 
 

@@ -182,7 +182,8 @@ class Block:
         Args:
             private_key (RSAPrivateKey): server's private key
         """
-        self.signature = crypto.sign(self.to_bytes(), private_key)
+        self.calculate_hash()
+        self.signature = crypto.sign_hash(self.hash, private_key)
 
 
     def create_vote(self, private_key: RSAPrivateKey) -> Self:
