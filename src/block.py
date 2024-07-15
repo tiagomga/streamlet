@@ -1,10 +1,9 @@
 import os
-import rsa
 import pickle
 import json
 from typing import Self
-from hashlib import sha256
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey, RSAPublicKey
+import crypto
 from blockstatus import BlockStatus
 
 class Block:
@@ -141,8 +140,7 @@ class Block:
         """
         Calculate block's hash.
         """
-        block_bytes = self.to_bytes()
-        self.hash = sha256(block_bytes).hexdigest()
+        self.hash = crypto.calculate_hash(self.to_bytes())
 
 
     def check_validity(self, public_key: RSAPublicKey, epoch: int, longest_notarized_block: Self) -> bool:
@@ -160,6 +158,7 @@ class Block:
             bool: True, if and only if the block meets all conditions, else return False
         """
         # Check block's signature
+        self.calculate_hash()
         valid_signature = self.check_signature(public_key)
         if not valid_signature:
             return False
@@ -183,14 +182,11 @@ class Block:
         Args:
             private_key (RSAPrivateKey): server's private key
         """
-        block_bytes = self.to_bytes()
-        signature = rsa.sign(block_bytes, private_key, 'SHA-256')
-        self.signature = signature
+        self.signature = crypto.sign(self.to_bytes(), private_key)
 
 
     def create_vote(self, private_key: RSAPrivateKey) -> Self:
-        block_bytes = self.to_bytes()
-        signature = rsa.sign(block_bytes, private_key, 'SHA-256')
+        signature = crypto.sign(self.to_bytes(), private_key)
         block = Block(
             self.epoch,
             None,
@@ -200,7 +196,7 @@ class Block:
         return block
 
 
-    def check_signature(self, public_key: RSAPublicKey, content: bytes | None = None) -> bool:
+    def check_signature(self, public_key: RSAPublicKey) -> bool:
         """
         Check block's signature validity.
 
@@ -210,14 +206,7 @@ class Block:
         Returns:
             bool: True, if and only if block's signature is valid, else return False
         """
-        if content == None:
-            content = self.to_bytes()
-        try:
-            hash_algorithm = rsa.verify(content, self.signature, public_key)
-            if hash_algorithm == 'SHA-256':
-                return True
-        except rsa.VerificationError:
-            return False
+        return crypto.verify_signature(self.signature, self.hash, public_key)
 
 
     def add_vote(self, vote: tuple) -> None:

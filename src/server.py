@@ -1,5 +1,5 @@
-import rsa
 import time
+import crypto
 from message import Message
 from streamlet import Streamlet
 from messagetype import MessageType
@@ -19,7 +19,7 @@ class Server:
         self.id = id
         self.servers_configuration = servers_configuration
         self.communication = CommunicationSystem(id, servers_configuration)
-        self.public_key, self.private_key = rsa.newkeys(512)
+        self.public_key, self.private_key = crypto.generate_keys()
         self.servers_public_key = None
 
 
