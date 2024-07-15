@@ -111,22 +111,5 @@ class CommunicationSystem:
         receiver_process.start()
 
 
-    def get_public_keys(self) -> dict:
-        """
-        Get public keys from all servers.
-
-        Returns:
-            dict: dictionary with ID of the server as key and PublicKey as value
-        """
-        logging.info("Getting public keys from other servers...")
-        public_keys = {}
-        while len(public_keys) != 3:
-            message = self.received_queue.get()
-            sender = message.get_sender()
-            content = message.get_content()
-            public_keys[sender] = content
-        return public_keys
-
-
     def get_message(self, timeout: float | None) -> Message:
         return self.received_queue.get(timeout=timeout)
