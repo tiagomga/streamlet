@@ -7,7 +7,7 @@ class Blockchain:
     Class that contains the blockchain structure and its operations.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Constructor.
         """
@@ -16,28 +16,27 @@ class Blockchain:
         random.seed(0)
 
 
-    def add_block(self, block):
+    def add_block(self, block: Block) -> None:
         """
         Add block to the blockchain.
 
         Args:
-            epoch (int): block's epoch
             block (Block): block to be added to the blockchain
         """
-        block.calculate_hash()
         self.chain[block.get_epoch()] = block
 
 
-    def add_genesis_block(self):
+    def add_genesis_block(self) -> None:
         """
         Add genesis block to the blockchain.
         """
         genesis_block = Block(0, None, None)
         genesis_block.notarize()
+        genesis_block.calculate_hash()
         self.add_block(genesis_block)
 
 
-    def get_block(self, epoch):
+    def get_block(self, epoch: int) -> Block:
         """
         Get epoch's block from blockchain.
 
@@ -50,7 +49,7 @@ class Blockchain:
         return self.chain[epoch]
 
 
-    def update_freshest_notarized_chain(self):
+    def update_freshest_notarized_chain(self) -> None:
         notarized_chains = self.get_notarized_chains()
         if len(notarized_chains) == 1:
             self.freshest_notarized_chain = notarized_chains[0]
@@ -72,7 +71,7 @@ class Blockchain:
                 self.freshest_notarized_chain = freshest_chain
 
 
-    def get_notarized_chains(self):
+    def get_notarized_chains(self) -> list:
         latest_epoch = max(self.chain)
         notarized_chains = []
         iterated_epochs = []
@@ -114,7 +113,7 @@ class Blockchain:
         return notarized_chains
 
 
-    def get_freshest_notarized_block(self):
+    def get_freshest_notarized_block(self) -> Block:
         """
         Get latest block from blockchain's longest notarized chain.
 
@@ -125,7 +124,7 @@ class Blockchain:
         return self.freshest_notarized_chain[0]
 
 
-    def finalize(self):
+    def finalize(self) -> list:
         """
         Finalize the notarized chain up to the second of the three blocks,
         after observing three adjacent blocks with consecutive epochs.
@@ -160,7 +159,7 @@ class Blockchain:
         return finalized_blocks
 
 
-    def find_fork(self):
+    def find_fork(self) -> list:
         """
         Find forks in the blockchain.
 
@@ -189,7 +188,7 @@ class Blockchain:
         return fork_location
 
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Represent Blockchain in a string.
 
