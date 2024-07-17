@@ -1,5 +1,5 @@
-import rsa
 import pickle
+import crypto
 
 class Certificate:
     """
@@ -30,12 +30,8 @@ class Certificate:
         for sender, signature in self.votes:
             if sender not in iterated_senders:
                 iterated_senders.append(sender)
-                try:
-                    hash_algorithm = rsa.verify(block.to_bytes(), signature, public_keys[sender])
-                    if hash_algorithm == 'SHA-256':
-                        valid_votes += 1
-                except rsa.VerificationError:
-                    continue
+                if crypto.verify_signature(signature, block.get_hash(), public_keys[sender]):
+                    valid_votes += 1
         return valid_votes >= min_votes
 
 
