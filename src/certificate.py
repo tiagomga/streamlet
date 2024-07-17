@@ -20,6 +20,10 @@ class Certificate:
                 self.votes.append((sender, vote.get_signature()))
 
 
+    def get_epoch(self):
+        return self.epoch
+
+
     def extends_freshest_chain(self, block):
         return self.epoch == block.get_epoch() and self.block_hash == block.get_hash()
 
