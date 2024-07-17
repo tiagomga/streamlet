@@ -1,10 +1,7 @@
 import selectors
 import logging
-import time
 import socket
 from multiprocessing import Process, Queue
-from threading import Thread
-from block import Block
 from message import Message
 from messagetype import MessageType
 
