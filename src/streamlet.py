@@ -149,7 +149,8 @@ class Streamlet:
         # For every vote, check its signature validity
         # If it is valid, add vote to the proposed block
         num_votes = len(proposed_block.get_votes())
-        for i in range(2*self.f):
+        num_votes_left = 2*self.f+1 - num_votes
+        for i in range(num_votes_left):
             sender, vote = self.get_message(start_time)
             valid_vote = Block.check_vote(vote, proposed_block, self.servers_public_key[sender])
             if valid_vote:
