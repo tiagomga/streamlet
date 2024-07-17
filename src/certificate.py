@@ -24,13 +24,13 @@ class Certificate:
         return self.epoch == block.get_epoch() and self.block_hash == block.get_hash()
 
 
-    def check_validity(self, block, public_keys, min_votes):
+    def check_validity(self, public_keys, min_votes):
         valid_votes = 0
         iterated_senders = []
         for sender, signature in self.votes:
             if sender not in iterated_senders:
                 iterated_senders.append(sender)
-                if crypto.verify_signature(signature, block.get_hash(), public_keys[sender]):
+                if crypto.verify_signature(signature, self.block_hash, public_keys[sender]):
                     valid_votes += 1
         return valid_votes >= min_votes
 
