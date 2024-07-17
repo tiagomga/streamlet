@@ -1,10 +1,7 @@
 import selectors
 import logging
-import time
 import socket
 from multiprocessing import Process, Queue
-from threading import Thread
-from block import Block
 from message import Message
 from messagetype import MessageType
 
@@ -30,30 +27,41 @@ class CommunicationSystem:
         self.received_queue = Queue()
     
 
-    def send(self, message: Message, num_servers: int = 4) -> None:
+    def send(self, message: Message, server_id: int) -> None:
         """
-        Handles sending messages to all replicas.
+        Send `message` to server with `server_id`.
 
         Args:
             message (Message): message to send
-            num_servers (int): number of servers
+            server_id (int): id of receiving server
         """
-        # Establish connection with the receivers and send message
-        for i in range(num_servers):
-            if i != self.server_id:
-                receiver_info = self.configuration[i]
-                receiver_address = (receiver_info[0], receiver_info[1])
-                sender_socket = receiver_info[2]
-                try:
-                    sender_socket.send(message)
-                except OSError:
-                    sender_socket.connect(receiver_address)
-                    sender_socket.send(message)
-                except ConnectionRefusedError:
-                    # Handle refused connections
-                    pass
-    
-    
+        receiver_info = self.configuration[server_id]
+        receiver_address = (receiver_info[0], receiver_info[1])
+        sender_socket = receiver_info[2]
+        try:
+            sender_socket.send(message)
+        # Handle server disconnection
+        except BrokenPipeError:
+            logging.error(f"Server {server_id} disconnected.\n")
+            self.configuration.pop(server_id)
+        # Connect to server before sending data, if it is the first time
+        except OSError:
+            sender_socket.connect(receiver_address)
+            sender_socket.send(message)
+
+
+    def broadcast(self, message: Message) -> None:
+        """
+        Broadcast `message` to every server.
+
+        Args:
+            message (Message): message to broadcast
+        """
+        for id in list(self.configuration.keys()):
+            if id != self.server_id:
+                self.send(message, id)
+
+
     def receive(self, socket: socket.socket) -> None:
         """
         Handles receiving messages from all replicas.

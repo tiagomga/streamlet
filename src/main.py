@@ -1,3 +1,4 @@
+import os
 import sys
 import socket
 import logging
@@ -22,6 +23,9 @@ def main():
         server_id = int(sys.argv[1])
     except ValueError:
         sys.exit(1)
+    blockchain_directory = os.path.join(os.getcwd(), 'blockchain')
+    if not os.path.exists(blockchain_directory):
+        os.mkdir(blockchain_directory)
     server = Server(SERVERS_CONFIGURATION, server_id)
     server.run()
 
