@@ -69,7 +69,7 @@ class CommunicationSystem:
         Args:
             socket (Socket): socket for receiving data
         """
-        data = socket.recv(2048)
+        data = socket.recv(8192)
         if data:
             message = Message.from_bytes(data)
             self.received_queue.put(message)
