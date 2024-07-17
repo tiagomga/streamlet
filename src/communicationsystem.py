@@ -51,6 +51,12 @@ class CommunicationSystem:
 
 
     def broadcast(self, message: Message) -> None:
+        """
+        Broadcast `message` to every server.
+
+        Args:
+            message (Message): message to broadcast
+        """
         for id in list(self.configuration.keys()):
             if id != self.server_id:
                 self.send(message, id)
