@@ -255,7 +255,7 @@ class Block:
             blockchain.write(json.dumps(data) + ",")
 
 
-    def to_bytes(self, include_signature: bool = False) -> bytes:
+    def to_bytes(self, include_signature: bool = False, include_votes: bool = False) -> bytes:
         """
         Convert Block to bytes.
 
@@ -266,11 +266,12 @@ class Block:
         Returns:
             bytes: bytes from Block object
         """
+        data = [self.parent_hash, self.epoch, self.transactions]
         if include_signature:
-            data = (self.parent_hash, self.epoch, self.transactions, self.signature)
-        else:
-            data = (self.parent_hash, self.epoch, self.transactions)
-        return pickle.dumps(data)
+            data.append(self.signature)
+        if include_votes:
+            data.append(self.votes)
+        return pickle.dumps(tuple(data))
 
 
     @staticmethod
