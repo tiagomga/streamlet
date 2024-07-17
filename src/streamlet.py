@@ -88,7 +88,7 @@ class Streamlet:
             proposed_block.to_bytes(include_signature=True),
             self.server_id
         ).to_bytes()
-        self.communication.send(propose_message)
+        self.communication.broadcast(propose_message)
 
 
     def vote(self, leader_id: int, start_time: float) -> None:
@@ -136,7 +136,7 @@ class Streamlet:
             _vote.to_bytes(include_signature=True),
             self.server_id
         ).to_bytes()
-        self.communication.send(vote_message)
+        self.communication.broadcast(vote_message)
 
 
     def notarize(self, start_time: float) -> None:
@@ -260,4 +260,4 @@ class Streamlet:
             message,
             self.server_id
         ).to_bytes()
-        self.communication.send(echo_message)
+        self.communication.broadcast(echo_message)

@@ -34,7 +34,7 @@ class Server:
             crypto.serialize_public_key(self.public_key),
             self.id
         ).to_bytes()
-        self.communication.send(public_key)
+        self.communication.broadcast(public_key)
 
         # Receive and store other servers' public keys
         logging.info("Getting public keys from other servers...\n")
