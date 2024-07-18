@@ -288,6 +288,8 @@ class Block:
         data = pickle.loads(bytes)
         block = Block(data[1], data[2], data[0])
         block.signature = data[3]
+        if len(data) == 5:
+            block.votes = data[4]
         return block
 
 
