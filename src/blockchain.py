@@ -83,7 +83,11 @@ class Blockchain:
         # that was not present in other notarized chains (fork chain)
         while True:
             while latest_epoch >= 0:
-                block = self.chain[latest_epoch]
+                try:
+                    block = self.chain[latest_epoch]
+                except KeyError:
+                    latest_epoch -= 1
+                    continue
                 if block.get_status() == BlockStatus.NOTARIZED and latest_epoch not in iterated_epochs:
                     break
                 latest_epoch -= 1
