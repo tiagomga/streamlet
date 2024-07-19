@@ -292,8 +292,8 @@ class Streamlet:
         sys.exit(0)
 
 
-    def start_recovery_request(self, epoch):
-        logging.info("Initiating recovery request mechanism.\n")
+    def start_recovery_request(self, epoch, recovery_socket=None):
+        logging.info(f"Initiating recovery mechanism to request block from epoch {epoch}.\n")
         block_request = Block(epoch, [], "")
         
         message = Message(
@@ -302,15 +302,16 @@ class Streamlet:
             self.server_id
         ).to_bytes()
 
+        if recovery_socket is None:
+            recovery_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            recovery_socket.bind(("127.0.0.1", self.recovery_port+self.server_id))
+            recovery_socket.listen()
+
         servers_id = list(self.servers_public_key.keys())
         servers_id.remove(self.server_id)
         random_server = random.choice(servers_id)
         servers_id.remove(random_server)
         self.communication.send(message, random_server)
-
-        recovery_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        recovery_socket.bind(("127.0.0.1", self.recovery_port+self.server_id))
-        recovery_socket.listen()
 
         while True:
             reply_socket, address = recovery_socket.accept()
@@ -319,31 +320,29 @@ class Streamlet:
                 reply_message = Message.from_bytes(data)
                 if reply_message.get_type() == MessageType.RECOVERY_REPLY:
                     missing_block = Block.from_bytes(reply_message.get_content())
-                    missing_block.calculate_hash()
-                    valid_votes = 0
-                    for sender, vote in missing_block.get_votes():
-                        if Block.check_vote(vote, missing_block, self.servers_public_key[sender]):
-                            valid_votes += 1
-                    if valid_votes >= 2*self.f+1:
-                        missing_block.notarize()
-                        self.blockchain.add_block(missing_block)
-                        reply_socket.close()
-                        for epoch in range(self.epoch.value, 0, -1):
+                    if missing_block.get_epoch() == epoch:
+                        missing_block.calculate_hash()
+                        valid_votes = 0
+                        for sender, vote in missing_block.get_votes():
+                            if Block.check_vote(vote, missing_block, self.servers_public_key[sender]):
+                                valid_votes += 1
+                        if valid_votes >= 2*self.f+1:
+                            missing_block.notarize()
+                            self.blockchain.add_block(missing_block)
+                            reply_socket.close()
                             try:
-                                block = self.blockchain.get_block(epoch)
+                                parent_epoch = missing_block.get_parent_epoch()
+                                if parent_epoch < epoch:
+                                    parent_block = self.blockchain.get_block(parent_epoch)
+                                    if parent_block.is_parent(missing_block):
+                                        break
                             except KeyError:
-                                continue
-                            if block.is_parent(missing_block):
-                                missing_block.set_parent_epoch(block.get_epoch())
+                                self.start_recovery_request(parent_epoch, recovery_socket=recovery_socket)
                                 break
-                        if missing_block.get_parent_epoch() is None:
-                            self.start_recovery_request(missing_block.get_parent_epoch())
-                        else:
-                            break
-                random_server = random.choice(servers_id)
-                servers_id.remove(random_server)
-                self.communication.send(message, random_server)
             reply_socket.close()
+            random_server = random.choice(servers_id)
+            servers_id.remove(random_server)
+            self.communication.send(message, random_server)
 
         recovery_socket.close()
         logging.info(f"Block from epoch {epoch} was recovered successfully.\n")
