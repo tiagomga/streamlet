@@ -271,6 +271,7 @@ class Block:
             data.append(self.signature)
         if include_votes:
             data.append(self.votes)
+            data.append(self.parent_epoch)
         return pickle.dumps(tuple(data))
 
 
@@ -288,8 +289,9 @@ class Block:
         data = pickle.loads(bytes)
         block = Block(data[1], data[2], data[0])
         block.signature = data[3]
-        if len(data) == 5:
+        if len(data) == 6:
             block.votes = data[4]
+            block.parent_epoch = data[5]
         return block
 
 
