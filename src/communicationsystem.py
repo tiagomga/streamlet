@@ -2,6 +2,7 @@ import sys
 import selectors
 import logging
 import socket
+from typing import NoReturn
 from multiprocessing import Process, Queue
 from block import Block
 from message import Message
@@ -128,7 +129,7 @@ class CommunicationSystem:
         return self.received_queue.get(timeout=timeout)
 
 
-    def start_recovery_reply(self, message: Message, recovery_queue: Queue):
+    def start_recovery_reply(self, message: Message, recovery_queue: Queue) -> NoReturn:
         blockchain = None
         while not recovery_queue.empty():
             blockchain = recovery_queue.get()

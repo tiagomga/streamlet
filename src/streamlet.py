@@ -270,7 +270,7 @@ class Streamlet:
                                 blockchain_block.notarize()
 
 
-    def update_recovery_queue(self):
+    def update_recovery_queue(self) -> None:
         if self.recovery_queue.empty():
             self.recovery_queue.put(self.blockchain)
         else:
@@ -278,7 +278,7 @@ class Streamlet:
             self.recovery_queue.put(self.blockchain)
 
 
-    def start_recovery_request(self, epoch: int, recovery_socket: socket.socket | None = None):
+    def start_recovery_request(self, epoch: int, recovery_socket: socket.socket | None = None) -> None:
         logging.info(f"Initiating recovery mechanism to request block from epoch {epoch}.\n")
         block_request = Block(epoch, [], "")
         
