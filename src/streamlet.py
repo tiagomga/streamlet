@@ -1,11 +1,9 @@
 import random
 import time
 import logging
-import sys
 import socket
 from queue import Empty
-from multiprocessing import Process
-from multiprocessing import Value
+from multiprocessing import Value, Queue
 from typing import NoReturn
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
 from block import Block
@@ -21,15 +19,16 @@ class Streamlet:
     Streamlet protocol.
     """
 
-    def __init__(self, server_id: int, communication: CommunicationSystem, private_key: RSAPrivateKey, servers_public_key: dict, f: int = 1) -> None:
+    def __init__(self, server_id: int, communication: CommunicationSystem, private_key: RSAPrivateKey, servers_public_key: dict, recovery_queue: Queue, recovery_port: int, f: int = 1) -> None:
         """
         Constructor.
         """
         self.server_id = server_id
-        self.recovery_port = 15000
         self.communication = communication
         self.private_key = private_key
         self.servers_public_key = servers_public_key
+        self.recovery_queue = recovery_queue
+        self.recovery_port = recovery_port
         self.epoch = Value("i", 0)
         self.epoch_duration = 5
         self.f = f
@@ -44,6 +43,7 @@ class Streamlet:
         Start a new epoch.
         """
         start_time = time.time()
+        self.update_recovery_queue()
         self.epoch.value += 1
         epoch_leader = self.get_epoch_leader()
         if epoch_leader == self.server_id:
@@ -268,31 +268,17 @@ class Streamlet:
                             logging.debug(f"New vote for past epoch (epoch: {blockchain_block.get_epoch()} | voter: {sender})\n\n")
                             if blockchain_block.get_status() == BlockStatus.PROPOSED and len(blockchain_block.get_votes()) >= 2*self.f+1:
                                 blockchain_block.notarize()
-            
-            # Prepare and send recovery reply in parallel
-            elif message.get_type() == MessageType.RECOVERY_REQUEST:
-                process = Process(target=self.start_recovery_reply, args=(message, self.blockchain))
-                process.start()
 
 
-    def start_recovery_reply(self, message, blockchain):
-        sender = message.get_sender()
-        epoch = Block.from_bytes(message.get_content()).get_epoch()
-        block = blockchain.get_block(epoch)
-
-        message = Message(
-            MessageType.RECOVERY_REPLY,
-            block.to_bytes(include_signature=True, include_votes=True),
-            self.server_id
-        ).to_bytes()
-        reply_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        reply_socket.connect(('127.0.0.1', self.recovery_port+sender))
-        reply_socket.send(message)
-        reply_socket.close()
-        sys.exit(0)
+    def update_recovery_queue(self):
+        if self.recovery_queue.empty():
+            self.recovery_queue.put(self.blockchain)
+        else:
+            self.recovery_queue.get()
+            self.recovery_queue.put(self.blockchain)
 
 
-    def start_recovery_request(self, epoch, recovery_socket=None):
+    def start_recovery_request(self, epoch: int, recovery_socket: socket.socket | None = None):
         logging.info(f"Initiating recovery mechanism to request block from epoch {epoch}.\n")
         block_request = Block(epoch, [], "")
         
