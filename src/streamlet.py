@@ -285,6 +285,14 @@ class Streamlet:
 
 
     def start_recovery_request(self, epoch: int, recovery_socket: socket.socket | None = None) -> None:
+        """
+        Start recovery request.
+        Communicate with other servers to recover block from `epoch`.
+
+        Args:
+            epoch (int): epoch number
+            recovery_socket (socket.socket | None, optional): socket to perform recovery. Defaults to None.
+        """
         logging.info(f"Initiating recovery mechanism to request block from epoch {epoch}.\n")
         block_request = Block(epoch, [], "")
         
