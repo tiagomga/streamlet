@@ -52,6 +52,16 @@ class Certificate:
 
 
     def check_validity(self, public_keys: dict, min_votes: int) -> bool:
+        """
+        Check if the certificate's votes are valid.
+
+        Args:
+            public_keys (dict): dictionary containing servers' public keys
+            min_votes (int): minimum number of valid votes required to consider the certificate as valid
+
+        Returns:
+            bool: True, if and only if the certificate contains valid `min_votes` votes, else return False
+        """
         valid_votes = 0
         iterated_senders = []
         for sender, signature in self.votes:
