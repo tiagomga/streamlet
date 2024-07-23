@@ -130,6 +130,16 @@ class CommunicationSystem:
 
 
     def start_recovery_reply(self, message: Message, recovery_queue: Queue) -> NoReturn:
+        """
+        Start recovery reply.
+
+        Args:
+            message (Message): recovery request message
+            recovery_queue (Queue): queue that contains the latest version of the blockchain
+
+        Returns:
+            NoReturn: terminate process after sending the reply
+        """
         blockchain = None
         while not recovery_queue.empty():
             blockchain = recovery_queue.get()
