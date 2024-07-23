@@ -73,6 +73,12 @@ class Certificate:
 
 
     def to_bytes(self) -> bytes:
+        """
+        Convert Certificate to bytes.
+
+        Returns:
+            bytes: bytes from Certificate object.
+        """
         data = (self.epoch, self.block_hash, self.votes)
         return pickle.dumps(data)
 
