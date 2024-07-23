@@ -85,6 +85,15 @@ class Certificate:
 
     @staticmethod
     def from_bytes(bytes: bytes) -> Self:
+        """
+        Convert bytes to Certificate.
+
+        Args:
+            bytes (bytes): Certificate in serialized form
+
+        Returns:
+            Certificate: Certificate object from bytes
+        """
         data = pickle.loads(bytes)
         certificate = Certificate()
         certificate.epoch = data[0]
