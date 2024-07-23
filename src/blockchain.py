@@ -50,71 +50,34 @@ class Blockchain:
 
 
     def update_freshest_notarized_chain(self) -> None:
-        notarized_chains = self.get_notarized_chains()
-        if len(notarized_chains) == 1:
-            self.freshest_notarized_chain = notarized_chains[0]
-        else:
-            notarized_chains_length = [len(chain) for chain in notarized_chains]
-            longest_chain_length = max(notarized_chains_length)
-            if notarized_chains_length.count(longest_chain_length) == 1:
-                longest_chain_index = notarized_chains_length.index(longest_chain_length)
-                self.freshest_notarized_chain = notarized_chains[longest_chain_index]
-            else:
-                notarized_chains = list(filter(lambda x: len(x) == longest_chain_length, notarized_chains))
-                freshest_chain = notarized_chains[0]
-                freshest_block_epoch = freshest_chain[0].get_epoch()
-                for chain in notarized_chains:
-                    block_epoch = chain[0].get_epoch()
-                    if block_epoch > freshest_block_epoch:
-                        freshest_chain = chain
-                        freshest_block_epoch = block_epoch
-                self.freshest_notarized_chain = freshest_chain
-
-
-    def get_notarized_chains(self) -> list:
         latest_epoch = max(self.chain)
-        notarized_chains = []
-        iterated_epochs = []
+        self.freshest_notarized_chain = []
 
-        # First iteration: start chain (from the end) with notarized block
-        # with highest epoch number
-        # -------------------------------------------------------------------
-        # Further iterations: start chain (from the end) with notarized block
-        # that was not present in other notarized chains (fork chain)
-        while True:
-            while latest_epoch >= 0:
-                try:
-                    block = self.chain[latest_epoch]
-                except KeyError:
-                    latest_epoch -= 1
-                    continue
-                if block.get_status() == BlockStatus.NOTARIZED and latest_epoch not in iterated_epochs:
-                    break
+        # Find notarized block with highest epoch number
+        while latest_epoch >= 0:
+            try:
+                block = self.chain[latest_epoch]
+            except KeyError:
                 latest_epoch -= 1
-            
-            # Exit loop after iterating through every epoch number
-            if latest_epoch < 0:
+                continue
+            if block.get_status() == BlockStatus.NOTARIZED:
                 break
-            
-            chain = []
-            end_chain = False
-            while not end_chain:
-                parent_epoch = block.get_parent_epoch()
-                if parent_epoch != None:
-                    parent_block = self.chain[parent_epoch]
-                    if block.is_child(parent_block) and block.get_status() == BlockStatus.NOTARIZED:
-                        chain.append(block)
-                        iterated_epochs.append(block.get_epoch())
-                        block = parent_block
-                    else:
-                        end_chain = True
+            latest_epoch -= 1
+        
+        # Build chain (from the end) starting with the notarized block with highest epoch number
+        build_chain = True
+        while build_chain:
+            parent_epoch = block.get_parent_epoch()
+            if parent_epoch is not None:
+                parent_block = self.chain[parent_epoch]
+                if block.get_status() == BlockStatus.NOTARIZED:
+                    self.freshest_notarized_chain.append(block)
+                    block = parent_block
                 else:
-                    chain.append(block)
-                    iterated_epochs.append(block.get_epoch())
-                    end_chain = True
-            notarized_chains.append(chain)
-
-        return notarized_chains
+                    build_chain = False
+            else:
+                self.freshest_notarized_chain.append(block)
+                build_chain = False
 
 
     def get_freshest_notarized_block(self) -> Block:
