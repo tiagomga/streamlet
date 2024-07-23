@@ -274,6 +274,9 @@ class Streamlet:
 
 
     def update_recovery_queue(self) -> None:
+        """
+        Update `recovery_queue` with the latest version of `blockchain`.
+        """
         if self.recovery_queue.empty():
             self.recovery_queue.put(self.blockchain)
         else:
