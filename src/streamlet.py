@@ -123,8 +123,11 @@ class Streamlet:
         if certificate is not None:
             if certificate.check_validity(self.servers_public_key, 2*self.f+1):
                 if not certificate.extends_freshest_chain(freshest_notarized_block):
-                    self.start_recovery_request(certificate.get_epoch())
-                    freshest_notarized_block = self.blockchain.get_freshest_notarized_block()
+                    if certificate.get_epoch() > freshest_notarized_block.get_epoch():
+                        self.start_recovery_request(certificate.get_epoch())
+                        freshest_notarized_block = self.blockchain.get_freshest_notarized_block()
+                    else:
+                        return
             else:
                 return
 
