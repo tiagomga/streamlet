@@ -39,6 +39,15 @@ class Certificate:
 
 
     def extends_freshest_chain(self, block: Block) -> bool:
+        """
+        Check if the certificate is for the freshest `block` (that is being extended).
+
+        Args:
+            block (Block): freshest block
+
+        Returns:
+            bool: True, if and only if the certificate is for the freshest block, else return False
+        """
         return self.epoch == block.get_epoch() and self.block_hash == block.get_hash()
 
 
