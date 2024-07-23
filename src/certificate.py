@@ -10,6 +10,12 @@ class Certificate:
     """
 
     def __init__(self, block: Block | None = None) -> None:
+        """
+        Constructor.
+
+        Args:
+            block (Block, optional): block to create certificate from. Defaults to None.
+        """
         if block is None:
             self.epoch = 0
             self.block_hash = ""
