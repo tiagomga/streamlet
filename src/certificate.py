@@ -1,5 +1,7 @@
 import pickle
+from typing import Self
 import crypto
+from block import Block
 
 class Certificate:
     """
@@ -7,7 +9,7 @@ class Certificate:
     quorum of votes.
     """
 
-    def __init__(self, block=None):
+    def __init__(self, block: Block | None = None) -> None:
         if block is None:
             self.epoch = 0
             self.block_hash = ""
@@ -20,15 +22,15 @@ class Certificate:
                 self.votes.append((sender, vote.get_signature()))
 
 
-    def get_epoch(self):
+    def get_epoch(self) -> int:
         return self.epoch
 
 
-    def extends_freshest_chain(self, block):
+    def extends_freshest_chain(self, block: Block) -> bool:
         return self.epoch == block.get_epoch() and self.block_hash == block.get_hash()
 
 
-    def check_validity(self, public_keys, min_votes):
+    def check_validity(self, public_keys: dict, min_votes: int) -> bool:
         valid_votes = 0
         iterated_senders = []
         for sender, signature in self.votes:
@@ -39,13 +41,13 @@ class Certificate:
         return valid_votes >= min_votes
 
 
-    def to_bytes(self):
+    def to_bytes(self) -> bytes:
         data = (self.epoch, self.block_hash, self.votes)
         return pickle.dumps(data)
 
 
     @staticmethod
-    def from_bytes(bytes):
+    def from_bytes(bytes: bytes) -> Self:
         data = pickle.loads(bytes)
         certificate = Certificate()
         certificate.epoch = data[0]
