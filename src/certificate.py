@@ -29,6 +29,12 @@ class Certificate:
 
 
     def get_epoch(self) -> int:
+        """
+        Get certificate's epoch.
+
+        Returns:
+            int: epoch number
+        """
         return self.epoch
 
 
