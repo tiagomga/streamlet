@@ -1,7 +1,6 @@
 import random
 import time
 import logging
-from queue import Empty
 from multiprocessing import Value
 from typing import NoReturn
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
@@ -197,7 +196,7 @@ class Streamlet:
                 logging.info(f"Blockchain - {self.blockchain}\n\n")
                 if epoch_duration < self.epoch_duration:
                     time.sleep(self.epoch_duration - epoch_duration)
-            except (Empty, TimeoutError):
+            except TimeoutError:
                 logging.info("Epoch ended abruptly: a timeout was triggered.\n")
             except ProtocolError:
                 logging.info("Epoch ended abruptly: invalid block.\n")

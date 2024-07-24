@@ -2,6 +2,7 @@ import selectors
 import logging
 import socket
 from multiprocessing import Process, Queue
+from queue import Empty
 from message import Message
 from messagetype import MessageType
 
@@ -120,4 +121,8 @@ class CommunicationSystem:
 
 
     def get_message(self, timeout: float | None) -> Message:
-        return self.received_queue.get(timeout=timeout)
+        try:
+            message = self.received_queue.get(timeout=timeout)
+            return message
+        except Empty:
+            raise TimeoutError
