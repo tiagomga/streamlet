@@ -233,7 +233,10 @@ class Streamlet:
             
             # Return vote message if vote is new to the proposed block
             elif message.get_type() == MessageType.VOTE:
-                blockchain_block = self.blockchain.get_block(block_epoch)
+                try:
+                    blockchain_block = self.blockchain.get_block(block_epoch)
+                except KeyError:
+                    continue
                 blockchain_block_votes = blockchain_block.get_votes()
                 repeated_vote = False
                 for vote in blockchain_block_votes:
