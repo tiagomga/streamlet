@@ -227,7 +227,7 @@ class Streamlet:
             except (Empty, TimeoutError):
                 logging.info("Epoch ended abruptly: a timeout was triggered.\n")
             except ProtocolError:
-                logging.info("Invalid block.")
+                logging.info("Epoch ended abruptly: invalid block.\n")
                 end_time = time.time()
                 epoch_duration = end_time - start_time
                 if epoch_duration < self.epoch_duration:
