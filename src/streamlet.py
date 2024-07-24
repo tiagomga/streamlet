@@ -198,7 +198,7 @@ class Streamlet:
                 if epoch_duration < self.epoch_duration:
                     time.sleep(self.epoch_duration - epoch_duration)
             except (Empty, TimeoutError):
-                logging.debug("Epoch ended abruptly.")
+                logging.info("Epoch ended abruptly: a timeout was triggered.\n")
             except ProtocolError:
                 logging.info("Invalid block.")
                 end_time = time.time()
