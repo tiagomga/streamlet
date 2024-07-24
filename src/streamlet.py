@@ -108,7 +108,7 @@ class Streamlet:
         # Check if the proposed block is valid
         valid_block = proposed_block.check_validity(leader_public_key, self.epoch.value, longest_notarized_block)
         if not valid_block:
-            raise Exception
+            raise ProtocolError
 
         # Add leader's vote to the proposed block
         leader_vote = Block(
@@ -199,6 +199,12 @@ class Streamlet:
                     time.sleep(self.epoch_duration - epoch_duration)
             except (Empty, TimeoutError):
                 logging.debug("Epoch ended abruptly.")
+            except ProtocolError:
+                logging.info("Invalid block.")
+                end_time = time.time()
+                epoch_duration = end_time - start_time
+                if epoch_duration < self.epoch_duration:
+                    time.sleep(self.epoch_duration - epoch_duration)
 
 
     def get_message(self, start_time: float) -> tuple:
@@ -263,3 +269,7 @@ class Streamlet:
             self.server_id
         ).to_bytes()
         self.communication.broadcast(echo_message)
+
+
+class ProtocolError(Exception):
+    pass
