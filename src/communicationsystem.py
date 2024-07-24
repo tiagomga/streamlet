@@ -5,6 +5,7 @@ import socket
 from typing import NoReturn
 from multiprocessing import Process, Queue
 from block import Block
+from queue import Empty
 from message import Message
 from messagetype import MessageType
 
@@ -126,7 +127,11 @@ class CommunicationSystem:
 
 
     def get_message(self, timeout: float | None) -> Message:
-        return self.received_queue.get(timeout=timeout)
+        try:
+            message = self.received_queue.get(timeout=timeout)
+            return message
+        except Empty:
+            raise TimeoutError
 
 
     def start_recovery_reply(self, message: Message, recovery_queue: Queue) -> NoReturn:
