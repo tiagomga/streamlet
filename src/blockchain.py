@@ -157,35 +157,6 @@ class Blockchain:
         return finalized_blocks
 
 
-    def find_fork(self) -> list:
-        """
-        Find forks in the blockchain.
-
-        Returns:
-            (str, int): tuple with the hash of the block where the fork
-            was created with the corresponding number of forks
-        """
-        # Count parent hashes in the blockchain (find parent hash "collision")
-        hash_count = {}
-        for block in self.chain.values():
-            if block.status != BlockStatus.NOTARIZED:
-                continue
-            parent_hash = block.get_parent_hash()
-            if parent_hash in hash_count:
-                hash_count[parent_hash] += 1
-            else:
-                hash_count[parent_hash] = 1
-        
-        # If there are parent hashes that have a count higher than 1,
-        # there is at least one fork
-        fork_location = []
-        for hash in hash_count.keys():
-            if hash_count[hash] > 1:
-                fork_location.append((hash, hash_count[hash]))
-        
-        return fork_location
-
-
     def __str__(self) -> str:
         """
         Represent Blockchain in a string.
