@@ -247,17 +247,33 @@ class Streamlet:
             block_epoch = block.get_epoch()
             logging.debug(f"Message type - {message.get_type()}\n\n")
 
-            # Return propose message if proposed block is new to the blockchain
+            # Current epoch - return propose message if proposed block is new to the blockchain
+            # Past epochs - add to the blockchain if proposed block is valid and new to the blockchain
             if message.get_type() == MessageType.PROPOSE:
-                if block_epoch == self.epoch.value:
+                if block_epoch <= self.epoch.value:
                     # Check if the proposer's ID matches the leader's ID
-                    if sender != self.epoch_leaders[self.epoch.value]:
+                    if sender != self.epoch_leaders[block_epoch]:
                         continue
                     try:
                         self.blockchain.get_block(block_epoch)
                     except KeyError:
-                        logging.debug(f"New proposal (epoch: {self.epoch.value} | proposer: {sender})\n\n")
-                        return (sender, block, certificate)
+                        if block_epoch == self.epoch.value:
+                            logging.debug(f"New proposal (epoch: {self.epoch.value} | proposer: {sender})\n\n")
+                            return (sender, block, certificate)
+                        else:
+                            logging.debug(f"Old proposal (epoch: {block_epoch} | proposer: {sender})\n\n")
+                            longest_notarized_block = self.blockchain.get_longest_notarized_block()
+                            valid_block = block.check_validity(self.servers_public_key[sender], block_epoch, longest_notarized_block)
+                            if valid_block:
+                                leader_vote = Block(
+                                    block.get_epoch(),
+                                    None,
+                                    block.get_parent_hash()
+                                )
+                                leader_vote.set_signature(block.get_signature())
+                                block.add_vote((sender, leader_vote))
+                                block.set_parent_epoch(longest_notarized_block.get_epoch())
+                                self.blockchain.add_block(block)
             
             # Return vote message if vote is new to the proposed block
             elif message.get_type() == MessageType.VOTE:
