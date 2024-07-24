@@ -31,6 +31,7 @@ class Streamlet:
         self.recovery_port = recovery_port
         self.epoch = Value("i", 0)
         self.epoch_duration = 5
+        self.epoch_leaders = [None]
         self.f = f
         self.num_replicas = 3*f + 1
         self.blockchain = Blockchain()
@@ -135,7 +136,7 @@ class Streamlet:
         valid_block = proposed_block.check_validity(leader_public_key, self.epoch.value, freshest_notarized_block)
         if not valid_block:
             raise Exception
-        
+
         # Add leader's vote to the proposed block
         leader_vote = Block(
             proposed_block.get_epoch(),
@@ -204,7 +205,9 @@ class Streamlet:
         Returns:
             int: leader's id
         """
-        return self.random_object.randrange(0, self.num_replicas)
+        leader = self.random_object.randrange(0, self.num_replicas)
+        self.epoch_leaders.append(leader)
+        return leader
 
 
     def start(self) -> NoReturn:
@@ -242,6 +245,9 @@ class Streamlet:
             # Return propose message if proposed block is new to the blockchain
             if message.get_type() == MessageType.PROPOSE:
                 if block_epoch == self.epoch.value:
+                    # Check if the proposer's ID matches the leader's ID
+                    if sender != self.epoch_leaders[self.epoch.value]:
+                        continue
                     try:
                         self.blockchain.get_block(block_epoch)
                     except KeyError:
