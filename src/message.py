@@ -72,7 +72,7 @@ class Message:
             bool: True if every verified attribute has the correct type, else return False
         """
         return type(self.type) is MessageType and \
-            (type(self.content) is Block or type(self.content) is Message) and \
+            (type(self.content) is Block or type(self.content) is Message or type(self.content) is bytes) and \
             type(self.sender_id) is int
 
 
