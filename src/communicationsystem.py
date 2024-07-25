@@ -3,6 +3,7 @@ import selectors
 import logging
 import socket
 from typing import NoReturn
+from pickle import PickleError
 from multiprocessing import Process, Queue
 from block import Block
 from queue import Empty
@@ -77,14 +78,20 @@ class CommunicationSystem:
         """
         data = socket.recv(8192)
         if data:
-            message = Message.from_bytes(data)
-            if message.get_type() == MessageType.RECOVERY_REQUEST:
-                recovery_process = Process(target=self.start_recovery_reply, args=(message, self.recovery_queue))
-                recovery_process.start()
-            else:
-                self.received_queue.put(message)
-            # Print received data
-            logging.debug(f"Received message - {Message.from_bytes(data)}")
+            try:
+                message = Message.from_bytes(data)
+                if message.check_type_integrity():
+                    if message.get_type() == MessageType.RECOVERY_REQUEST:
+                        recovery_process = Process(target=self.start_recovery_reply, args=(message, self.recovery_queue))
+                        recovery_process.start()
+                    else:
+                        self.received_queue.put(message)
+                    # Print received data
+                    logging.debug(f"Received message - {message}")
+                else:
+                    logging.error("Message attributes do not contain the correct type(s).\n")
+            except PickleError:
+                logging.error("Message cannot be deserialized.\n")
 
 
     def accept(self, socket: socket.socket) -> None:

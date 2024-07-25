@@ -4,6 +4,7 @@ import logging
 import socket
 from multiprocessing import Value, Queue
 from typing import NoReturn
+from pickle import PickleError
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
 from block import Block
 from blockstatus import BlockStatus
@@ -240,7 +241,14 @@ class Streamlet:
                 raise TimeoutError
             message = self.communication.get_message(remaining_time)
             sender = message.get_sender()
-            block = Block.from_bytes(message.get_content())
+            try:
+                block = Block.from_bytes(message.get_content())
+            except PickleError:
+                logging.error("Block cannot be deserialized.\n")
+                continue
+            if not block.check_type_integrity():
+                logging.error("Block attributes do not contain the correct type(s).\n")
+                continue
             certificate = message.get_certificate()
             if certificate is not None:
                 certificate = Certificate.from_bytes(certificate)
