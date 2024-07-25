@@ -45,7 +45,8 @@ class Message:
         Returns:
             bytes: bytes of Message object
         """
-        return pickle.dumps(self)
+        data = (self.type, self.content, self.sender_id)
+        return pickle.dumps(data)
 
 
     @staticmethod
@@ -59,7 +60,8 @@ class Message:
         Returns:
             Message: Message object from bytes
         """
-        return pickle.loads(bytes)
+        data = pickle.loads(bytes)
+        return Message(data[0], data[1], data[2])
 
 
     def __str__(self) -> str:
