@@ -291,7 +291,7 @@ class Streamlet:
         """
         echo_message = Message(
             MessageType.ECHO,
-            message,
+            message.to_bytes(),
             self.server_id
         ).to_bytes()
         self.communication.broadcast(echo_message)

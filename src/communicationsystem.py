@@ -77,7 +77,11 @@ class CommunicationSystem:
                 message = Message.from_bytes(data)
                 if message.check_type_integrity():
                     if message.get_type() == MessageType.ECHO:
-                        self.received_queue.put(message.get_content())
+                        nested_message = Message.from_bytes(message.get_content())
+                        if nested_message.check_type_integrity():
+                            self.received_queue.put(nested_message)
+                        else:
+                            logging.error("Message attributes do not contain the correct type(s).\n")
                     else:
                         self.received_queue.put(message)
                     # Print received data
