@@ -1,6 +1,7 @@
 import selectors
 import logging
 import socket
+from pickle import PickleError
 from multiprocessing import Process, Queue
 from queue import Empty
 from message import Message
@@ -72,13 +73,19 @@ class CommunicationSystem:
         """
         data = socket.recv(2048)
         if data:
-            message = Message.from_bytes(data)
-            if message.get_type() == MessageType.ECHO:
-                self.received_queue.put(message.get_content())
-            else:
-                self.received_queue.put(message)
-            # Print received data
-            logging.debug(f"Received message - {Message.from_bytes(data)}")
+            try:
+                message = Message.from_bytes(data)
+                if message.check_type_integrity():
+                    if message.get_type() == MessageType.ECHO:
+                        self.received_queue.put(message.get_content())
+                    else:
+                        self.received_queue.put(message)
+                    # Print received data
+                    logging.debug(f"Received message - {message}")
+                else:
+                    logging.error("Message attributes do not contain the correct type(s).\n")
+            except PickleError:
+                logging.error("Message cannot be deserialized.\n")
 
 
     def accept(self, socket: socket.socket) -> None:
