@@ -296,6 +296,12 @@ class Block:
 
 
     def check_type_integrity(self) -> bool:
+        """
+        Check if instance attributes have the correct type.
+
+        Returns:
+            bool: True if every verified attribute has the correct type, else return False
+        """
         return type(self.epoch) is int and type(self.transactions) is list and \
             type(self.parent_hash) is str and type(self.signature) is str
 
