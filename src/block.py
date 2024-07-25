@@ -1,6 +1,7 @@
 import os
 import pickle
 import json
+from types import NoneType
 from typing import Self
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey, RSAPublicKey
 import crypto
@@ -302,7 +303,8 @@ class Block:
         Returns:
             bool: True if every verified attribute has the correct type, else return False
         """
-        return type(self.epoch) is int and type(self.transactions) is list and \
+        return type(self.epoch) is int and \
+            (type(self.transactions) is list or type(self.transactions) is NoneType) and \
             type(self.parent_hash) is str and type(self.signature) is str
 
 
