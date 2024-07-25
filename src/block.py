@@ -295,6 +295,11 @@ class Block:
         return block
 
 
+    def check_type_integrity(self) -> bool:
+        return type(self.epoch) is int and type(self.transactions) is list and \
+            type(self.parent_hash) is str and type(self.signature) is str
+
+
     def __str__(self) -> str:
         """
         Represent Block in a string.

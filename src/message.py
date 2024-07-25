@@ -76,6 +76,12 @@ class Message:
         return Message(data[0], data[1], data[2])
 
 
+    def check_type_integrity(self) -> bool:
+        return type(self.type) is MessageType and \
+            (type(self.content) is Block or type(self.content) is Message) and \
+            type(self.sender_id) is int
+
+
     def __str__(self) -> str:
         """
         String representation of Message.
