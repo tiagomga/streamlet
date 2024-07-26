@@ -12,7 +12,7 @@ class Blockchain:
         Constructor.
         """
         self.chain = {}
-        self.longest_notarized_chain = []
+        self.longest_notarized_chains = []
         random.seed(0)
 
 
@@ -49,19 +49,18 @@ class Blockchain:
         return self.chain[epoch]
 
 
-    def update_longest_notarized_chain(self) -> None:
+    def update_longest_notarized_chains(self) -> None:
         notarized_chains = self.get_notarized_chains()
         if len(notarized_chains) == 1:
-            self.longest_notarized_chain = notarized_chains[0]
+            self.longest_notarized_chains = notarized_chains
         else:
             notarized_chains_length = [len(chain) for chain in notarized_chains]
             longest_chain_length = max(notarized_chains_length)
             if notarized_chains_length.count(longest_chain_length) == 1:
                 longest_chain_index = notarized_chains_length.index(longest_chain_length)
-                self.longest_notarized_chain = notarized_chains[longest_chain_index]
+                self.longest_notarized_chains = [notarized_chains[longest_chain_index]]
             else:
-                notarized_chains = list(filter(lambda x: len(x) == longest_chain_length, notarized_chains))
-                self.longest_notarized_chain = random.choice(notarized_chains)
+                self.longest_notarized_chains = list(filter(lambda x: len(x) == longest_chain_length, notarized_chains))
 
 
     def get_notarized_chains(self) -> list:
@@ -110,15 +109,18 @@ class Blockchain:
         return notarized_chains
 
 
-    def get_longest_notarized_block(self) -> Block:
+    def get_longest_notarized_blocks(self) -> list:
         """
-        Get latest block from blockchain's longest notarized chain.
+        Get latest block(s) from blockchain's longest notarized chain(s).
 
         Returns:
-            Block: latest notarized block
+            list: list of the latest notarized block(s)
         """
-        self.update_longest_notarized_chain()
-        return self.longest_notarized_chain[0]
+        self.update_longest_notarized_chains()
+        longest_notarized_blocks = []
+        for chain in self.longest_notarized_chains:
+            longest_notarized_blocks.append(chain[0])
+        return longest_notarized_blocks
 
 
     def finalize(self) -> list:
@@ -126,26 +128,27 @@ class Blockchain:
         Finalize the notarized chain up to the second of the three blocks,
         after observing three adjacent blocks with consecutive epochs.
         """
-        self.update_longest_notarized_chain()
+        self.update_longest_notarized_chains()
         finalized_blocks = []
         consecutive_epochs = 1
         
-        # Skip if notarized chain is too short for finalization
-        if len(self.longest_notarized_chain) <= 2:
+        # Skip if the only notarized chain is too short for finalization
+        longest_notarized_chain = self.longest_notarized_chains[0]
+        if len(self.longest_notarized_chains) != 1 or len(longest_notarized_chain) <= 2:
             return finalized_blocks
         
         # When blocks with consecutive epochs are all notarized
         else:
             for i in range(2):
-                block = self.longest_notarized_chain[i]
-                child_block = self.longest_notarized_chain[i+1]
+                block = longest_notarized_chain[i]
+                child_block = longest_notarized_chain[i+1]
                 if block.get_epoch() == child_block.get_epoch() + 1:
                     consecutive_epochs += 1
 
         # If there are 3 blocks with consecutive epochs,
         # finalize prefix chain up to the 2nd of the 3 blocks
         if consecutive_epochs == 3:
-            for block in self.longest_notarized_chain[1:]:
+            for block in longest_notarized_chain[1:]:
                 block.finalize()
                 finalized_blocks.append(block)
             finalized_blocks.reverse()

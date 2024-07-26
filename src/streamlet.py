@@ -57,15 +57,18 @@ class Streamlet:
         # Get clients' requests
         # requests = get_requests()
 
-        # Get latest block from the longest notarized chain
-        latest_notarized_block = self.blockchain.get_longest_notarized_block()
+        # Get latest block(s) from the longest notarized chain(s)
+        longest_notarized_blocks = self.blockchain.get_longest_notarized_blocks()
+
+        # Choose one of the longest chains to extend from (if there are more than 1)
+        longest_notarized_block = random.choice(longest_notarized_blocks)
 
         # Create block proposal
         proposed_block = Block(
             self.epoch.value,
             [f"request {self.epoch.value}"],
-            latest_notarized_block.get_hash(),
-            latest_notarized_block.get_epoch()
+            longest_notarized_block.get_hash(),
+            longest_notarized_block.get_epoch()
         )
 
         # Sign the block
@@ -102,11 +105,20 @@ class Streamlet:
         # Get leader's public key
         leader_public_key = self.servers_public_key[leader_id]
 
-        # Get latest block from the longest notarized chain
-        longest_notarized_block = self.blockchain.get_longest_notarized_block()
+        # Get latest block(s) from the longest notarized chain(s)
+        longest_notarized_blocks = self.blockchain.get_longest_notarized_blocks()
+
+        # Check if proposed block extends from one of the longest notarized chains
+        longest_notarized_block = None
+        for block in longest_notarized_blocks:
+            if proposed_block.is_child(block):
+                longest_notarized_block = block
+        
+        if longest_notarized_block is None:
+            raise ProtocolError
 
         # Check if the proposed block is valid
-        valid_block = proposed_block.check_validity(leader_public_key, self.epoch.value, longest_notarized_block)
+        valid_block = proposed_block.check_validity(leader_public_key, self.epoch.value)
         if not valid_block:
             raise ProtocolError
 
@@ -242,18 +254,23 @@ class Streamlet:
                             return (sender, block)
                         else:
                             logging.debug(f"Old proposal (epoch: {block_epoch} | proposer: {sender})\n\n")
-                            longest_notarized_block = self.blockchain.get_longest_notarized_block()
-                            valid_block = block.check_validity(self.servers_public_key[sender], block_epoch, longest_notarized_block)
-                            if valid_block:
-                                leader_vote = Block(
-                                    block.get_epoch(),
-                                    None,
-                                    block.get_parent_hash()
-                                )
-                                leader_vote.set_signature(block.get_signature())
-                                block.add_vote((sender, leader_vote))
-                                block.set_parent_epoch(longest_notarized_block.get_epoch())
-                                self.blockchain.add_block(block)
+                            longest_notarized_blocks = self.blockchain.get_longest_notarized_blocks()
+                            longest_notarized_block = None
+                            for _block in longest_notarized_blocks:
+                                if block.is_child(_block):
+                                    longest_notarized_block = block
+                            if longest_notarized_block:
+                                valid_block = block.check_validity(self.servers_public_key[sender], block_epoch)
+                                if valid_block:
+                                    leader_vote = Block(
+                                        block.get_epoch(),
+                                        None,
+                                        block.get_parent_hash()
+                                    )
+                                    leader_vote.set_signature(block.get_signature())
+                                    block.add_vote((sender, leader_vote))
+                                    block.set_parent_epoch(longest_notarized_block.get_epoch())
+                                    self.blockchain.add_block(block)
             
             # Return vote message if vote is new to the proposed block
             elif message.get_type() == MessageType.VOTE:
