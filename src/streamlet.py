@@ -219,15 +219,12 @@ class Streamlet:
             try:
                 start_time = time.time()
                 self.start_new_epoch()
-                end_time = time.time()
-                epoch_duration = end_time - start_time
-                logging.info(f"Blockchain - {self.blockchain}\n\n")
-                if epoch_duration < self.epoch_duration:
-                    time.sleep(self.epoch_duration - epoch_duration)
             except TimeoutError:
                 logging.info("Epoch ended abruptly: a timeout was triggered.\n")
             except ProtocolError:
                 logging.info("Epoch ended abruptly: invalid block.\n")
+            finally:
+                logging.info(f"Blockchain - {self.blockchain}\n\n")
                 end_time = time.time()
                 epoch_duration = end_time - start_time
                 if epoch_duration < self.epoch_duration:
