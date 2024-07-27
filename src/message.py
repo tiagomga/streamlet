@@ -12,8 +12,8 @@ class Message:
     def __init__(self, type: MessageType, content: Block | Self, sender_id: int, certificate: Certificate = None) -> None:
         self.type = type
         self.content = content
-        self.certificate = certificate
         self.sender_id = sender_id
+        self.certificate = certificate
 
 
     def get_type(self) -> MessageType:
@@ -57,7 +57,7 @@ class Message:
         Returns:
             bytes: bytes of Message object
         """
-        data = (self.type, self.content, self.sender_id)
+        data = (self.type, self.content, self.sender_id, self.certificate)
         return pickle.dumps(data)
 
 
@@ -73,7 +73,7 @@ class Message:
             Message: Message object from bytes
         """
         data = pickle.loads(bytes)
-        return Message(data[0], data[1], data[2])
+        return Message(data[0], data[1], data[2], data[3])
 
 
     def check_type_integrity(self) -> bool:
