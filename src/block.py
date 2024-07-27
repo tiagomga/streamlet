@@ -221,6 +221,12 @@ class Block:
 
 
     def add_leader_vote(self, server_id: int) -> None:
+        """
+        Add leader's vote using the existing signature.
+
+        Args:
+            server_id (int): id of the leader
+        """
         vote = Block(
             self.epoch,
             None,
