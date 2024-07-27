@@ -251,11 +251,11 @@ class Streamlet:
                             return (sender, block, certificate)
                         else:
                             logging.debug(f"Old proposal (epoch: {block_epoch} | proposer: {sender})\n\n")
-                            longest_notarized_block = self.blockchain.get_longest_notarized_block()
-                            valid_block = block.check_validity(self.servers_public_key[sender], block_epoch, longest_notarized_block)
+                            freshest_notarized_block = self.blockchain.get_freshest_notarized_block()
+                            valid_block = block.check_validity(self.servers_public_key[sender], block_epoch, freshest_notarized_block)
                             if valid_block:
                                 block.add_leader_vote(sender)
-                                block.set_parent_epoch(longest_notarized_block.get_epoch())
+                                block.set_parent_epoch(freshest_notarized_block.get_epoch())
                                 self.blockchain.add_block(block)
             
             # Return vote message if vote is new to the proposed block
