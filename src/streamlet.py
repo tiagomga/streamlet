@@ -77,13 +77,7 @@ class Streamlet:
         proposed_block.sign(self.private_key)
 
         # Add leader's vote to the proposed block
-        vote = Block(
-            proposed_block.get_epoch(),
-            None,
-            proposed_block.get_parent_hash()
-        )
-        vote.set_signature(proposed_block.get_signature())
-        proposed_block.add_vote((self.server_id, vote))
+        proposed_block.add_leader_vote(self.server_id)
 
         # Add block to server's blockchain
         self.blockchain.add_block(proposed_block)
@@ -138,13 +132,7 @@ class Streamlet:
             raise ProtocolError
 
         # Add leader's vote to the proposed block
-        leader_vote = Block(
-            proposed_block.get_epoch(),
-            None,
-            proposed_block.get_parent_hash()
-        )
-        leader_vote.set_signature(proposed_block.get_signature())
-        proposed_block.add_vote((proposer_id, leader_vote))
+        proposed_block.add_leader_vote(proposer_id)
         
         # Create vote for the proposed block using server's private key
         _vote = proposed_block.create_vote(self.private_key)
@@ -270,13 +258,7 @@ class Streamlet:
                             longest_notarized_block = self.blockchain.get_longest_notarized_block()
                             valid_block = block.check_validity(self.servers_public_key[sender], block_epoch, longest_notarized_block)
                             if valid_block:
-                                leader_vote = Block(
-                                    block.get_epoch(),
-                                    None,
-                                    block.get_parent_hash()
-                                )
-                                leader_vote.set_signature(block.get_signature())
-                                block.add_vote((sender, leader_vote))
+                                block.add_leader_vote(sender)
                                 block.set_parent_epoch(longest_notarized_block.get_epoch())
                                 self.blockchain.add_block(block)
             
