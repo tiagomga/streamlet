@@ -1,4 +1,5 @@
 import pickle
+from types import NoneType
 from typing import Self
 from block import Block
 from messagetype import MessageType
@@ -85,7 +86,8 @@ class Message:
         """
         return type(self.type) is MessageType and \
             (type(self.content) is Block or type(self.content) is Message or type(self.content) is bytes) and \
-            type(self.sender_id) is int
+            type(self.sender_id) is int and \
+            (type(self.certificate) is Certificate or type(self.certificate) is NoneType or type(self.certificate) is bytes)
 
 
     def __str__(self) -> str:
