@@ -181,6 +181,12 @@ class Block:
         self.signature = crypto.sign_hash(self.hash, private_key)
 
 
+    def extends_from(self, longest_notarized_blocks: list) -> Self | None:
+        for block in longest_notarized_blocks:
+            if self.is_child(block):
+                return block
+
+
     def create_vote(self, private_key: RSAPrivateKey) -> Self:
         signature = crypto.sign(self.to_bytes(), private_key)
         block = Block(
