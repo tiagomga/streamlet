@@ -104,10 +104,6 @@ class Streamlet:
         """
         # Get proposed block for the current epoch
         proposer_id, proposed_block, certificate = self.get_message(start_time)
-
-        # Check if the proposer's ID matches with the leader's ID
-        if proposer_id != leader_id:
-            raise Exception
         
         # Get leader's public key
         leader_public_key = self.servers_public_key[leader_id]
