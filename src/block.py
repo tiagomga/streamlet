@@ -182,6 +182,16 @@ class Block:
 
 
     def extends_from(self, longest_notarized_blocks: list) -> Self | None:
+        """
+        Check if block extends from any notarized block from `longest_notarized_blocks`.
+
+        Args:
+            longest_notarized_blocks (list): list of notarized block(s) from the longest chain(s)
+
+        Returns:
+            Self | None: notarized block if block extends from some block from \
+                `longest_notarized_blocks`, else return None
+        """
         for block in longest_notarized_blocks:
             if self.is_child(block):
                 return block
