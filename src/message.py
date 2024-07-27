@@ -84,10 +84,10 @@ class Message:
         Returns:
             bool: True if every verified attribute has the correct type, else return False
         """
-        return type(self.type) is MessageType and \
-            (type(self.content) is Block or type(self.content) is Message or type(self.content) is bytes) and \
-            type(self.sender_id) is int and \
-            (type(self.certificate) is Certificate or type(self.certificate) is NoneType or type(self.certificate) is bytes)
+        return isinstance(self.type, MessageType) and \
+            isinstance(self.content, (Block, Message, bytes)) and \
+            isinstance(self.sender_id, int) and \
+            isinstance(self.certificate, (Certificate, NoneType, bytes))
 
 
     def __str__(self) -> str:

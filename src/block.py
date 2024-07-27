@@ -303,9 +303,10 @@ class Block:
         Returns:
             bool: True if every verified attribute has the correct type, else return False
         """
-        return type(self.epoch) is int and \
-            (type(self.transactions) is list or type(self.transactions) is NoneType) and \
-            type(self.parent_hash) is str and type(self.signature) is str
+        return isinstance(self.epoch, int) and \
+            isinstance(self.transactions, (list, NoneType)) and \
+            isinstance(self.parent_hash, str) and \
+            isinstance(self.signature, str)
 
 
     def __str__(self) -> str:
