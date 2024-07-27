@@ -315,6 +315,7 @@ class Streamlet:
         if recovery_socket is None:
             recovery_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             recovery_socket.bind(("127.0.0.1", self.recovery_port+self.server_id))
+            recovery_socket.settimeout(1)
             recovery_socket.listen()
 
         servers_id = list(self.servers_public_key.keys())
@@ -324,8 +325,11 @@ class Streamlet:
         self.communication.send(message, random_server)
 
         while True:
-            reply_socket, address = recovery_socket.accept()
-            data = reply_socket.recv(8192)
+            try:
+                reply_socket, address = recovery_socket.accept()
+                data = reply_socket.recv(8192)
+            except TimeoutError:
+                data = None
             if data:
                 reply_message = Message.from_bytes(data)
                 if reply_message.get_type() == MessageType.RECOVERY_REPLY:
@@ -349,7 +353,7 @@ class Streamlet:
                             except KeyError:
                                 self.start_recovery_request(parent_epoch, recovery_socket=recovery_socket)
                                 break
-            reply_socket.close()
+                reply_socket.close()
             random_server = random.choice(servers_id)
             servers_id.remove(random_server)
             self.communication.send(message, random_server)
