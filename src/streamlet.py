@@ -103,10 +103,7 @@ class Streamlet:
         longest_notarized_blocks = self.blockchain.get_longest_notarized_blocks()
 
         # Check if proposed block extends from one of the longest notarized chains
-        longest_notarized_block = None
-        for block in longest_notarized_blocks:
-            if proposed_block.is_child(block):
-                longest_notarized_block = block
+        longest_notarized_block = proposed_block.extends_from(longest_notarized_blocks)
         
         if longest_notarized_block is None:
             raise ProtocolError
@@ -240,10 +237,7 @@ class Streamlet:
                         else:
                             logging.debug(f"Old proposal (epoch: {block_epoch} | proposer: {sender})\n\n")
                             longest_notarized_blocks = self.blockchain.get_longest_notarized_blocks()
-                            longest_notarized_block = None
-                            for _block in longest_notarized_blocks:
-                                if block.is_child(_block):
-                                    longest_notarized_block = block
+                            longest_notarized_block = block.extends_from(longest_notarized_blocks)
                             if longest_notarized_block:
                                 valid_block = block.check_validity(self.servers_public_key[sender], block_epoch)
                                 if valid_block:
