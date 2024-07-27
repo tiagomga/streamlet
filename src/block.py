@@ -220,6 +220,16 @@ class Block:
         self.votes.append(vote)
 
 
+    def add_leader_vote(self, server_id: int) -> None:
+        vote = Block(
+            self.epoch,
+            None,
+            self.parent_hash
+        )
+        vote.signature = self.signature
+        self.add_vote((server_id, vote))
+
+
     def notarize(self) -> None:
         """
         Change status to notarized.
