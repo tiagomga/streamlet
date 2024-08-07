@@ -202,6 +202,15 @@ class Block:
 
 
     def create_vote(self, private_key: RSAPrivateKey) -> Self:
+        """
+        Create a vote by signing the block with `private_key`.
+
+        Args:
+            private_key (RSAPrivateKey): private key
+
+        Returns:
+            Block: vote
+        """
         signature = crypto.sign(self.to_bytes(), private_key)
         block = Block(
             self.epoch,
