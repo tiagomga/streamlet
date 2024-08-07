@@ -64,6 +64,12 @@ class Blockchain:
 
 
     def get_notarized_chains(self) -> list:
+        """
+        Get every notarized chain.
+
+        Returns:
+            list: list of notarized chains
+        """
         latest_epoch = max(self.chain)
         notarized_chains = []
         iterated_epochs = []
