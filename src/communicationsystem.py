@@ -134,6 +134,18 @@ class CommunicationSystem:
 
 
     def get_message(self, timeout: float | None) -> Message:
+        """
+        Get message.
+
+        Args:
+            timeout (float | None): time to wait before raising `TimeoutError`
+
+        Raises:
+            TimeoutError: error is raised when no message is retrieved within `timeout`
+
+        Returns:
+            Message: message
+        """
         try:
             message = self.received_queue.get(timeout=timeout)
             return message
