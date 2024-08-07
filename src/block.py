@@ -117,9 +117,7 @@ class Block:
         Returns:
             bool: True, if and only if this block is parent of the other block, else return False
         """
-        if block.parent_hash == self.hash:
-            return True
-        return False
+        return block.parent_hash == self.hash
 
 
     def is_child(self, block: Self) -> bool:
@@ -132,9 +130,7 @@ class Block:
         Returns:
             bool: True, if and only if this block is child of the other block, else return False
         """
-        if self.parent_hash == block.hash:
-            return True
-        return False
+        return self.parent_hash == block.hash
 
 
     def calculate_hash(self) -> None:
