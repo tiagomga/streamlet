@@ -86,6 +86,12 @@ class Block:
 
 
     def get_votes(self) -> list:
+        """
+        Get block's votes.
+
+        Returns:
+            list: list containing votes
+        """
         return self.votes
 
 
