@@ -233,6 +233,17 @@ class Block:
 
     @classmethod
     def check_vote(cls, vote: Self, proposed_block: Self, public_key: RSAPublicKey) -> bool:
+        """
+        Check if `vote` is valid for `proposed_block` using voter's `public_key`.
+
+        Args:
+            vote (Block): vote
+            proposed_block (Block): block that the vote refers to
+            public_key (RSAPublicKey): public key
+
+        Returns:
+            bool: True, if and only if the vote is valid, else return False
+        """
         return crypto.verify_signature(vote.signature, proposed_block.hash, public_key)
 
 
