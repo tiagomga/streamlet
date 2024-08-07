@@ -106,6 +106,12 @@ class Block:
 
 
     def set_signature(self, signature: str) -> None:
+        """
+        Set block's signature.
+
+        Args:
+            signature (str): signature
+        """
         self.signature = signature
 
 
