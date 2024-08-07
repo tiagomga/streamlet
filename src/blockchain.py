@@ -50,6 +50,10 @@ class Blockchain:
 
 
     def update_longest_notarized_chains(self) -> None:
+        """
+        Update `self.longest_notarized_chains` to contain a list of the 
+        longest notarized chain(s).
+        """
         notarized_chains = self.get_notarized_chains()
         if len(notarized_chains) == 1:
             self.longest_notarized_chains = notarized_chains
