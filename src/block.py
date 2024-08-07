@@ -96,6 +96,12 @@ class Block:
 
 
     def get_signature(self) -> str:
+        """
+        Get block's signature.
+
+        Returns:
+            str: signature
+        """
         return self.signature
 
 
