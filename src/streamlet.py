@@ -216,6 +216,24 @@ class Streamlet:
 
 
     def get_message(self, start_time: float) -> tuple:
+        """
+        Get message. Returns proposal or vote for the current epoch.
+        
+        More details:
+        - Ignores proposals and votes for epochs higher than the current epoch.
+        - Ignores repeated proposals and votes.
+        - Adds valid votes to blocks from previous epochs.
+        - Adds valid proposals from previous epochs to the blockchain.
+
+        Args:
+            start_time (float): time when current epoch started
+
+        Raises:
+            TimeoutError: error is raised when epoch duration is exceeded
+
+        Returns:
+            tuple: tuple with proposal or vote, along with sender's id
+        """
         while True:
             remaining_time = self.epoch_duration - (time.time() - start_time)
             if remaining_time <= 0:
