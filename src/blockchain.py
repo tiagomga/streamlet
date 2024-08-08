@@ -50,6 +50,9 @@ class Blockchain:
 
 
     def update_freshest_notarized_chain(self) -> None:
+        """
+        Update `self.freshest_notarized_chain` with the freshest notarized chain.
+        """
         latest_epoch = max(self.chain)
         self.freshest_notarized_chain = []
 
