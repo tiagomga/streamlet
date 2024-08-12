@@ -92,7 +92,7 @@ class CommunicationSystem:
                 logging.error("Message cannot be deserialized.\n")
 
 
-    def receive_from_socket(self, socket: socket.socket, num_bytes: int) -> bytes:
+    def read_from_socket(self, socket: socket.socket, num_bytes: int) -> bytes:
         """
         Read `num_bytes` from `socket`'s read buffer.
 
