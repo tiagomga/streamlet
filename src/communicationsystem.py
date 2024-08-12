@@ -2,6 +2,7 @@ import sys
 import selectors
 import logging
 import socket
+import struct
 from typing import NoReturn
 from pickle import PickleError
 from multiprocessing import Process, Queue
@@ -34,7 +35,7 @@ class CommunicationSystem:
         self.recovery_port = recovery_port
     
 
-    def send(self, message: Message, server_id: int) -> None:
+    def send(self, message: bytes, server_id: int) -> None:
         """
         Send `message` to server with `server_id`.
 
@@ -45,8 +46,9 @@ class CommunicationSystem:
         receiver_info = self.configuration[server_id]
         receiver_address = (receiver_info[0], receiver_info[1])
         sender_socket = receiver_info[2]
+        message = struct.pack(">I", len(message)) + message
         try:
-            sender_socket.send(message)
+            sender_socket.sendall(message)
         # Handle server disconnection
         except BrokenPipeError:
             logging.error(f"Server {server_id} disconnected.\n")
@@ -54,7 +56,7 @@ class CommunicationSystem:
         # Connect to server before sending data, if it is the first time
         except OSError:
             sender_socket.connect(receiver_address)
-            sender_socket.send(message)
+            sender_socket.sendall(message)
 
 
     def broadcast(self, message: Message) -> None:
@@ -76,7 +78,9 @@ class CommunicationSystem:
         Args:
             socket (Socket): socket for receiving data
         """
-        data = socket.recv(8192)
+        message_length = self.read_from_socket(socket, 4)
+        message_length = struct.unpack(">I", message_length)[0]
+        data = self.read_from_socket(socket, message_length)
         if data:
             try:
                 message = Message.from_bytes(data)
