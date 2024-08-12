@@ -95,6 +95,16 @@ class CommunicationSystem:
 
 
     def receive_from_socket(self, socket: socket.socket, num_bytes: int) -> bytes:
+        """
+        Read `num_bytes` from `socket`'s read buffer.
+
+        Args:
+            socket (socket.socket): socket to be read
+            num_bytes (int): number of bytes to read
+
+        Returns:
+            bytes: read bytes
+        """
         data = b""
         while len(data) < num_bytes:
             data += socket.recv(num_bytes - len(data))
