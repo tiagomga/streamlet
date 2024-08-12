@@ -269,13 +269,7 @@ class Streamlet:
                     blockchain_block = self.blockchain.get_block(block_epoch)
                 except KeyError:
                     continue
-                blockchain_block_votes = blockchain_block.get_votes()
-                repeated_vote = False
-                for vote in blockchain_block_votes:
-                    if sender == vote[0]:
-                        repeated_vote = True
-                        break
-                if not repeated_vote:
+                if sender not in [vote[0] for vote in blockchain_block.get_votes()]:
                     # Echo received vote
                     self.send_echo(message)
                     if block_epoch == self.epoch.value:
