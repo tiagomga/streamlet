@@ -30,7 +30,7 @@ def main():
     server.run()
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     multiprocessing.set_start_method("fork")
     try:
         main()
