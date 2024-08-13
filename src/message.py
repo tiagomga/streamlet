@@ -1,5 +1,6 @@
 import pickle
 from typing import Self
+import crypto
 from block import Block
 from messagetype import MessageType
 
@@ -50,9 +51,10 @@ class Message:
 
 
     @staticmethod
-    def from_bytes(bytes: bytes) -> Self:
+    def from_bytes(bytes: bytes) -> Self | None:
         """
-        Convert bytes to Message.
+        Convert bytes to Message. Additionally, check if instance attributes
+        have the correct type.
 
         Args:
             bytes (bytes)
@@ -61,19 +63,24 @@ class Message:
             Message: Message object from bytes
         """
         data = pickle.loads(bytes)
-        return Message(data[0], data[1], data[2])
-
-
-    def check_type_integrity(self) -> bool:
-        """
-        Check if instance attributes have the correct type.
-
-        Returns:
-            bool: True if every verified attribute has the correct type, else return False
-        """
-        return isinstance(self.type, MessageType) and \
-            isinstance(self.content, (Block, Message, bytes)) and \
-            isinstance(self.sender_id, int)
+        try:
+            message_type, content, sender_id = data
+        except ValueError:
+            return None
+        if isinstance(message_type, MessageType) and isinstance(sender_id, int):
+            if message_type == MessageType.PK_EXCHANGE:
+                content = crypto.load_public_key(content)
+            elif message_type == MessageType.PROPOSE or message_type == MessageType.VOTE:
+                content = Block.from_bytes(content)
+            elif message_type == MessageType.ECHO:
+                content = Message.from_bytes(content)
+            else:
+                content = None
+        elif content is None:
+            return None
+        else:
+            return None
+        return Message(message_type, content, sender_id)
 
 
     def __str__(self) -> str:
