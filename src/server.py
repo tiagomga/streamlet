@@ -34,7 +34,7 @@ class Server:
         # Send public key to every server
         public_key = Message(
             MessageType.PK_EXCHANGE,
-            crypto.serialize_public_key(self.public_key),
+            self.public_key,
             self.id
         ).to_bytes()
         self.communication.broadcast(public_key)

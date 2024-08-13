@@ -59,7 +59,14 @@ class Message:
         Returns:
             bytes: bytes of Message object
         """
-        data = (self.type, self.content, self.sender_id, self.certificate)
+        if self.type == MessageType.PK_EXCHANGE:
+            data = (self.type, crypto.serialize_public_key(self.content), self.sender_id, self.certificate)
+        elif self.type == MessageType.PROPOSE:
+            data = (self.type, self.content.to_bytes(include_signature=True), self.sender_id, self.certificate.to_bytes())
+        elif self.type == MessageType.VOTE or self.type == MessageType.RECOVERY_REQUEST:
+            data = (self.type, self.content.to_bytes(include_signature=True), self.sender_id, self.certificate)
+        elif self.type == MessageType.RECOVERY_REPLY:
+            data = (self.type, self.content.to_bytes(include_signature=True, include_votes=True), self.sender_id, self.certificate)
         return pickle.dumps(data)
 
 

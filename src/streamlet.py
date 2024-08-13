@@ -85,7 +85,6 @@ class Streamlet:
         certificate = None
         if self.epoch.value > 1:
             certificate = Certificate(freshest_notarized_block)
-            certificate = certificate.to_bytes()
 
         # Send block proposal to every server participating in the protocol
         self.send_message(MessageType.PROPOSE, proposed_block, certificate)
@@ -284,7 +283,7 @@ class Streamlet:
         """
         message = Message(
             message_type,
-            block.to_bytes(include_signature=True),
+            block,
             self.server_id
         ).to_bytes()
         self.communication.broadcast(message)
@@ -315,7 +314,7 @@ class Streamlet:
         
         message = Message(
             MessageType.RECOVERY_REQUEST,
-            block_request.to_bytes(include_signature=True),
+            block_request,
             self.server_id
         ).to_bytes()
 
