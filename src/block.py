@@ -335,9 +335,10 @@ class Block:
 
 
     @staticmethod
-    def from_bytes(bytes: bytes) -> Self:
+    def from_bytes(bytes: bytes) -> Self | None:
         """
-        Convert bytes to Block.
+        Convert bytes to Block. Additionally, check if instance attributes
+        have the correct type.
 
         Args:
             bytes (bytes): Block in serialized form
@@ -346,22 +347,17 @@ class Block:
             Block: Block object from bytes
         """
         data = pickle.loads(bytes)
-        block = Block(data[1], data[2], data[0])
-        block.signature = data[3]
-        return block
-
-
-    def check_type_integrity(self) -> bool:
-        """
-        Check if instance attributes have the correct type.
-
-        Returns:
-            bool: True if every verified attribute has the correct type, else return False
-        """
-        return isinstance(self.epoch, int) and \
-            isinstance(self.transactions, (list, NoneType)) and \
-            isinstance(self.parent_hash, str) and \
-            isinstance(self.signature, str)
+        try:
+            parent_hash, epoch, transactions, signature = data
+        except ValueError:
+            return None
+        if (isinstance(parent_hash, str) and isinstance(epoch, int)
+                and isinstance(transactions, (list, NoneType))
+                and isinstance(signature, str)):
+            block = Block(epoch, transactions, parent_hash)
+            block.signature = signature
+            return block
+        return None
 
 
     def __str__(self) -> str:
