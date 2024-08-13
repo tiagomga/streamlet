@@ -295,6 +295,15 @@ class Streamlet:
                                 blockchain_block.notarize()
 
 
+    def send_message(self, message_type: MessageType, block: Block) -> None:
+        message = Message(
+            message_type,
+            block.to_bytes(include_signature=True),
+            self.server_id
+        ).to_bytes()
+        self.communication.broadcast(message)
+
+
     def update_recovery_queue(self) -> None:
         """
         Update `recovery_queue` with the latest version of `blockchain`.
