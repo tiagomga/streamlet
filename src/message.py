@@ -63,7 +63,11 @@ class Message:
         Returns:
             Message: Message object from bytes
         """
-        data = pickle.loads(bytes)
+        try:
+            data = pickle.loads(bytes)
+        except pickle.PickleError:
+            logging.error("Message cannot be unpickled.\n")
+            return None
         try:
             message_type, content, sender_id = data
         except ValueError:
