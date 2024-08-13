@@ -76,9 +76,9 @@ class Message:
                 content = Message.from_bytes(content)
             else:
                 content = None
-        elif content is None:
-            return None
         else:
+            return None
+        if content is None:
             return None
         return Message(message_type, content, sender_id)
 
