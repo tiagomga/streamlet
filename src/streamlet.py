@@ -276,7 +276,7 @@ class Streamlet:
         """
         message = Message(
             message_type,
-            block.to_bytes(include_signature=True),
+            block,
             self.server_id
         ).to_bytes()
         self.communication.broadcast(message)
@@ -291,7 +291,7 @@ class Streamlet:
         """
         echo_message = Message(
             MessageType.ECHO,
-            message.to_bytes(),
+            message,
             self.server_id
         ).to_bytes()
         self.communication.broadcast(echo_message)
