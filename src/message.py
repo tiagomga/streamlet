@@ -52,19 +52,19 @@ class Message:
 
 
     @staticmethod
-    def from_bytes(bytes: bytes) -> Self | None:
+    def from_bytes(data_bytes: bytes) -> Self | None:
         """
         Convert bytes to Message. Additionally, check if instance attributes
         have the correct type.
 
         Args:
-            bytes (bytes)
+            data_bytes (bytes)
 
         Returns:
             Message: Message object from bytes
         """
         try:
-            data = pickle.loads(bytes)
+            data = pickle.loads(data_bytes)
         except pickle.PickleError:
             logging.error("Message cannot be unpickled.\n")
             return None
@@ -73,9 +73,14 @@ class Message:
         except ValueError:
             logging.error("Attributes cannot be unpacked from tuple.\n")
             return None
-        if isinstance(message_type, MessageType) and isinstance(sender_id, int):
+        if (isinstance(message_type, MessageType) and isinstance(content, bytes)
+                and isinstance(sender_id, int)):
             if message_type == MessageType.PK_EXCHANGE:
-                content = crypto.load_public_key(content)
+                try:
+                    crypto.load_public_key(content)
+                except ValueError:
+                    logging.error("Public key cannot be deserialized.\n")
+                    return None
             elif message_type == MessageType.PROPOSE or message_type == MessageType.VOTE:
                 content = Block.from_bytes(content)
             elif message_type == MessageType.ECHO:
