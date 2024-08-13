@@ -327,9 +327,10 @@ class Block:
 
 
     @staticmethod
-    def from_bytes(bytes: bytes) -> Self:
+    def from_bytes(bytes: bytes) -> Self | None:
         """
-        Convert bytes to Block.
+        Convert bytes to Block. Additionally, check if instance attributes
+        have the correct type.
 
         Args:
             bytes (bytes): Block in serialized form
@@ -338,25 +339,32 @@ class Block:
             Block: Block object from bytes
         """
         data = pickle.loads(bytes)
-        block = Block(data[1], data[2], data[0])
-        block.signature = data[3]
-        if len(data) == 6:
-            block.votes = data[4]
-            block.parent_epoch = data[5]
-        return block
-
-
-    def check_type_integrity(self) -> bool:
-        """
-        Check if instance attributes have the correct type.
-
-        Returns:
-            bool: True if every verified attribute has the correct type, else return False
-        """
-        return isinstance(self.epoch, int) and \
-            isinstance(self.transactions, (list, NoneType)) and \
-            isinstance(self.parent_hash, str) and \
-            isinstance(self.signature, str)
+        try:
+            if len(data) == 6:
+                parent_hash, epoch, transactions, signature, votes, parent_epoch = data
+            else:
+                parent_hash, epoch, transactions, signature = data
+                votes = None
+                parent_epoch = None
+        except ValueError:
+            return None
+        if (isinstance(parent_hash, str) and isinstance(epoch, int)
+                and isinstance(transactions, (list, NoneType))
+                and isinstance(signature, str)):
+            block = Block(epoch, transactions, parent_hash)
+            block.signature = signature
+            if votes and parent_epoch:
+                if (isinstance(votes, list) and isinstance(parent_epoch, int)):
+                    for vote in votes:
+                        if isinstance(vote, tuple) and len(vote) == 2:
+                            vote[1] = Block.from_bytes(vote[1])
+                            if vote[1] is None:
+                                return None
+                        else:
+                            return None
+                    block.votes = votes
+            return block
+        return None
 
 
     def __str__(self) -> str:
