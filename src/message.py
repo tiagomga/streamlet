@@ -1,6 +1,7 @@
 import pickle
 from types import NoneType
 from typing import Self
+import crypto
 from block import Block
 from messagetype import MessageType
 from certificate import Certificate
@@ -63,9 +64,10 @@ class Message:
 
 
     @staticmethod
-    def from_bytes(bytes: bytes) -> Self:
+    def from_bytes(bytes: bytes) -> Self | None:
         """
-        Convert bytes to Message.
+        Convert bytes to Message. Additionally, check if instance attributes
+        have the correct type.
 
         Args:
             bytes (bytes)
@@ -74,20 +76,29 @@ class Message:
             Message: Message object from bytes
         """
         data = pickle.loads(bytes)
-        return Message(data[0], data[1], data[2], data[3])
-
-
-    def check_type_integrity(self) -> bool:
-        """
-        Check if instance attributes have the correct type.
-
-        Returns:
-            bool: True if every verified attribute has the correct type, else return False
-        """
-        return isinstance(self.type, MessageType) and \
-            isinstance(self.content, (Block, Message, bytes)) and \
-            isinstance(self.sender_id, int) and \
-            isinstance(self.certificate, (Certificate, NoneType, bytes))
+        try:
+            message_type, content, sender_id, certificate = data
+        except ValueError:
+            return None
+        if isinstance(message_type, MessageType) and isinstance(sender_id, int):
+            if message_type == MessageType.PK_EXCHANGE:
+                content = crypto.load_public_key(content)
+                certificate = None
+            elif message_type == MessageType.PROPOSE:
+                content = Block.from_bytes(content)
+                certificate = Certificate.from_bytes(certificate)
+                if certificate is None:
+                    return None
+            elif message_type in [MessageType.VOTE, MessageType.RECOVERY_REQUEST, MessageType.RECOVERY_REPLY]:
+                content = Block.from_bytes(content)
+                certificate = None
+            else:
+                content = None
+        elif content is None:
+            return None
+        else:
+            return None
+        return Message(message_type, content, sender_id, certificate)
 
 
     def __str__(self) -> str:
