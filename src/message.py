@@ -1,4 +1,5 @@
 import pickle
+import logging
 from typing import Self
 import crypto
 from block import Block
@@ -66,6 +67,7 @@ class Message:
         try:
             message_type, content, sender_id = data
         except ValueError:
+            logging.error("Attributes cannot be unpacked from tuple.\n")
             return None
         if isinstance(message_type, MessageType) and isinstance(sender_id, int):
             if message_type == MessageType.PK_EXCHANGE:
@@ -77,8 +79,10 @@ class Message:
             else:
                 content = None
         else:
+            logging.error("Message attributes do not contain the correct type(s).\n")
             return None
         if content is None:
+            logging.error("Message content cannot be deserialized.\n")
             return None
         return Message(message_type, content, sender_id)
 
