@@ -230,7 +230,7 @@ class Streamlet:
                         self.blockchain.get_block(block_epoch)
                     except KeyError:
                         # Echo received proposal
-                        self.send_echo(message)
+                        self.send_message(MessageType.ECHO, message)
                         if block_epoch == self.epoch.value:
                             logging.debug(f"New proposal (epoch: {self.epoch.value} | proposer: {sender})\n\n")
                             return (sender, block)
@@ -253,7 +253,7 @@ class Streamlet:
                     continue
                 if sender not in [vote[0] for vote in blockchain_block.get_votes()]:
                     # Echo received vote
-                    self.send_echo(message)
+                    self.send_message(MessageType.ECHO, message)
                     if block_epoch == self.epoch.value:
                         logging.debug(f"New vote for current epoch (epoch: {self.epoch.value} | voter: {sender})\n\n")
                         return (sender, block)
@@ -266,35 +266,20 @@ class Streamlet:
                                 blockchain_block.notarize()
 
 
-    def send_message(self, message_type: MessageType, block: Block) -> None:
+    def send_message(self, message_type: MessageType, content: Block | Message) -> None:
         """
-        Send message to every replica.
+        Send message to every server.
 
         Args:
             message_type (MessageType): type of the message
-            block (Block): block to send
+            content (Block or Message): content to send
         """
         message = Message(
             message_type,
-            block,
+            content,
             self.server_id
         ).to_bytes()
         self.communication.broadcast(message)
-
-
-    def send_echo(self, message: Message) -> None:
-        """
-        Send echo message.
-
-        Args:
-            message (Message): message to be echoed
-        """
-        echo_message = Message(
-            MessageType.ECHO,
-            message,
-            self.server_id
-        ).to_bytes()
-        self.communication.broadcast(echo_message)
 
 
 class ProtocolError(Exception):
