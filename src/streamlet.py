@@ -284,6 +284,15 @@ class Streamlet:
                                 blockchain_block.notarize()
 
 
+    def send_message(self, message_type: MessageType, block: Block) -> None:
+        message = Message(
+            message_type,
+            block.to_bytes(include_signature=True),
+            self.server_id
+        ).to_bytes()
+        self.communication.broadcast(message)
+
+
     def send_echo(self, message: Message) -> None:
         """
         Send echo message.
