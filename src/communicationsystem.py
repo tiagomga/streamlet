@@ -2,7 +2,6 @@ import selectors
 import logging
 import socket
 import struct
-from pickle import PickleError
 from multiprocessing import Process, Queue
 from queue import Empty
 from message import Message
@@ -77,23 +76,15 @@ class CommunicationSystem:
         message_length = struct.unpack(">I", message_length)[0]
         data = self.read_from_socket(socket, message_length)
         if data:
-            try:
-                message = Message.from_bytes(data)
-                if message.check_type_integrity():
-                    if message.get_type() == MessageType.ECHO:
-                        nested_message = Message.from_bytes(message.get_content())
-                        if nested_message.check_type_integrity():
-                            self.received_queue.put(nested_message)
-                        else:
-                            logging.error("Message attributes do not contain the correct type(s).\n")
-                    else:
-                        self.received_queue.put(message)
-                    # Print received data
-                    logging.debug(f"Received message - {message}")
+            message = Message.from_bytes(data)
+            if message:
+                if message.get_type() == MessageType.ECHO:
+                    nested_message = message.get_content()
+                    self.received_queue.put(nested_message)
                 else:
-                    logging.error("Message attributes do not contain the correct type(s).\n")
-            except PickleError:
-                logging.error("Message cannot be deserialized.\n")
+                    self.received_queue.put(message)
+                # Print received data
+                logging.debug(f"Received message - {message}")
 
 
     def read_from_socket(self, socket: socket.socket, num_bytes: int) -> bytes:
