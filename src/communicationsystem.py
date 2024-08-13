@@ -73,7 +73,11 @@ class CommunicationSystem:
             socket (Socket): socket for receiving data
         """
         message_length = self.read_from_socket(socket, 4)
-        message_length = struct.unpack(">I", message_length)[0]
+        try:
+            message_length = struct.unpack(">I", message_length)[0]
+        except struct.error:
+            logging.error("Message length cannot be obtained.\n")
+            return
         data = self.read_from_socket(socket, message_length)
         if data:
             message = Message.from_bytes(data)
