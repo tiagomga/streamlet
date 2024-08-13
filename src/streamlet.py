@@ -89,13 +89,7 @@ class Streamlet:
             certificate = certificate.to_bytes()
 
         # Send block proposal to every server participating in the protocol
-        propose_message = Message(
-            MessageType.PROPOSE,
-            proposed_block.to_bytes(include_signature=True),
-            self.server_id,
-            certificate
-        ).to_bytes()
-        self.communication.broadcast(propose_message)
+        self.send_message(MessageType.PROPOSE, proposed_block, certificate)
 
 
     def vote(self, leader_id: int, start_time: float) -> None:
@@ -139,12 +133,7 @@ class Streamlet:
         self.blockchain.add_block(proposed_block)
 
         # Send vote to every server participating in the protocol
-        vote_message = Message(
-            MessageType.VOTE,
-            _vote.to_bytes(include_signature=True),
-            self.server_id
-        ).to_bytes()
-        self.communication.broadcast(vote_message)
+        self.send_message(MessageType.VOTE, _vote)
 
 
     def notarize(self, start_time: float) -> None:
