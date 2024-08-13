@@ -296,6 +296,13 @@ class Streamlet:
 
 
     def send_message(self, message_type: MessageType, block: Block) -> None:
+        """
+        Send message to every replica.
+
+        Args:
+            message_type (MessageType): type of the message
+            block (Block): block to send
+        """
         message = Message(
             message_type,
             block.to_bytes(include_signature=True),
