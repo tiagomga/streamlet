@@ -1,6 +1,7 @@
 import os
 import pickle
 import json
+import logging
 from types import NoneType
 from typing import Self
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey, RSAPublicKey
@@ -338,7 +339,11 @@ class Block:
         Returns:
             Block: Block object from bytes
         """
-        data = pickle.loads(bytes)
+        try:
+            data = pickle.loads(bytes)
+        except pickle.PickleError:
+            logging.error("Block cannot be unpickled.\n")
+            return None
         try:
             if len(data) == 6:
                 parent_hash, epoch, transactions, signature, votes, parent_epoch = data
@@ -347,6 +352,7 @@ class Block:
                 votes = None
                 parent_epoch = None
         except ValueError:
+            logging.error("Attributes cannot be unpacked from tuple.\n")
             return None
         if (isinstance(parent_hash, str) and isinstance(epoch, int)
                 and isinstance(transactions, (list, NoneType))
@@ -364,6 +370,7 @@ class Block:
                             return None
                     block.votes = votes
             return block
+        logging.error("Block attributes do not contain the correct type(s).\n")
         return None
 
 
