@@ -365,8 +365,10 @@ class Block:
                         if isinstance(vote, tuple) and len(vote) == 2:
                             vote[1] = Block.from_bytes(vote[1])
                             if vote[1] is None:
+                                logging.error("Block vote cannot be deserialized.\n")
                                 return None
                         else:
+                            logging.error("Block votes are not in the correct format.\n")
                             return None
                     block.votes = votes
             return block
