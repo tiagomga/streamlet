@@ -331,19 +331,19 @@ class Block:
 
 
     @staticmethod
-    def from_bytes(bytes: bytes) -> Self | None:
+    def from_bytes(data_bytes: bytes) -> Self | None:
         """
         Convert bytes to Block. Additionally, check if instance attributes
         have the correct type.
 
         Args:
-            bytes (bytes): Block in serialized form
+            data_bytes (bytes): Block in serialized form
 
         Returns:
             Block: Block object from bytes
         """
         try:
-            data = pickle.loads(bytes)
+            data = pickle.loads(data_bytes)
         except pickle.PickleError:
             logging.error("Block cannot be unpickled.\n")
             return None
@@ -364,16 +364,26 @@ class Block:
             block.signature = signature
             if votes and parent_epoch:
                 if (isinstance(votes, list) and isinstance(parent_epoch, int)):
+                    deserialized_votes = []
                     for vote in votes:
                         if isinstance(vote, tuple) and len(vote) == 2:
-                            vote[1] = Block.from_bytes(vote[1])
-                            if vote[1] is None:
-                                logging.error("Block vote cannot be deserialized.\n")
+                            if isinstance(vote[0], int) and isinstance(vote[1], bytes):
+                                deserialized_vote = Block.from_bytes(vote[1])
+                                if deserialized_vote is None:
+                                    logging.error("Block vote cannot be deserialized.\n")
+                                    return None
+                                deserialized_votes.append((vote[0], deserialized_vote))
+                            else:
+                                logging.error("Block vote does not contain the correct type(s).\n")
                                 return None
                         else:
                             logging.error("Block votes are not in the correct format.\n")
                             return None
-                    block.votes = votes
+                    block.votes = deserialized_votes
+                    block.parent_epoch = parent_epoch
+                else:
+                    logging.error("Block attributes do not contain the correct type(s).\n")
+                    return None
             return block
         logging.error("Block attributes do not contain the correct type(s).\n")
         return None
