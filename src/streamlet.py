@@ -273,18 +273,20 @@ class Streamlet:
                                 blockchain_block.notarize()
 
 
-    def send_message(self, message_type: MessageType, block: Block) -> None:
+    def send_message(self, message_type: MessageType, block: Block, certificate: Certificate | None = None) -> None:
         """
-        Send message to every replica.
+        Send message to every server.
 
         Args:
             message_type (MessageType): type of the message
             block (Block): block to send
+            certificate (Certificate or None): certificate for freshest notarized block
         """
         message = Message(
             message_type,
             block,
-            self.server_id
+            self.server_id,
+            certificate
         ).to_bytes()
         self.communication.broadcast(message)
 
