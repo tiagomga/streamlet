@@ -82,9 +82,7 @@ class Streamlet:
         self.blockchain.add_block(proposed_block)
 
         # Create certificate for the freshest notarized block
-        certificate = None
-        if self.epoch.value > 1:
-            certificate = Certificate(freshest_notarized_block)
+        certificate = Certificate(freshest_notarized_block)
 
         # Send block proposal to every server participating in the protocol
         self.send_message(MessageType.PROPOSE, proposed_block, certificate)
@@ -103,7 +101,7 @@ class Streamlet:
         # Get latest block from the longest notarized chain
         freshest_notarized_block = self.blockchain.get_freshest_notarized_block()
 
-        if certificate is not None:
+        if self.epoch.value > 1:
             if certificate.check_validity(self.servers_public_key, 2*self.f+1):
                 if not certificate.extends_freshest_chain(freshest_notarized_block):
                     if certificate.get_epoch() > freshest_notarized_block.get_epoch():
