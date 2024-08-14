@@ -189,12 +189,12 @@ class CommunicationSystem:
         recovery_queue.put(blockchain)
 
         sender = message.get_sender()
-        epoch = Block.from_bytes(message.get_content()).get_epoch()
+        epoch = message.get_content().get_epoch()
         block = blockchain.get_block(epoch)
 
         reply_message = Message(
             MessageType.RECOVERY_REPLY,
-            block.to_bytes(include_signature=True, include_votes=True),
+            block,
             self.server_id
         ).to_bytes()
 
