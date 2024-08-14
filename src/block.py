@@ -322,7 +322,10 @@ class Block:
         if include_signature:
             data.append(self.signature)
         if include_votes:
-            data.append(self.votes)
+            votes = []
+            for sender, vote in self.votes:
+                votes.append((sender, vote.to_bytes(include_signature=True)))
+            data.append(votes)
             data.append(self.parent_epoch)
         return pickle.dumps(tuple(data))
 
