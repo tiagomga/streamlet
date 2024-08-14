@@ -1,4 +1,5 @@
 import pickle
+import logging
 from typing import Self
 import crypto
 from block import Block
@@ -84,19 +85,46 @@ class Certificate:
 
 
     @staticmethod
-    def from_bytes(bytes: bytes) -> Self:
+    def from_bytes(data_bytes: bytes) -> Self:
         """
         Convert bytes to Certificate.
 
         Args:
-            bytes (bytes): Certificate in serialized form
+            data_bytes (bytes): Certificate in serialized form
 
         Returns:
             Certificate: Certificate object from bytes
         """
-        data = pickle.loads(bytes)
-        certificate = Certificate()
-        certificate.epoch = data[0]
-        certificate.block_hash = data[1]
-        certificate.votes = data[2]
-        return certificate
+        try:
+            data = pickle.loads(data_bytes)
+        except pickle.PickleError:
+            logging.error("Certificate cannot be unpickled.\n")
+            return None
+        try:
+            epoch, block_hash, votes = data
+        except ValueError:
+            logging.error("Attributes cannot be unpacked from tuple.\n")
+            return None
+        if isinstance(epoch, int) and isinstance(block_hash, str) and isinstance(votes, list):
+            certificate = Certificate()
+            certificate.epoch = epoch
+            certificate.block_hash = block_hash
+            deserialized_votes = []
+            for vote in votes:
+                if isinstance(vote, tuple) and len(vote) == 2:
+                    if isinstance(vote[0], int) and isinstance(vote[1], bytes):
+                        deserialized_vote = Block.from_bytes(vote[1])
+                        if deserialized_vote is None:
+                            logging.error("Block vote cannot be deserialized.\n")
+                            return None
+                        deserialized_votes.append((vote[0], deserialized_vote))
+                    else:
+                        logging.error("Block vote does not contain the correct type(s).\n")
+                        return None
+                else:
+                    logging.error("Block votes are not in the correct format.\n")
+                    return None
+            certificate.votes = deserialized_votes
+            return certificate
+        logging.error("Certificate attributes do not contain the correct type(s).\n")
+        return None
