@@ -103,6 +103,9 @@ class Message:
                 certificate = None
             elif message_type == MessageType.PROPOSE:
                 content = Block.from_bytes(content)
+                if not isinstance(certificate, bytes):
+                    logging.error("Block certificate cannot be deserialized (not bytes type).\n")
+                    return None
                 certificate = Certificate.from_bytes(certificate)
                 if certificate is None:
                     logging.error("Block certificate cannot be deserialized.\n")
