@@ -106,7 +106,7 @@ class Streamlet:
             raise ProtocolError
 
         # Check if the proposed block is valid
-        valid_block = proposed_block.check_validity(leader_public_key)
+        valid_block = proposed_block.check_signature(leader_public_key)
         if not valid_block:
             raise ProtocolError
         
