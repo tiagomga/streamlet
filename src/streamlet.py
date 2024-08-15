@@ -198,16 +198,11 @@ class Streamlet:
         self.blockchain.add_genesis_block()
         while True:
             try:
-                start_time = time.time()
                 self.start_new_epoch()
             except TimeoutError:
                 logging.info("Timeout triggered: epoch reached its end.\n")
             finally:
                 logging.info(f"Blockchain - {self.blockchain}\n")
-                end_time = time.time()
-                epoch_duration = end_time - start_time
-                if epoch_duration < self.epoch_duration:
-                    time.sleep(self.epoch_duration - epoch_duration)
 
 
     def process_messages(self, start_time: float) -> None:
