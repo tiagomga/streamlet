@@ -32,6 +32,7 @@ class Streamlet:
         self.blockchain = Blockchain()
         self.random_object = random.Random()
         self.random_object.seed(0)
+        self.early_messages = []
 
 
     def start_new_epoch(self) -> None:
@@ -215,10 +216,17 @@ class Streamlet:
             remaining_time = self.epoch_duration - (time.time() - start_time)
             if remaining_time <= 0:
                 raise TimeoutError
-            message = self.communication.get_message(remaining_time)
+            message = self.get_early_message()
+            if message is None:
+                message = self.communication.get_message(remaining_time)
             sender = message.get_sender()
             block = message.get_content()
             block_epoch = block.get_epoch()
+            
+            # Store messages that arrive early for posterior processing (when time is adequate)
+            if block_epoch > self.epoch.value:
+                self.early_messages.append(message)
+                continue
             logging.debug(f"Message type - {message.get_type()}\n")
 
             # Add new valid proposed blocks to the blockchain
@@ -250,6 +258,14 @@ class Streamlet:
                     # Echo received vote
                     self.send_message(MessageType.ECHO, message)
                     self.process_vote(block, proposed_block, sender)
+
+
+    def get_early_message(self) -> Message | None:
+        messages_epoch = [message.get_content().get_epoch() for message in self.early_messages]
+        if self.epoch.value in messages_epoch:
+            index = messages_epoch.index(self.epoch.value)
+            return self.early_messages.pop(index)
+        return None
 
 
     def send_message(self, message_type: MessageType, content: Block | Message) -> None:
