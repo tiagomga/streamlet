@@ -216,6 +216,8 @@ class Block:
         Returns:
             bool: True, if and only if block's signature is valid, else return False
         """
+        if self.hash is None:
+            self.calculate_hash()
         return crypto.verify_signature(self.signature, self.hash, public_key)
 
 
