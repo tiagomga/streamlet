@@ -228,18 +228,17 @@ class Streamlet:
             # Add new valid proposed blocks to the blockchain
             # Vote for the block, if block was received in the current epoch
             if message.get_type() == MessageType.PROPOSE:
-                if block_epoch <= self.epoch.value:
-                    # Check if the proposer's ID matches the leader's ID
-                    if sender == self.epoch_leaders[block_epoch]:
-                        if self.blockchain.get_block(block_epoch) is None:
-                            # Echo received proposal
-                            self.send_message(MessageType.ECHO, message)
-                            try:
-                                self.process_proposal(block, sender)
-                            except ProtocolError:
-                                continue
-                            if block_epoch == self.epoch.value:
-                                self.vote(block)
+                # Ensure that proposer's ID matches the leader's ID and proposal is new
+                if (block_epoch <= self.epoch.value and sender == self.epoch_leaders[block_epoch]
+                        and self.blockchain.get_block(block_epoch) is None):
+                    # Echo received proposal
+                    self.send_message(MessageType.ECHO, message)
+                    try:
+                        self.process_proposal(block, sender)
+                    except ProtocolError:
+                        continue
+                    if block_epoch == self.epoch.value:
+                        self.vote(block)
             
             # Add votes to blocks (from current and past epochs)
             elif message.get_type() == MessageType.VOTE:
