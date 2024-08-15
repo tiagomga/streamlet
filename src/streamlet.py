@@ -196,7 +196,8 @@ class Streamlet:
         Process received messages.
         
         More details:
-        - Ignores proposals and votes for epochs higher than the current epoch.
+        - Stores proposals and votes for epochs higher than the current
+            epoch for posterior processing.
         - Ignores repeated proposals and votes.
         - Adds valid votes to blocks from previous epochs.
         - Adds valid proposals from previous epochs to the blockchain.
