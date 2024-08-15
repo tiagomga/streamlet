@@ -256,6 +256,13 @@ class Streamlet:
 
 
     def get_early_message(self) -> Message | None:
+        """
+        Get early message. Only returns message if it can be handled
+        in the current epoch.
+
+        Returns:
+            (Message | None): message for current epoch
+        """
         messages_epoch = [message.get_content().get_epoch() for message in self.early_messages]
         if self.epoch.value in messages_epoch:
             index = messages_epoch.index(self.epoch.value)
