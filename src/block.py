@@ -159,38 +159,6 @@ class Block:
         self.hash = crypto.calculate_hash(self.to_bytes())
 
 
-    def check_validity(self, public_key: RSAPublicKey, epoch: int, longest_notarized_block: Self) -> bool:
-        """
-        Check block's validity by checking its signature, epoch and if it
-        extends from the longest notarized chain.
-
-        Args:
-            public_key (RSAPublicKey): server's public key
-            epoch (int): epoch number
-            longest_notarized_block (Block): latest block from the longest
-            notarized chain
-
-        Returns:
-            bool: True, if and only if the block meets all conditions, else return False
-        """
-        # Check block's signature
-        self.calculate_hash()
-        valid_signature = self.check_signature(public_key)
-        if not valid_signature:
-            return False
-        
-        # Check if block's epoch matches with current epoch
-        if self.epoch != epoch:
-            return False
-        
-        # Check if block extends from the longest notarized chain
-        if not self.is_child(longest_notarized_block):
-            return False
-        
-        # If all previous conditions are met, block is valid
-        return True
-    
-
     def sign(self, private_key: RSAPrivateKey) -> None:
         """
         Sign block's data - used by epoch's leader.
