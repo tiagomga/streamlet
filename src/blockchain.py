@@ -36,7 +36,7 @@ class Blockchain:
         self.add_block(genesis_block)
 
 
-    def get_block(self, epoch: int) -> Block:
+    def get_block(self, epoch: int) -> Block | None:
         """
         Get epoch's block from blockchain.
 
@@ -44,9 +44,10 @@ class Blockchain:
             epoch (int): epoch's number
 
         Returns:
-            Block: blockchain block
+            (Block | None): blockchain block
         """
-        return self.chain[epoch]
+        if epoch in self.chain:
+            return self.chain[epoch]
 
 
     def update_freshest_notarized_chain(self) -> None:
@@ -58,12 +59,8 @@ class Blockchain:
 
         # Find notarized block with highest epoch number
         while latest_epoch >= 0:
-            try:
-                block = self.chain[latest_epoch]
-            except KeyError:
-                latest_epoch -= 1
-                continue
-            if block.get_status() == BlockStatus.NOTARIZED:
+            block = self.chain[latest_epoch]
+            if block and block.get_status() == BlockStatus.NOTARIZED:
                 break
             latest_epoch -= 1
         
