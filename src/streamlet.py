@@ -231,9 +231,7 @@ class Streamlet:
                 if block_epoch <= self.epoch.value:
                     # Check if the proposer's ID matches the leader's ID
                     if sender == self.epoch_leaders[block_epoch]:
-                        try:
-                            self.blockchain.get_block(block_epoch)
-                        except KeyError:
+                        if self.blockchain.get_block(block_epoch) is None:
                             # Echo received proposal
                             self.send_message(MessageType.ECHO, message)
                             try:
@@ -246,11 +244,8 @@ class Streamlet:
             # Add votes to blocks (from current and past epochs)
             elif message.get_type() == MessageType.VOTE:
                 # Get block for the vote's epoch from server's blockchain
-                try:
-                    proposed_block = self.blockchain.get_block(block_epoch)
-                except KeyError:
-                    continue
-                if sender not in [vote[0] for vote in proposed_block.get_votes()]:
+                proposed_block = self.blockchain.get_block(block_epoch)
+                if proposed_block and sender not in [vote[0] for vote in proposed_block.get_votes()]:
                     # Echo received vote
                     self.send_message(MessageType.ECHO, message)
                     self.process_vote(block, proposed_block, sender)

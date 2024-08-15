@@ -36,7 +36,7 @@ class Blockchain:
         self.add_block(genesis_block)
 
 
-    def get_block(self, epoch: int) -> Block:
+    def get_block(self, epoch: int) -> Block | None:
         """
         Get epoch's block from blockchain.
 
@@ -44,9 +44,10 @@ class Blockchain:
             epoch (int): epoch's number
 
         Returns:
-            Block: blockchain block
+            (Block | None): blockchain block
         """
-        return self.chain[epoch]
+        if epoch in self.chain:
+            return self.chain[epoch]
 
 
     def update_longest_notarized_chains(self) -> None:
@@ -85,12 +86,9 @@ class Blockchain:
         # that was not present in other notarized chains (fork chain)
         while True:
             while latest_epoch >= 0:
-                try:
-                    block = self.chain[latest_epoch]
-                except KeyError:
-                    latest_epoch -= 1
-                    continue
-                if block.get_status() == BlockStatus.NOTARIZED and latest_epoch not in iterated_epochs:
+                block = self.chain[latest_epoch]
+                if (block and block.get_status() == BlockStatus.NOTARIZED
+                        and latest_epoch not in iterated_epochs):
                     break
                 latest_epoch -= 1
             
