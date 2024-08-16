@@ -333,8 +333,13 @@ class Streamlet:
         while True:
             try:
                 reply_socket, address = recovery_socket.accept()
-                data = reply_socket.recv(8192)
+                message_length = self.communication.read_from_socket(reply_socket, 4)
+                message_length = struct.unpack(">I", message_length)[0]
+                data = self.communication.read_from_socket(reply_socket, message_length)
             except TimeoutError:
+                data = None
+            except struct.error:
+                logging.error("Message length cannot be obtained.\n")
                 data = None
             if data:
                 reply_message = Message.from_bytes(data)
