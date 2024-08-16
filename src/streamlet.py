@@ -114,7 +114,11 @@ class Streamlet:
                         return
             else:
                 return
-
+        
+        # Check if proposed block extends from the freshest notarized chain
+        if not proposed_block.is_child(freshest_notarized_block):
+            raise ProtocolError
+        
         # Check if the proposed block is valid
         valid_block = proposed_block.check_signature(leader_public_key)
         if not valid_block:
