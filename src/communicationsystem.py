@@ -1,14 +1,11 @@
-import sys
 import selectors
 import logging
 import socket
 import struct
-from typing import NoReturn
 from multiprocessing import Process, Queue
 from block import Block
 from queue import Empty
 from message import Message
-from messagetype import MessageType
 
 class CommunicationSystem:
     """
@@ -87,11 +84,7 @@ class CommunicationSystem:
         if data:
             message = Message.from_bytes(data)
             if message:
-                if message.get_type() == MessageType.RECOVERY_REQUEST:
-                    recovery_process = Process(target=self.start_recovery_reply, args=(message, self.recovery_queue))
-                    recovery_process.start()
-                else:
-                    self.received_queue.put(message)
+                self.received_queue.put(message)
                 # Print received data
                 logging.debug(f"Received message - {message}")
 
@@ -170,37 +163,3 @@ class CommunicationSystem:
             return message
         except Empty:
             raise TimeoutError
-
-
-    def start_recovery_reply(self, message: Message, recovery_queue: Queue) -> NoReturn:
-        """
-        Start recovery reply.
-
-        Args:
-            message (Message): recovery request message
-            recovery_queue (Queue): queue that contains the latest version of the blockchain
-
-        Returns:
-            NoReturn: terminate process after sending the reply
-        """
-        blockchain = None
-        while not recovery_queue.empty():
-            blockchain = recovery_queue.get()
-        recovery_queue.put(blockchain)
-
-        sender = message.get_sender()
-        epoch = message.get_content().get_epoch()
-        block = blockchain.get_block(epoch)
-
-        reply_message = Message(
-            MessageType.RECOVERY_REPLY,
-            block,
-            self.server_id
-        ).to_bytes()
-
-        reply_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        reply_socket.connect(('127.0.0.1', self.recovery_port+sender))
-        reply_socket.send(reply_message)
-        reply_socket.close()
-        logging.info(f"Sent recovery reply to server {sender} for block in epoch {epoch}.\n")
-        sys.exit(0)
