@@ -357,15 +357,14 @@ class Streamlet:
                                 missing_block.notarize()
                                 self.blockchain.add_block(missing_block)
                                 reply_socket.close()
-                                try:
-                                    parent_epoch = missing_block.get_parent_epoch()
-                                    if parent_epoch < epoch:
-                                        parent_block = self.blockchain.get_block(parent_epoch)
-                                        if parent_block.is_parent(missing_block):
-                                            break
-                                except KeyError:
-                                    self.start_recovery_request(parent_epoch, recovery_socket=recovery_socket)
-                                    break
+                                parent_epoch = missing_block.get_parent_epoch()
+                                if parent_epoch < epoch:
+                                    parent_block = self.blockchain.get_block(parent_epoch)
+                                    if parent_block is None:
+                                        self.start_recovery_request(parent_epoch, recovery_socket=recovery_socket)
+                                        break
+                                    if parent_block.is_parent(missing_block):
+                                        break                                        
                 reply_socket.close()
             random_server = random.choice(servers_id)
             servers_id.remove(random_server)
