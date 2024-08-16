@@ -263,7 +263,7 @@ class Streamlet:
             
             # Reply with missing block in parallel
             elif message.get_type() == MessageType.RECOVERY_REQUEST:
-                recovery_process = Process(target=self.start_recovery_reply, args=(message, self.recovery_queue))
+                recovery_process = Process(target=self.start_recovery_reply, args=(block_epoch, sender, self.blockchain))
                 recovery_process.start()
 
 
@@ -381,35 +381,32 @@ class Streamlet:
         logging.info(f"Block from epoch {epoch} was recovered successfully.\n")
 
 
-    def start_recovery_reply(self, message: Message, recovery_queue: Queue) -> NoReturn:
+    def start_recovery_reply(self, epoch: int, sender: int, blockchain: Blockchain) -> NoReturn:
         """
         Start recovery reply.
 
         Args:
-            message (Message): recovery request message
-            recovery_queue (Queue): queue that contains the latest version of the blockchain
+            epoch (int): epoch for the request block
+            sender (int): server ID
+            blockchain (Blockchain): blockchain
 
         Returns:
             NoReturn: terminate process after sending the reply
         """
-        blockchain = None
-        while not recovery_queue.empty():
-            blockchain = recovery_queue.get()
-        recovery_queue.put(blockchain)
+        requested_block = blockchain.get_block(epoch)
 
-        sender = message.get_sender()
-        epoch = message.get_content().get_epoch()
-        block = blockchain.get_block(epoch)
+        if requested_block is None:
+            sys.exit(1)
 
         reply_message = Message(
             MessageType.RECOVERY_REPLY,
-            block,
+            requested_block,
             self.server_id
         ).to_bytes()
 
         reply_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         reply_socket.connect(('127.0.0.1', self.recovery_port+sender))
-        reply_socket.send(reply_message)
+        reply_socket.sendall(reply_message)
         reply_socket.close()
         logging.info(f"Sent recovery reply to server {sender} for block in epoch {epoch}.\n")
         sys.exit(0)
