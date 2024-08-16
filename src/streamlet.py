@@ -3,6 +3,7 @@ import random
 import time
 import logging
 import socket
+import struct
 from multiprocessing import Process, Value
 from typing import NoReturn
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
@@ -390,6 +391,7 @@ class Streamlet:
             requested_block,
             self.server_id
         ).to_bytes()
+        reply_message = struct.pack(">I", len(reply_message)) + reply_message
 
         reply_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         reply_socket.connect(('127.0.0.1', self.recovery_port+sender))
