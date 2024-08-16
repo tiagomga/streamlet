@@ -78,11 +78,7 @@ class Certificate:
         Returns:
             bytes: bytes from Certificate object.
         """
-        votes = []
-        for sender, vote in self.votes:
-            votes.append((sender, vote.to_bytes(include_signature=True)))
-        data = (self.epoch, self.block_hash, votes)
-        return pickle.dumps(data)
+        return pickle.dumps((self.epoch, self.block_hash, self.votes))
 
 
     @staticmethod
