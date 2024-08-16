@@ -20,9 +20,7 @@ class Server:
         """
         self.id = id
         self.servers_configuration = servers_configuration
-        self.recovery_queue = Queue(maxsize=1)
-        self.recovery_port = 15000
-        self.communication = CommunicationSystem(id, servers_configuration, self.recovery_queue, self.recovery_port)
+        self.communication = CommunicationSystem(id, servers_configuration)
         self.public_key, self.private_key = crypto.generate_keys()
         self.servers_public_key = {}
 
@@ -58,5 +56,5 @@ class Server:
         self.communication.start()
         time.sleep(1)
         self.exchange_public_keys()
-        protocol = Streamlet(self.id, self.communication, self.private_key, self.servers_public_key, self.recovery_queue, self.recovery_port)
+        protocol = Streamlet(self.id, self.communication, self.private_key, self.servers_public_key)
         protocol.start()

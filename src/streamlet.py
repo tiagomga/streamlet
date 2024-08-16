@@ -3,7 +3,7 @@ import random
 import time
 import logging
 import socket
-from multiprocessing import Process, Value, Queue
+from multiprocessing import Process, Value
 from typing import NoReturn
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
 from block import Block
@@ -19,7 +19,7 @@ class Streamlet:
     Streamlet protocol.
     """
 
-    def __init__(self, server_id: int, communication: CommunicationSystem, private_key: RSAPrivateKey, servers_public_key: dict, recovery_queue: Queue, recovery_port: int, f: int = 1) -> None:
+    def __init__(self, server_id: int, communication: CommunicationSystem, private_key: RSAPrivateKey, servers_public_key: dict, f: int = 1) -> None:
         """
         Constructor.
         """
@@ -27,8 +27,7 @@ class Streamlet:
         self.communication = communication
         self.private_key = private_key
         self.servers_public_key = servers_public_key
-        self.recovery_queue = recovery_queue
-        self.recovery_port = recovery_port
+        self.recovery_port = 15000
         self.epoch = Value("i", 0)
         self.epoch_duration = 5
         self.epoch_leaders = [None]
@@ -45,7 +44,6 @@ class Streamlet:
         Start a new epoch.
         """
         start_time = time.time()
-        self.update_recovery_queue()
         self.epoch.value += 1
         epoch_leader = self.get_epoch_leader()
         if epoch_leader == self.server_id:
@@ -298,17 +296,6 @@ class Streamlet:
             certificate
         ).to_bytes()
         self.communication.broadcast(message)
-
-
-    def update_recovery_queue(self) -> None:
-        """
-        Update `recovery_queue` with the latest version of `blockchain`.
-        """
-        if self.recovery_queue.empty():
-            self.recovery_queue.put(self.blockchain)
-        else:
-            self.recovery_queue.get()
-            self.recovery_queue.put(self.blockchain)
 
 
     def start_recovery_request(self, epoch: int, recovery_socket: socket.socket | None = None) -> None:

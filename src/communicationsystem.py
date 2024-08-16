@@ -12,7 +12,7 @@ class CommunicationSystem:
     Manages communication between replicas.
     """
 
-    def __init__(self, server_id: int, configuration: dict, recovery_queue: Queue, recovery_port: int) -> None:
+    def __init__(self, server_id: int, configuration: dict) -> None:
         """
         Constructor.
 
@@ -27,8 +27,6 @@ class CommunicationSystem:
         self.port = configuration[server_id][1]
         self.socket = configuration[server_id][2]
         self.received_queue = Queue()
-        self.recovery_queue = recovery_queue
-        self.recovery_port = recovery_port
     
 
     def send(self, message: bytes, server_id: int) -> None:
