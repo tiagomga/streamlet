@@ -101,7 +101,16 @@ class CommunicationSystem:
         return data
 
 
-    def read_all_from_socket(self, socket: socket.socket) -> bytes:
+    def read_all_from_socket(self, socket: socket.socket) -> bytes | None:
+        """
+        Read message from `socket`'s read buffer.
+
+        Args:
+            socket (socket.socket): socket to be read
+
+        Returns:
+            bytes: message in bytes
+        """
         message_length = self.read_from_socket(socket, 4)
         if message_length is None:
             return None
