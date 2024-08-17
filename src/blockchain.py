@@ -59,7 +59,7 @@ class Blockchain:
 
         # Find notarized block with highest epoch number
         while latest_epoch >= 0:
-            block = self.chain[latest_epoch]
+            block = self.get_block(latest_epoch)
             if block and block.get_status() == BlockStatus.NOTARIZED:
                 break
             latest_epoch -= 1
@@ -69,7 +69,7 @@ class Blockchain:
         while build_chain:
             parent_epoch = block.get_parent_epoch()
             if parent_epoch is not None:
-                parent_block = self.chain[parent_epoch]
+                parent_block = self.get_block(parent_epoch)
                 if block.get_status() == BlockStatus.NOTARIZED:
                     self.freshest_notarized_chain.append(block)
                     block = parent_block
