@@ -100,6 +100,7 @@ class CommunicationSystem:
                 logging.error("Not enough received data to read from socket.\n")
                 return None
             if not fragment:
+                socket.close()
                 return None
             data += fragment
         return data
