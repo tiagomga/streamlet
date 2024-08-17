@@ -94,7 +94,11 @@ class CommunicationSystem:
         """
         data = b""
         while len(data) < num_bytes:
-            fragment = socket.recv(num_bytes - len(data))
+            try:
+                fragment = socket.recv(num_bytes - len(data))
+            except BlockingIOError:
+                logging.error("Not enough received data to read from socket.\n")
+                return None
             if not fragment:
                 return None
             data += fragment
