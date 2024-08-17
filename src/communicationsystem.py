@@ -72,13 +72,7 @@ class CommunicationSystem:
         Args:
             socket (Socket): socket for receiving data
         """
-        message_length = self.read_from_socket(socket, 4)
-        try:
-            message_length = struct.unpack(">I", message_length)[0]
-        except struct.error:
-            logging.error("Message length cannot be obtained.\n")
-            return
-        data = self.read_from_socket(socket, message_length)
+        data = self.read_all_from_socket(socket)
         if data:
             message = Message.from_bytes(data)
             if message:
@@ -104,6 +98,15 @@ class CommunicationSystem:
             if not fragment:
                 return None
             data += fragment
+        return data
+
+
+    def read_all_from_socket(self, socket: socket.socket) -> bytes:
+        message_length = self.read_from_socket(socket, 4)
+        if message_length is None:
+            return None
+        message_length = struct.unpack(">I", message_length)[0]
+        data = self.read_from_socket(socket, message_length)
         return data
 
 
