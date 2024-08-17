@@ -336,6 +336,7 @@ class Streamlet:
                 reply_socket.settimeout(1)
                 data = self.communication.read_all_from_socket(reply_socket)
             except TimeoutError:
+                logging.debug(f"Recovery request to server {random_server} timed out.\n")
                 data = None
             if data:
                 reply_message = Message.from_bytes(data)
