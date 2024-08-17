@@ -100,7 +100,10 @@ class CommunicationSystem:
         """
         data = b""
         while len(data) < num_bytes:
-            data += socket.recv(num_bytes - len(data))
+            fragment = socket.recv(num_bytes - len(data))
+            if not fragment:
+                return None
+            data += fragment
         return data
 
 
