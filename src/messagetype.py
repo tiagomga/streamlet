@@ -9,4 +9,5 @@ class MessageType(Enum):
     VOTE = 2
     RECOVERY_REQUEST = 3
     RECOVERY_REPLY = 4
-    PK_EXCHANGE = 5
+    TIMEOUT = 5
+    PK_EXCHANGE = 6
