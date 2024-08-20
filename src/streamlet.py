@@ -299,7 +299,7 @@ class Streamlet:
         self.communication.broadcast(message)
 
 
-    def start_recovery_request(self, epoch: int, recovery_socket: socket.socket | None = None) -> None:
+    def start_recovery_request(self, epoch: int, recovery_socket: socket.socket | None = None, close_socket: bool = True) -> None:
         """
         Start recovery request.
         Communicate with other servers to recover block from `epoch`.
@@ -355,7 +355,7 @@ class Streamlet:
                                 if parent_epoch < epoch:
                                     parent_block = self.blockchain.get_block(parent_epoch)
                                     if parent_block is None:
-                                        self.start_recovery_request(parent_epoch, recovery_socket=recovery_socket)
+                                        self.start_recovery_request(parent_epoch, recovery_socket=recovery_socket, close_socket=False)
                                         parent_block = self.blockchain.get_block(parent_epoch)
                                     if parent_block.is_parent(missing_block):
                                         self.blockchain.add_block(missing_block)
@@ -366,7 +366,8 @@ class Streamlet:
             servers_id.remove(random_server)
             self.communication.send(message, random_server)
 
-        recovery_socket.close()
+        if close_socket:
+            recovery_socket.close()
         logging.info(f"Block from epoch {epoch} was recovered successfully.\n")
 
 
