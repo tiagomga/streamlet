@@ -86,7 +86,7 @@ class Blockchain:
         # that was not present in other notarized chains (fork chain)
         while True:
             while latest_epoch >= 0:
-                block = self.chain[latest_epoch]
+                block = self.get_block(latest_epoch)
                 if (block and block.get_status() == BlockStatus.NOTARIZED
                         and latest_epoch not in iterated_epochs):
                     break
@@ -101,7 +101,7 @@ class Blockchain:
             while not end_chain:
                 parent_epoch = block.get_parent_epoch()
                 if parent_epoch != None:
-                    parent_block = self.chain[parent_epoch]
+                    parent_block = self.get_block(parent_epoch)
                     if block.is_child(parent_block) and block.get_status() == BlockStatus.NOTARIZED:
                         chain.append(block)
                         iterated_epochs.append(block.get_epoch())
