@@ -351,16 +351,16 @@ class Streamlet:
                                     valid_votes += 1
                             if valid_votes >= 2*self.f+1:
                                 missing_block.notarize()
-                                self.blockchain.add_block(missing_block)
-                                reply_socket.close()
                                 parent_epoch = missing_block.get_parent_epoch()
                                 if parent_epoch < epoch:
                                     parent_block = self.blockchain.get_block(parent_epoch)
                                     if parent_block is None:
                                         self.start_recovery_request(parent_epoch, recovery_socket=recovery_socket)
-                                        break
+                                        parent_block = self.blockchain.get_block(parent_epoch)
                                     if parent_block.is_parent(missing_block):
-                                        break                                        
+                                        self.blockchain.add_block(missing_block)
+                                        reply_socket.close()
+                                        break                   
                 reply_socket.close()
             random_server = random.choice(servers_id)
             servers_id.remove(random_server)
