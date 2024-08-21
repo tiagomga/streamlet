@@ -110,7 +110,7 @@ class Message:
                 if certificate is None:
                     logging.error("Block certificate cannot be deserialized.\n")
                     return None
-            elif message_type in [MessageType.VOTE, MessageType.RECOVERY_REQUEST, MessageType.RECOVERY_REPLY]:
+            elif message_type in [MessageType.VOTE, MessageType.RECOVERY_REQUEST, MessageType.RECOVERY_REPLY, MessageType.TIMEOUT]:
                 content = Block.from_bytes(content)
                 certificate = None
             else:
