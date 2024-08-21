@@ -273,6 +273,8 @@ class Streamlet:
                     current_epoch_block = self.blockchain.get_block(self.epoch.value)
                     if current_epoch_block and current_epoch_block.get_status() == BlockStatus.NOTARIZED:
                         break
+                elif proposed_block is None:
+                    self.early_messages.append(message)
             
             # Reply with missing block in parallel
             elif message.get_type() == MessageType.RECOVERY_REQUEST:
@@ -303,6 +305,8 @@ class Streamlet:
         messages_epoch = [message.get_content().get_epoch() for message in self.early_messages]
         for index, epoch in enumerate(messages_epoch):
             if epoch <= self.epoch.value:
+                if self.early_messages[epoch].get_type() == MessageType.VOTE and self.blockchain.get_block(epoch) is None:
+                    continue
                 return self.early_messages.pop(index)
 
 
