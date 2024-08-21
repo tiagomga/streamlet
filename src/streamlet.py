@@ -30,7 +30,8 @@ class Streamlet:
         self.servers_public_key = servers_public_key
         self.recovery_port = 15000
         self.epoch = Value("i", 0)
-        self.epoch_duration = 5
+        self.delta = 2.5
+        self.epoch_duration = self.delta*2
         self.epoch_leaders = [None]
         self.f = f
         self.num_replicas = 3*f + 1
