@@ -63,7 +63,7 @@ class Message:
             data = (self.type, crypto.serialize_public_key(self.content), self.sender_id, self.certificate)
         elif self.type == MessageType.PROPOSE:
             data = (self.type, self.content.to_bytes(include_signature=True), self.sender_id, self.certificate.to_bytes())
-        elif self.type == MessageType.VOTE or self.type == MessageType.RECOVERY_REQUEST:
+        elif self.type in [MessageType.VOTE, MessageType.RECOVERY_REQUEST, MessageType.TIMEOUT]:
             data = (self.type, self.content.to_bytes(include_signature=True), self.sender_id, self.certificate)
         elif self.type == MessageType.RECOVERY_REPLY:
             data = (self.type, self.content.to_bytes(include_signature=True, include_votes=True), self.sender_id, self.certificate)
