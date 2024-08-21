@@ -248,6 +248,8 @@ class Streamlet:
                     # Echo received vote
                     self.send_message(MessageType.ECHO, message)
                     self.process_vote(block, proposed_block, sender)
+                elif proposed_block is None:
+                    self.early_messages.append(message)
 
 
     def get_early_message(self) -> Message | None:
@@ -261,6 +263,8 @@ class Streamlet:
         messages_epoch = [message.get_content().get_epoch() for message in self.early_messages]
         for index, epoch in enumerate(messages_epoch):
             if epoch <= self.epoch.value:
+                if self.early_messages[epoch].get_type() == MessageType.VOTE and self.blockchain.get_block(epoch) is None:
+                    continue
                 return self.early_messages.pop(index)
 
 
