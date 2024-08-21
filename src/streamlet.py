@@ -223,20 +223,29 @@ class Streamlet:
         Raises:
             TimeoutError: error is raised when epoch duration is exceeded
         """
+        timeout = False
+        timeout_messages = []
+        waiting_time = self.delta
         while True:
-            remaining_time = self.epoch_duration - (time.time() - start_time)
+            remaining_time = waiting_time - (time.time() - start_time)
             if remaining_time <= 0:
-                raise TimeoutError
+                remaining_time = None
             message = self.get_early_message()
             if message is None:
-                message = self.communication.get_message(remaining_time)
+                try:
+                    message = self.communication.get_message(remaining_time)
+                except TimeoutError:
+                    timeout = True
+                    timeout_block = Block(self.epoch.value+1, [], "")
+                    timeout_block.set_signature("None")
+                    self.send_message(MessageType.TIMEOUT, timeout_block)
             sender = message.get_sender()
             block = message.get_content()
             certificate = message.get_certificate()
             block_epoch = block.get_epoch()
             
-            # Store messages that arrive early for posterior processing (when time is adequate)
-            if block_epoch > self.epoch.value:
+            # Store messages that arrive early for posterior processing (when time is adequate) (except for timeout messages)
+            if block_epoch > self.epoch.value and message.get_type() != MessageType.TIMEOUT:
                 self.early_messages.append(message)
                 continue
             logging.debug(f"Message type - {message.get_type()}\n")
@@ -251,7 +260,8 @@ class Streamlet:
                         self.process_proposal(block, certificate, sender)
                     except ProtocolError:
                         continue
-                    if block_epoch == self.epoch.value:
+                    if block_epoch == self.epoch.value and not timeout:
+                        waiting_time = self.epoch_duration
                         self.vote(block)
             
             # Add votes to blocks (from current and past epochs)
@@ -260,11 +270,26 @@ class Streamlet:
                 proposed_block = self.blockchain.get_block(block_epoch)
                 if proposed_block and sender not in [vote[0] for vote in proposed_block.get_votes()]:
                     self.process_vote(block, proposed_block, sender)
+                    current_epoch_block = self.blockchain.get_block(self.epoch.value)
+                    if current_epoch_block and current_epoch_block.get_status() == BlockStatus.NOTARIZED:
+                        break
             
             # Reply with missing block in parallel
             elif message.get_type() == MessageType.RECOVERY_REQUEST:
                 recovery_process = Process(target=self.start_recovery_reply, args=(block_epoch, sender, self.blockchain))
                 recovery_process.start()
+            
+            # Collect timeout messages and progress when consensus is reached
+            elif message.get_type() == MessageType.TIMEOUT:
+                if (sender not in [timeout_message.get_sender() for timeout_message in timeout_messages]
+                        and block_epoch > self.epoch.value):
+                    timeout_messages.append(message)
+                    if len(timeout_messages) >= 2*self.f+1:
+                        timeout_epochs = [timeout_message.get_content().get_epoch() for timeout_message in timeout_messages]
+                        for epoch in set(timeout_epochs):
+                            if timeout_epochs.count(epoch) >= 2*self.f+1:
+                                self.epoch.value = epoch-1
+                                raise TimeoutError
 
 
     def get_early_message(self) -> Message | None:
