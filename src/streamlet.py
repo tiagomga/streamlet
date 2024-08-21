@@ -301,10 +301,9 @@ class Streamlet:
             (Message | None): message for current epoch
         """
         messages_epoch = [message.get_content().get_epoch() for message in self.early_messages]
-        if self.epoch.value in messages_epoch:
-            index = messages_epoch.index(self.epoch.value)
-            return self.early_messages.pop(index)
-        return None
+        for index, epoch in enumerate(messages_epoch):
+            if epoch <= self.epoch.value:
+                return self.early_messages.pop(index)
 
 
     def send_message(self, message_type: MessageType, block: Block, certificate: Certificate | None = None) -> None:
