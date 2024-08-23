@@ -15,3 +15,9 @@ class USIG:
         signature_content = pickle.dumps((message.to_bytes(), self.counter))
         signature = crypto.sign(signature_content, self.private_key)
         return UI(self.counter, signature)
+
+
+    def verify_ui(self, ui: UI, public_key: RSAPublicKey, message: Message) -> bool:
+        content = pickle.dumps((message.to_bytes(), ui.get_sequence_number()))
+        content_hash = crypto.calculate_hash(content)
+        return crypto.verify_signature(ui.get_signature(), content_hash, public_key)
