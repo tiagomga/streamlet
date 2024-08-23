@@ -30,6 +30,12 @@ class UI:
 
 
     def get_signature(self) -> str:
+        """
+        Get signature.
+
+        Returns:
+            str: signature
+        """
         return self.signature
 
 
