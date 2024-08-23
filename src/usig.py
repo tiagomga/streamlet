@@ -6,6 +6,9 @@ class USIG:
     """
 
     def __init__(self) -> None:
+        """
+        Constructor.
+        """
         self.counter = 0
         self.public_key, self.private_key = crypto.generate_keys()
 
