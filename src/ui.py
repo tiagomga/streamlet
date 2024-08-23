@@ -66,6 +66,16 @@ class UI:
 
     @staticmethod
     def from_bytes(data_bytes: bytes) -> Self | None:
+        """
+        Convert bytes to UI. Additionally, check if instance attributes
+        have the correct type.
+
+        Args:
+            data_bytes (bytes): UI in serialized form
+
+        Returns:
+            UI: UI object from bytes
+        """
         try:
             data = pickle.loads(data_bytes)
         except pickle.PickleError:
