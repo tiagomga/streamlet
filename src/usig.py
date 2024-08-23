@@ -30,6 +30,17 @@ class USIG:
 
 
     def verify_ui(self, ui: UI, public_key: RSAPublicKey, message: Message) -> bool:
+        """
+        Verify `message`'s unique identifier `ui` (UI) using `public_key`.
+
+        Args:
+            ui (UI): unique identifier
+            public_key (RSAPublicKey): public key
+            message (Message): message
+
+        Returns:
+            bool: True, if and only if the unique identifier is valid, else return False
+        """
         content = pickle.dumps((message.to_bytes(), ui.get_sequence_number()))
         content_hash = crypto.calculate_hash(content)
         return crypto.verify_signature(ui.get_signature(), content_hash, public_key)
