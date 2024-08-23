@@ -20,6 +20,12 @@ class UI:
 
 
     def get_sequence_number(self) -> int:
+        """
+        Get sequence number.
+
+        Returns:
+            int: sequence number/counter value
+        """
         return self.sequence_number
 
 
