@@ -47,4 +47,10 @@ class USIG:
 
 
     def get_public_key(self) -> RSAPublicKey:
+        """
+        Get public key.
+
+        Returns:
+            RSAPublicKey: public key
+        """
         return self.public_key
