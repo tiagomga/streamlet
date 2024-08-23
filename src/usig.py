@@ -21,3 +21,7 @@ class USIG:
         content = pickle.dumps((message.to_bytes(), ui.get_sequence_number()))
         content_hash = crypto.calculate_hash(content)
         return crypto.verify_signature(ui.get_signature(), content_hash, public_key)
+
+
+    def get_public_key(self) -> RSAPublicKey:
+        return self.public_key
