@@ -55,6 +55,12 @@ class UI:
 
 
     def to_bytes(self) -> bytes:
+        """
+        Convert UI to bytes.
+
+        Returns:
+            bytes: bytes from UI object
+        """
         return pickle.dumps((self.sequence_number, self.signature))
 
 
