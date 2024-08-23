@@ -10,3 +10,7 @@ class UI:
 
     def get_sequence_number(self) -> int:
         return self.sequence_number
+
+
+    def get_signature(self) -> str:
+        return self.signature
