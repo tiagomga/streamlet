@@ -298,6 +298,7 @@ class Streamlet:
                                 for _ in range(epoch-self.epoch.value-1):
                                     self.get_epoch_leader()
                                 self.epoch.value = epoch-1
+                                self.timeout_messages = list(filter(lambda message: message.get_content().get_epoch() > epoch, self.timeout_messages))
                                 raise TimeoutError
 
 
