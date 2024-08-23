@@ -8,6 +8,13 @@ class UI:
     """
 
     def __init__(self, sequence_number: int, signature: str) -> None:
+        """
+        Constructor.
+
+        Args:
+            sequence_number (int): sequence number/counter value
+            signature (str): signature
+        """
         self.sequence_number = sequence_number
         self.signature = signature
 
