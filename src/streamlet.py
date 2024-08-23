@@ -39,6 +39,7 @@ class Streamlet:
         self.random_object = random.Random()
         self.random_object.seed(0)
         self.early_messages = []
+        self.timeout_messages = []
 
 
     def start_new_epoch(self) -> None:
@@ -224,21 +225,25 @@ class Streamlet:
             TimeoutError: error is raised when epoch duration is exceeded
         """
         timeout = False
-        timeout_messages = []
+        sent_timeout = False
         waiting_time = self.delta
         while True:
             remaining_time = waiting_time - (time.time() - start_time)
             if remaining_time <= 0:
+                timeout = True
                 remaining_time = None
+            if timeout and not sent_timeout:
+                timeout_block = Block(self.epoch.value+1, [], "")
+                timeout_block.set_signature("None")
+                self.send_message(MessageType.TIMEOUT, timeout_block)
+                sent_timeout = True
+                self.timeout_messages.append(Message(MessageType.TIMEOUT, timeout_block, self.server_id))
             message = self.get_early_message()
             if message is None:
                 try:
                     message = self.communication.get_message(remaining_time)
                 except TimeoutError:
-                    timeout = True
-                    timeout_block = Block(self.epoch.value+1, [], "")
-                    timeout_block.set_signature("None")
-                    self.send_message(MessageType.TIMEOUT, timeout_block)
+                    continue
             sender = message.get_sender()
             block = message.get_content()
             certificate = message.get_certificate()
@@ -283,11 +288,11 @@ class Streamlet:
             
             # Collect timeout messages and progress when consensus is reached
             elif message.get_type() == MessageType.TIMEOUT:
-                if (sender not in [timeout_message.get_sender() for timeout_message in timeout_messages]
+                if (sender not in [timeout_message.get_sender() for timeout_message in self.timeout_messages]
                         and block_epoch > self.epoch.value):
-                    timeout_messages.append(message)
-                    if len(timeout_messages) >= 2*self.f+1:
-                        timeout_epochs = [timeout_message.get_content().get_epoch() for timeout_message in timeout_messages]
+                    self.timeout_messages.append(message)
+                    if len(self.timeout_messages) >= 2*self.f+1:
+                        timeout_epochs = [timeout_message.get_content().get_epoch() for timeout_message in self.timeout_messages]
                         for epoch in set(timeout_epochs):
                             if timeout_epochs.count(epoch) >= 2*self.f+1:
                                 self.epoch.value = epoch-1
