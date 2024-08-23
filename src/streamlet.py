@@ -288,7 +288,8 @@ class Streamlet:
             
             # Collect timeout messages and progress when consensus is reached
             elif message.get_type() == MessageType.TIMEOUT:
-                if (sender not in [timeout_message.get_sender() for timeout_message in self.timeout_messages]
+                if (sender not in [timeout_message.get_sender() for timeout_message in self.timeout_messages
+                                   if timeout_message.get_content().get_epoch() == block_epoch]
                         and block_epoch > self.epoch.value):
                     self.timeout_messages.append(message)
                     if len(self.timeout_messages) >= 2*self.f+1:
