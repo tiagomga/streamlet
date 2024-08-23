@@ -14,6 +14,15 @@ class USIG:
 
 
     def create_ui(self, message: Message) -> UI:
+        """
+        Create unique identifier (UI) for `message`.
+
+        Args:
+            message (Message): message
+
+        Returns:
+            UI: unique identifier that binds a counter value to a message
+        """
         self.counter += 1
         signature_content = pickle.dumps((message.to_bytes(), self.counter))
         signature = crypto.sign(signature_content, self.private_key)
