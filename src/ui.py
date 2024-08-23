@@ -40,6 +40,17 @@ class UI:
 
 
     def is_next(self, sequence_number: int) -> bool:
+        """
+        Check if `sequence_number` is sequential to UI's sequence
+        number.
+
+        Args:
+            sequence_number (int): sequence number/counter value
+
+        Returns:
+            bool: True if and only if the sequence number is sequential,
+                else return False
+        """
         return self.sequence_number == sequence_number+1
 
 
