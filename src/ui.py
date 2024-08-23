@@ -1,3 +1,5 @@
+import pickle
+
 class UI:
     """
     Class that represents a Unique Identifier (UI).
@@ -18,3 +20,7 @@ class UI:
 
     def is_next(self, sequence_number: int) -> bool:
         return self.sequence_number == sequence_number+1
+
+
+    def to_bytes(self) -> bytes:
+        return pickle.dumps((self.sequence_number, self.signature))
