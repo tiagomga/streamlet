@@ -14,3 +14,7 @@ class UI:
 
     def get_signature(self) -> str:
         return self.signature
+
+
+    def is_next(self, sequence_number: int) -> bool:
+        return self.sequence_number == sequence_number+1
