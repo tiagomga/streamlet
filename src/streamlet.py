@@ -295,6 +295,8 @@ class Streamlet:
                         timeout_epochs = [timeout_message.get_content().get_epoch() for timeout_message in self.timeout_messages]
                         for epoch in set(timeout_epochs):
                             if timeout_epochs.count(epoch) >= 2*self.f+1:
+                                for _ in range(epoch-self.epoch.value-1):
+                                    self.get_epoch_leader()
                                 self.epoch.value = epoch-1
                                 raise TimeoutError
 
