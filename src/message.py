@@ -65,6 +65,12 @@ class Message:
 
 
     def set_ui(self, ui: UI) -> None:
+        """
+        Set unique identifier (UI).
+
+        Args:
+            ui (UI): unique identifier
+        """
         self.ui = ui
 
 
