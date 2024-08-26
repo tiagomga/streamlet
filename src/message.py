@@ -58,6 +58,10 @@ class Message:
         return self.ui
 
 
+    def set_ui(self, ui: UI) -> None:
+        self.ui = ui
+
+
     def to_bytes(self) -> bytes:
         """
         Convert Message to bytes.
