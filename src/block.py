@@ -31,7 +31,6 @@ class Block:
         self.hash = None
         self.parent_hash = parent_hash
         self.parent_epoch = parent_epoch
-        self.signature = None
         self.votes = []
         self.status = BlockStatus.PROPOSED
 
@@ -94,26 +93,6 @@ class Block:
             list: list containing votes
         """
         return self.votes
-
-
-    def get_signature(self) -> str:
-        """
-        Get block's signature.
-
-        Returns:
-            str: signature
-        """
-        return self.signature
-
-
-    def set_signature(self, signature: str) -> None:
-        """
-        Set block's signature.
-
-        Args:
-            signature (str): signature
-        """
-        self.signature = signature
 
 
     def set_parent_epoch(self, parent_epoch: int) -> None:
