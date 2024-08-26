@@ -28,13 +28,14 @@ class Streamlet:
         self.communication = communication
         self.usig = usig
         self.usig_public_keys = usig_public_keys
+        self.usig_counters = {0: 0, 1: 0, 2: 0}
         self.recovery_port = 15000
         self.epoch = Value("i", 0)
         self.delta = 2.5
         self.epoch_duration = self.delta*2
         self.epoch_leaders = [None]
         self.f = f
-        self.num_replicas = 3*f + 1
+        self.num_replicas = 2*f + 1
         self.blockchain = Blockchain()
         self.random_object = random.Random()
         self.random_object.seed(0)
@@ -72,42 +73,48 @@ class Streamlet:
             freshest_notarized_block.get_epoch()
         )
 
-        # Sign the block
-        proposed_block.sign(self.private_key)
+        # Create certificate for the freshest notarized block
+        certificate = Certificate(freshest_notarized_block)
+
+        # Create and sign message with USIG
+        message = Message(
+            MessageType.PROPOSE,
+            proposed_block,
+            self.server_id,
+            certificate
+        )
+        ui = self.usig.create_ui(message)
+        message.set_ui(ui)
 
         # Add leader's vote to the proposed block
-        proposed_block.add_leader_vote(self.server_id)
+        proposed_block.add_vote(message)
 
         # Add block to server's blockchain
         self.blockchain.add_block(proposed_block)
 
-        # Create certificate for the freshest notarized block
-        certificate = Certificate(freshest_notarized_block)
-
         # Send block proposal to every server participating in the protocol
-        self.send_message(MessageType.PROPOSE, proposed_block, certificate)
+        self.communication.broadcast(message.to_bytes())
 
 
-    def process_proposal(self, proposed_block: Block, certificate: Certificate, leader_id: int) -> None:
+    def process_proposal(self, message: Message) -> None:
         """
         Process proposal.
 
         Args:
-            proposed_block (Block): block proposal
-            leader_id (int): leader of the epoch when block was proposed
+            message (Message): proposal message
 
         Raises:
             ProtocolError: raises error when block is not valid or does not
                 extend the longest notarized chain
         """
-        # Get leader's public key
-        leader_public_key = self.usig_public_keys[leader_id]
-
         # Get latest block from the longest notarized chain
         freshest_notarized_block = self.blockchain.get_freshest_notarized_block()
 
+        certificate = message.get_certificate()
+        proposed_block = message.get_content()
+
         if self.epoch.value > 1:
-            if certificate.check_validity(self.usig_public_keys, 2*self.f+1):
+            if certificate.check_validity(self.usig_public_keys, self.f+1):
                 if not certificate.extends_freshest_chain(freshest_notarized_block):
                     if certificate.get_epoch() > freshest_notarized_block.get_epoch():
                         self.start_recovery_request(certificate.get_epoch())
@@ -121,48 +128,50 @@ class Streamlet:
         if not proposed_block.is_child(freshest_notarized_block):
             raise ProtocolError
         
-        # Check if the proposed block is valid
-        valid_block = proposed_block.check_signature(leader_public_key)
-        if not valid_block:
-            raise ProtocolError
-        
         # Add leader's vote to the proposed block
-        proposed_block.add_leader_vote(leader_id)
+        proposed_block.add_vote(message)
 
         # Add proposed block to server's blockchain
         proposed_block.set_parent_epoch(freshest_notarized_block.get_epoch())
         self.blockchain.add_block(proposed_block)
-        logging.debug(f"New block proposal for epoch {proposed_block.get_epoch()} (proposer: {leader_id}).\n")
+        logging.debug(f"New block proposal for epoch {proposed_block.get_epoch()} (proposer: {message.get_sender()}).\n")
 
 
     def vote(self, proposed_block: Block) -> None:
         """
         Vote for the proposed block.
         """
-        # Create vote for the proposed block using server's private key
-        vote_block = proposed_block.create_vote(self.private_key)
-        proposed_block.add_vote((self.server_id, vote_block))
+        # Create vote for the proposed block using USIG
+        vote_block = proposed_block.create_vote()
+        message = Message(
+            MessageType.VOTE,
+            vote_block,
+            self.server_id
+        )
+        ui = self.usig.create_ui(message)
+        message.set_ui(ui)
+
+        # Add own vote to the proposed block
+        proposed_block.add_vote(message)
 
         # Send vote to every server participating in the protocol
-        self.send_message(MessageType.VOTE, vote_block)
+        self.communication.broadcast(message.to_bytes())
 
 
-    def process_vote(self, vote: Block, block: Block, voter: int) -> None:
+    def process_vote(self, message: Message, block: Block) -> None:
         """
         Process vote.
 
         Args:
-            vote (Block): vote
+            message (Message): message
             block (Block): block
-            voter (int): ID of the server that voted
         """
         # Add valid (and not repeated) votes to the block
-        if Block.check_vote(vote, block, self.usig_public_keys[voter]):
-            block.add_vote((voter, vote))
-            logging.debug(f"New vote for block from epoch {block.get_epoch()} (voter: {voter}).\n")
+        block.add_vote(message)
+        logging.debug(f"New vote for block from epoch {block.get_epoch()} (voter: {message.get_sender()}).\n")
         
         # Notarize the block if there are sufficient valid votes (2f+1)
-        if len(block.get_votes()) >= 2*self.f+1 and block.get_status() == BlockStatus.PROPOSED:
+        if len(block.get_votes()) >= self.f+1 and block.get_status() == BlockStatus.PROPOSED:
             block.notarize()
             logging.info(f"Block from epoch {block.get_epoch()} was notarized.\n")
             self.finalize()
@@ -234,10 +243,16 @@ class Streamlet:
                 remaining_time = None
             if timeout and not sent_timeout:
                 timeout_block = Block(self.epoch.value+1, [], "")
-                timeout_block.set_signature("None")
-                self.send_message(MessageType.TIMEOUT, timeout_block)
+                timeout_message = Message(
+                    MessageType.TIMEOUT,
+                    timeout_block,
+                    self.server_id
+                )
+                ui = self.usig.create_ui(timeout_message)
+                timeout_message.set_ui(ui)
+                self.communication.broadcast(timeout_message.to_bytes())
                 sent_timeout = True
-                self.timeout_messages.append(Message(MessageType.TIMEOUT, timeout_block, self.server_id))
+                self.timeout_messages.append(timeout_message)
             message = self.get_early_message()
             if message is None:
                 try:
@@ -245,12 +260,20 @@ class Streamlet:
                 except TimeoutError:
                     continue
             sender = message.get_sender()
+            ui = message.get_ui()
+            if ui.is_next(self.usig_counters[sender]):
+                self.usig_counters[sender] += 1
+            else:
+                self.early_messages.append(message)
+                continue
+            if not self.usig.verify_ui(ui, self.usig_public_keys[sender], message):
+                continue
             block = message.get_content()
-            certificate = message.get_certificate()
             block_epoch = block.get_epoch()
             
             # Store messages that arrive early for posterior processing (when time is adequate) (except for timeout messages)
             if block_epoch > self.epoch.value and message.get_type() != MessageType.TIMEOUT:
+                self.usig_counters[sender] -= 1
                 self.early_messages.append(message)
                 continue
             logging.debug(f"Message type - {message.get_type()}\n")
@@ -262,7 +285,7 @@ class Streamlet:
                 if (block_epoch <= self.epoch.value and sender == self.epoch_leaders[block_epoch]
                         and self.blockchain.get_block(block_epoch) is None):
                     try:
-                        self.process_proposal(block, certificate, sender)
+                        self.process_proposal(message)
                     except ProtocolError:
                         continue
                     if block_epoch == self.epoch.value and not timeout:
@@ -273,8 +296,8 @@ class Streamlet:
             elif message.get_type() == MessageType.VOTE:
                 # Get block for the vote's epoch from server's blockchain
                 proposed_block = self.blockchain.get_block(block_epoch)
-                if proposed_block and sender not in [vote[0] for vote in proposed_block.get_votes()]:
-                    self.process_vote(block, proposed_block, sender)
+                if proposed_block and sender not in [vote.get_sender() for vote in proposed_block.get_votes()]:
+                    self.process_vote(message, proposed_block)
                     current_epoch_block = self.blockchain.get_block(self.epoch.value)
                     if current_epoch_block and current_epoch_block.get_status() == BlockStatus.NOTARIZED:
                         break
@@ -292,10 +315,10 @@ class Streamlet:
                                    if timeout_message.get_content().get_epoch() == block_epoch]
                         and block_epoch > self.epoch.value):
                     self.timeout_messages.append(message)
-                    if len(self.timeout_messages) >= 2*self.f+1:
+                    if len(self.timeout_messages) >= self.f+1:
                         timeout_epochs = [timeout_message.get_content().get_epoch() for timeout_message in self.timeout_messages]
                         for epoch in set(timeout_epochs):
-                            if timeout_epochs.count(epoch) >= 2*self.f+1:
+                            if timeout_epochs.count(epoch) >= self.f+1:
                                 for _ in range(epoch-self.epoch.value-1):
                                     self.get_epoch_leader()
                                 self.epoch.value = epoch-1
@@ -317,24 +340,6 @@ class Streamlet:
                 if self.early_messages[index].get_type() == MessageType.VOTE and self.blockchain.get_block(epoch) is None:
                     continue
                 return self.early_messages.pop(index)
-
-
-    def send_message(self, message_type: MessageType, block: Block, certificate: Certificate | None = None) -> None:
-        """
-        Send message to every server.
-
-        Args:
-            message_type (MessageType): type of the message
-            block (Block): block to send
-            certificate (Certificate or None): certificate for freshest notarized block
-        """
-        message = Message(
-            message_type,
-            block,
-            self.server_id,
-            certificate
-        ).to_bytes()
-        self.communication.broadcast(message)
 
 
     def start_recovery_request(self, epoch: int, recovery_socket: socket.socket | None = None, close_socket: bool = True) -> None:
@@ -383,10 +388,10 @@ class Streamlet:
                     if missing_block.get_epoch() == epoch:
                         missing_block.calculate_hash()
                         valid_votes = 0
-                        for sender, vote in missing_block.get_votes():
-                            if Block.check_vote(vote, missing_block, self.usig_public_keys[sender]):
+                        for vote in missing_block.get_votes():
+                            if self.usig.verify_ui(vote.get_ui(), self.usig_public_keys[vote.get_sender()], vote):
                                 valid_votes += 1
-                        if valid_votes >= 2*self.f+1:
+                        if valid_votes >= self.f+1:
                             missing_block.notarize()
                             parent_epoch = missing_block.get_parent_epoch()
                             if parent_epoch < epoch:
