@@ -6,7 +6,7 @@ import socket
 import struct
 from multiprocessing import Process, Value
 from typing import NoReturn
-from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
+from usig import USIG
 from block import Block
 from blockstatus import BlockStatus
 from message import Message
@@ -20,14 +20,14 @@ class Streamlet:
     Streamlet protocol.
     """
 
-    def __init__(self, server_id: int, communication: CommunicationSystem, private_key: RSAPrivateKey, servers_public_key: dict, f: int = 1) -> None:
+    def __init__(self, server_id: int, communication: CommunicationSystem, usig: USIG, usig_public_keys: dict, f: int = 1) -> None:
         """
         Constructor.
         """
         self.server_id = server_id
         self.communication = communication
-        self.private_key = private_key
-        self.servers_public_key = servers_public_key
+        self.usig = usig
+        self.usig_public_keys = usig_public_keys
         self.recovery_port = 15000
         self.epoch = Value("i", 0)
         self.delta = 2.5
@@ -101,13 +101,13 @@ class Streamlet:
                 extend the longest notarized chain
         """
         # Get leader's public key
-        leader_public_key = self.servers_public_key[leader_id]
+        leader_public_key = self.usig_public_keys[leader_id]
 
         # Get latest block from the longest notarized chain
         freshest_notarized_block = self.blockchain.get_freshest_notarized_block()
 
         if self.epoch.value > 1:
-            if certificate.check_validity(self.servers_public_key, 2*self.f+1):
+            if certificate.check_validity(self.usig_public_keys, 2*self.f+1):
                 if not certificate.extends_freshest_chain(freshest_notarized_block):
                     if certificate.get_epoch() > freshest_notarized_block.get_epoch():
                         self.start_recovery_request(certificate.get_epoch())
@@ -157,7 +157,7 @@ class Streamlet:
             voter (int): ID of the server that voted
         """
         # Add valid (and not repeated) votes to the block
-        if Block.check_vote(vote, block, self.servers_public_key[voter]):
+        if Block.check_vote(vote, block, self.usig_public_keys[voter]):
             block.add_vote((voter, vote))
             logging.debug(f"New vote for block from epoch {block.get_epoch()} (voter: {voter}).\n")
         
@@ -362,7 +362,7 @@ class Streamlet:
             recovery_socket.settimeout(1)
             recovery_socket.listen()
 
-        servers_id = list(self.servers_public_key.keys())
+        servers_id = list(self.usig_public_keys.keys())
         servers_id.remove(self.server_id)
         random_server = random.choice(servers_id)
         servers_id.remove(random_server)
@@ -384,7 +384,7 @@ class Streamlet:
                         missing_block.calculate_hash()
                         valid_votes = 0
                         for sender, vote in missing_block.get_votes():
-                            if Block.check_vote(vote, missing_block, self.servers_public_key[sender]):
+                            if Block.check_vote(vote, missing_block, self.usig_public_keys[sender]):
                                 valid_votes += 1
                         if valid_votes >= 2*self.f+1:
                             missing_block.notarize()
