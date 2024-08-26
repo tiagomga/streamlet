@@ -138,17 +138,6 @@ class Block:
         self.hash = crypto.calculate_hash(self.to_bytes())
 
 
-    def sign(self, private_key: RSAPrivateKey) -> None:
-        """
-        Sign block's data - used by epoch's leader.
-
-        Args:
-            private_key (RSAPrivateKey): server's private key
-        """
-        self.calculate_hash()
-        self.signature = crypto.sign_hash(self.hash, private_key)
-
-
     def create_vote(self) -> Self:
         """
         Create a vote.
@@ -162,37 +151,6 @@ class Block:
             self.parent_hash,
         )
         return block
-
-
-    @classmethod
-    def check_vote(cls, vote: Self, proposed_block: Self, public_key: RSAPublicKey) -> bool:
-        """
-        Check if `vote` is valid for `proposed_block` using voter's `public_key`.
-
-        Args:
-            vote (Block): vote
-            proposed_block (Block): block that the vote refers to
-            public_key (RSAPublicKey): public key
-
-        Returns:
-            bool: True, if and only if the vote is valid, else return False
-        """
-        return crypto.verify_signature(vote.signature, proposed_block.hash, public_key)
-
-
-    def check_signature(self, public_key: RSAPublicKey) -> bool:
-        """
-        Check block's signature validity.
-
-        Args:
-            public_key (RSAPublicKey): server's public key
-
-        Returns:
-            bool: True, if and only if block's signature is valid, else return False
-        """
-        if self.hash is None:
-            self.calculate_hash()
-        return crypto.verify_signature(self.signature, self.hash, public_key)
 
 
     def add_vote(self, vote: tuple) -> None:
