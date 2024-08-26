@@ -23,6 +23,7 @@ class Blockchain:
         Args:
             block (Block): block to be added to the blockchain
         """
+        block.calculate_hash()
         self.chain[block.get_epoch()] = block
 
 
