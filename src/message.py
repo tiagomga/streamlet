@@ -2,6 +2,7 @@ import pickle
 import logging
 from typing import Self
 import crypto
+from ui import UI
 from block import Block
 from messagetype import MessageType
 from certificate import Certificate
@@ -11,11 +12,12 @@ class Message:
     Class that sets the structure of a message.
     """
 
-    def __init__(self, type: MessageType, content: Block | Self, sender_id: int, certificate: Certificate = None) -> None:
+    def __init__(self, type: MessageType, content: Block | Self, sender_id: int, certificate: Certificate = None, ui: UI = None) -> None:
         self.type = type
         self.content = content
         self.sender_id = sender_id
         self.certificate = certificate
+        self.ui = ui
 
 
     def get_type(self) -> MessageType:
