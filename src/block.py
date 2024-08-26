@@ -232,20 +232,18 @@ class Block:
             logging.error("Block cannot be unpickled.\n")
             return None
         try:
-            if len(data) == 6:
-                parent_hash, epoch, transactions, signature, votes, parent_epoch = data
+            if len(data) == 5:
+                parent_hash, epoch, transactions, votes, parent_epoch = data
             else:
-                parent_hash, epoch, transactions, signature = data
+                parent_hash, epoch, transactions = data
                 votes = None
                 parent_epoch = None
         except ValueError:
             logging.error("Attributes cannot be unpacked from tuple.\n")
             return None
         if (isinstance(parent_hash, str) and isinstance(epoch, int)
-                and isinstance(transactions, (list, NoneType))
-                and isinstance(signature, str)):
+                and isinstance(transactions, (list, NoneType))):
             block = Block(epoch, transactions, parent_hash)
-            block.signature = signature
             if votes and parent_epoch:
                 if (isinstance(votes, list) and isinstance(parent_epoch, int)):
                     deserialized_votes = []
