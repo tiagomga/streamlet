@@ -54,6 +54,10 @@ class Message:
         return self.certificate
 
 
+    def get_ui(self) -> UI:
+        return self.ui
+
+
     def to_bytes(self) -> bytes:
         """
         Convert Message to bytes.
