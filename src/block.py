@@ -149,23 +149,18 @@ class Block:
         self.signature = crypto.sign_hash(self.hash, private_key)
 
 
-    def create_vote(self, private_key: RSAPrivateKey) -> Self:
+    def create_vote(self) -> Self:
         """
-        Create a vote by signing the block with `private_key`.
-
-        Args:
-            private_key (RSAPrivateKey): private key
+        Create a vote.
 
         Returns:
             Block: vote
         """
-        signature = crypto.sign(self.to_bytes(), private_key)
         block = Block(
             self.epoch,
             None,
             self.parent_hash,
         )
-        block.signature = signature
         return block
 
 
