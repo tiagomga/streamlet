@@ -3,6 +3,7 @@ from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
 import crypto
 from ui import UI
 from message import Message
+from certificate import Certificate
 
 class USIG:
     """
@@ -30,7 +31,16 @@ class USIG:
             UI: unique identifier that binds a counter value to a message
         """
         self.counter += 1
-        signature_content = pickle.dumps((message.to_bytes(), self.counter))
+        content = [
+            message.get_type(),
+            message.get_content().to_bytes(),
+            message.get_sender(),
+            message.get_certificate(),
+            self.counter
+        ]
+        if isinstance(message.get_certificate(), Certificate):
+            content[3] = message.get_certificate().to_bytes()
+        signature_content = pickle.dumps(content)
         signature = crypto.sign(signature_content, self.private_key)
         return UI(self.counter, signature)
 
@@ -47,7 +57,16 @@ class USIG:
         Returns:
             bool: True, if and only if the unique identifier is valid, else return False
         """
-        content = pickle.dumps((message.to_bytes(), ui.get_sequence_number()))
+        content = [
+            message.get_type(),
+            message.get_content().to_bytes(),
+            message.get_sender(),
+            message.get_certificate(),
+            ui.get_sequence_number()
+        ]
+        if isinstance(message.get_certificate(), Certificate):
+            content[3] = message.get_certificate().to_bytes()
+        content = pickle.dumps(content)
         content_hash = crypto.calculate_hash(content)
         return crypto.verify_signature(ui.get_signature(), content_hash, public_key)
 
