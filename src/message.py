@@ -82,13 +82,15 @@ class Message:
             bytes: bytes of Message object
         """
         if self.type == MessageType.PK_EXCHANGE:
-            data = (self.type, crypto.serialize_public_key(self.content), self.sender_id, self.certificate)
+            data = (self.type, crypto.serialize_public_key(self.content), self.sender_id, self.certificate, self.ui)
         elif self.type == MessageType.PROPOSE:
-            data = (self.type, self.content.to_bytes(include_signature=True), self.sender_id, self.certificate.to_bytes())
-        elif self.type in [MessageType.VOTE, MessageType.RECOVERY_REQUEST, MessageType.TIMEOUT]:
-            data = (self.type, self.content.to_bytes(include_signature=True), self.sender_id, self.certificate)
+            data = (self.type, self.content.to_bytes(include_signature=True), self.sender_id, self.certificate.to_bytes(), self.ui.to_bytes())
+        elif self.type in [MessageType.VOTE, MessageType.TIMEOUT]:
+            data = (self.type, self.content.to_bytes(include_signature=True), self.sender_id, self.certificate, self.ui.to_bytes())
+        elif self.type == MessageType.RECOVERY_REQUEST:
+            data = (self.type, self.content.to_bytes(include_signature=True), self.sender_id, self.certificate, self.ui)
         elif self.type == MessageType.RECOVERY_REPLY:
-            data = (self.type, self.content.to_bytes(include_signature=True, include_votes=True), self.sender_id, self.certificate)
+            data = (self.type, self.content.to_bytes(include_signature=True, include_votes=True), self.sender_id, self.certificate, self.ui)
         return pickle.dumps(data)
 
 
@@ -110,7 +112,7 @@ class Message:
             logging.error("Message cannot be unpickled.\n")
             return None
         try:
-            message_type, content, sender_id, certificate = data
+            message_type, content, sender_id, certificate, ui = data
         except ValueError:
             logging.error("Attributes cannot be unpacked from tuple.\n")
             return None
@@ -125,16 +127,28 @@ class Message:
                 certificate = None
             elif message_type == MessageType.PROPOSE:
                 content = Block.from_bytes(content)
-                if not isinstance(certificate, bytes):
-                    logging.error("Block certificate cannot be deserialized (not bytes type).\n")
+                if not (isinstance(certificate, bytes) and isinstance(ui, bytes)):
+                    logging.error("Block certificate or UI cannot be deserialized (not bytes type).\n")
                     return None
                 certificate = Certificate.from_bytes(certificate)
-                if certificate is None:
-                    logging.error("Block certificate cannot be deserialized.\n")
+                ui = UI.from_bytes(ui)
+                if certificate is None or ui is None:
+                    logging.error("Block certificate or UI cannot be deserialized.\n")
                     return None
-            elif message_type in [MessageType.VOTE, MessageType.RECOVERY_REQUEST, MessageType.RECOVERY_REPLY, MessageType.TIMEOUT]:
+            elif message_type in [MessageType.VOTE, MessageType.TIMEOUT]:
                 content = Block.from_bytes(content)
                 certificate = None
+                if not isinstance(ui, bytes):
+                    logging.error("UI cannot be deserialized (not bytes type).\n")
+                    return None
+                ui = UI.from_bytes(ui)
+                if ui is None:
+                    logging.error("UI cannot be deserialized.\n")
+                    return None
+            elif message_type in [MessageType.RECOVERY_REQUEST, MessageType.RECOVERY_REPLY]:
+                content = Block.from_bytes(content)
+                certificate = None
+                ui = None
             else:
                 content = None
         else:
@@ -143,7 +157,7 @@ class Message:
         if content is None:
             logging.error("Message content cannot be deserialized.\n")
             return None
-        return Message(message_type, content, sender_id, certificate)
+        return Message(message_type, content, sender_id, certificate, ui)
 
 
     def __str__(self) -> str:
