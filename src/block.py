@@ -193,24 +193,22 @@ class Block:
             blockchain.write(json.dumps(data) + ",")
 
 
-    def to_bytes(self, include_signature: bool = False, include_votes: bool = False) -> bytes:
+    def to_bytes(self, include_votes: bool = False) -> bytes:
         """
         Convert Block to bytes.
 
         Args:
-            include_signature (bool): if set to True, block's signature
-            is included
+            include_votes (bool): if set to True, block's votes
+            are included
 
         Returns:
             bytes: bytes from Block object
         """
         data = [self.parent_hash, self.epoch, self.transactions]
-        if include_signature:
-            data.append(self.signature)
         if include_votes:
             votes = []
             for sender, vote in self.votes:
-                votes.append((sender, vote.to_bytes(include_signature=True)))
+                votes.append((sender, vote.to_bytes()))
             data.append(votes)
             data.append(self.parent_epoch)
         return pickle.dumps(tuple(data))

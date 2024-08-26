@@ -84,13 +84,13 @@ class Message:
         if self.type == MessageType.PK_EXCHANGE:
             data = (self.type, crypto.serialize_public_key(self.content), self.sender_id, self.certificate, self.ui)
         elif self.type == MessageType.PROPOSE:
-            data = (self.type, self.content.to_bytes(include_signature=True), self.sender_id, self.certificate.to_bytes(), self.ui.to_bytes())
+            data = (self.type, self.content.to_bytes(), self.sender_id, self.certificate.to_bytes(), self.ui.to_bytes())
         elif self.type in [MessageType.VOTE, MessageType.TIMEOUT]:
-            data = (self.type, self.content.to_bytes(include_signature=True), self.sender_id, self.certificate, self.ui.to_bytes())
+            data = (self.type, self.content.to_bytes(), self.sender_id, self.certificate, self.ui.to_bytes())
         elif self.type == MessageType.RECOVERY_REQUEST:
-            data = (self.type, self.content.to_bytes(include_signature=True), self.sender_id, self.certificate, self.ui)
+            data = (self.type, self.content.to_bytes(), self.sender_id, self.certificate, self.ui)
         elif self.type == MessageType.RECOVERY_REPLY:
-            data = (self.type, self.content.to_bytes(include_signature=True, include_votes=True), self.sender_id, self.certificate, self.ui)
+            data = (self.type, self.content.to_bytes(include_votes=True), self.sender_id, self.certificate, self.ui)
         return pickle.dumps(data)
 
 
