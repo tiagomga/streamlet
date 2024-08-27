@@ -1,3 +1,5 @@
+import pickle
+
 class Vote:
     """
     Class that represents a vote.
@@ -17,3 +19,8 @@ class Vote:
         self.epoch = epoch
         self.message_hash = message_hash
         self.ui = ui
+
+
+    def to_bytes(self) -> bytes:
+        data = (self.voter, self.epoch, self.message_hash, self.ui.to_bytes())
+        return pickle.dumps(data)
