@@ -6,6 +6,7 @@ from types import NoneType
 from typing import Self
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey, RSAPublicKey
 import crypto
+from vote import Vote
 from blockstatus import BlockStatus
 
 class Block:
@@ -153,7 +154,7 @@ class Block:
         return block
 
 
-    def add_vote(self, vote: tuple) -> None:
+    def add_vote(self, vote: Vote) -> None:
         """
         Add vote to the block.
 
