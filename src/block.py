@@ -206,9 +206,7 @@ class Block:
         """
         data = [self.parent_hash, self.epoch, self.transactions]
         if include_votes:
-            votes = []
-            for sender, vote in self.votes:
-                votes.append((sender, vote.to_bytes()))
+            votes = [vote.to_bytes() for vote in self.votes]
             data.append(votes)
             data.append(self.parent_epoch)
         return pickle.dumps(tuple(data))
