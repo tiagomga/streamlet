@@ -266,7 +266,7 @@ class Streamlet:
             else:
                 self.early_messages.append(message)
                 continue
-            if not self.usig.verify_ui(ui, self.usig_public_keys[sender], message):
+            if not USIG.verify_ui(ui, self.usig_public_keys[sender], message):
                 continue
             block = message.get_content()
             block_epoch = block.get_epoch()
@@ -389,7 +389,7 @@ class Streamlet:
                         missing_block.calculate_hash()
                         valid_votes = 0
                         for vote in missing_block.get_votes():
-                            if self.usig.verify_ui(vote.get_ui(), self.usig_public_keys[vote.get_sender()], vote):
+                            if USIG.verify_ui(vote.get_ui(), self.usig_public_keys[vote.get_sender()], vote):
                                 valid_votes += 1
                         if valid_votes >= self.f+1:
                             missing_block.notarize()

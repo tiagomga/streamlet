@@ -38,7 +38,8 @@ class USIG:
         return UI(self.counter, signature)
 
 
-    def verify_ui(self, ui: UI, public_key: RSAPublicKey, message: Message) -> bool:
+    @classmethod
+    def verify_ui(cls, ui: UI, public_key: RSAPublicKey, message: Message) -> bool:
         """
         Verify `message`'s unique identifier `ui` (UI) using `public_key`.
 
