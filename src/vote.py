@@ -37,6 +37,16 @@ class Vote:
     
     @staticmethod
     def from_bytes(data_bytes: bytes) -> Self:
+        """
+        Convert bytes to Vote. Additionally, check if instance attributes
+        have the correct type.
+
+        Args:
+            data_bytes (bytes)
+
+        Returns:
+            Vote: Vote object from bytes
+        """
         try:
             data = pickle.loads(data_bytes)
         except pickle.PickleError:
