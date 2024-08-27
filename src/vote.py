@@ -22,5 +22,11 @@ class Vote:
 
 
     def to_bytes(self) -> bytes:
+        """
+        Convert Vote to bytes.
+
+        Returns:
+            bytes: bytes of Vote object
+        """
         data = (self.voter, self.epoch, self.message_hash, self.ui.to_bytes())
         return pickle.dumps(data)
