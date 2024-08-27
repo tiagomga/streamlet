@@ -1,4 +1,7 @@
 import pickle
+import logging
+from typing import Self
+from ui import UI
 
 class Vote:
     """
@@ -30,3 +33,26 @@ class Vote:
         """
         data = (self.voter, self.epoch, self.message_hash, self.ui.to_bytes())
         return pickle.dumps(data)
+
+    
+    @staticmethod
+    def from_bytes(data_bytes: bytes) -> Self:
+        try:
+            data = pickle.loads(data_bytes)
+        except pickle.PickleError:
+            logging.error("Vote cannot be unpickled.\n")
+            return None
+        try:
+            voter, epoch, message_hash, ui = data
+        except ValueError:
+            logging.error("Attributes cannot be unpacked from tuple.\n")
+            return None
+        if (isinstance(voter, int) and isinstance(epoch, int)
+                and isinstance(message_hash, str) and isinstance(ui, bytes)):
+            ui = UI.from_bytes(ui)
+            if ui is None:
+                logging.error("UI cannot be deserialized.\n")
+                return None
+            return Vote(voter, epoch, message_hash, ui)
+        logging.error("Vote attributes do not contain the correct type(s).\n")
+        return None
