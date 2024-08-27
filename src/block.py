@@ -225,7 +225,6 @@ class Block:
         Returns:
             Block: Block object from bytes
         """
-        from message import Message
         try:
             data = pickle.loads(data_bytes)
         except pickle.PickleError:
@@ -249,7 +248,7 @@ class Block:
                     deserialized_votes = []
                     for vote in votes:
                         if isinstance(vote, bytes):
-                            deserialized_vote = Message.from_bytes(vote)
+                            deserialized_vote = Vote.from_bytes(vote)
                             if deserialized_vote is None:
                                 logging.error("Block vote cannot be deserialized.\n")
                                 return None
