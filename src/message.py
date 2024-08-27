@@ -74,6 +74,20 @@ class Message:
         self.ui = ui
 
 
+    def calculate_hash(self) -> str:
+        content = [
+            self.type,
+            self.content.to_bytes(),
+            self.sender_id,
+        ]
+        if isinstance(self.certificate, Certificate):
+            content.append(self.certificate.to_bytes())
+        else:
+            content.append(self.certificate)
+        content = pickle.dumps(content)
+        return crypto.calculate_hash(content)
+
+
     def to_bytes(self) -> bytes:
         """
         Convert Message to bytes.
