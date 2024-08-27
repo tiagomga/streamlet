@@ -224,6 +224,7 @@ class Block:
         Returns:
             Block: Block object from bytes
         """
+        from message import Message
         try:
             data = pickle.loads(data_bytes)
         except pickle.PickleError:
@@ -246,18 +247,14 @@ class Block:
                 if (isinstance(votes, list) and isinstance(parent_epoch, int)):
                     deserialized_votes = []
                     for vote in votes:
-                        if isinstance(vote, tuple) and len(vote) == 2:
-                            if isinstance(vote[0], int) and isinstance(vote[1], bytes):
-                                deserialized_vote = Block.from_bytes(vote[1])
-                                if deserialized_vote is None:
-                                    logging.error("Block vote cannot be deserialized.\n")
-                                    return None
-                                deserialized_votes.append((vote[0], deserialized_vote))
-                            else:
-                                logging.error("Block vote does not contain the correct type(s).\n")
+                        if isinstance(vote, bytes):
+                            deserialized_vote = Message.from_bytes(vote)
+                            if deserialized_vote is None:
+                                logging.error("Block vote cannot be deserialized.\n")
                                 return None
+                            deserialized_votes.append(deserialized_vote)
                         else:
-                            logging.error("Block votes are not in the correct format.\n")
+                            logging.error("Block vote does not contain the correct type(s).\n")
                             return None
                     block.votes = deserialized_votes
                     block.parent_epoch = parent_epoch
