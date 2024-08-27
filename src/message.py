@@ -75,6 +75,12 @@ class Message:
 
 
     def calculate_hash(self) -> str:
+        """
+        Calculate hash.
+
+        Returns:
+            str: hash of the message
+        """
         content = [
             self.type,
             self.content.to_bytes(),
