@@ -1,7 +1,8 @@
 import pickle
 import logging
 from typing import Self
-import crypto
+from usig import USIG
+from vote import Vote
 from block import Block
 
 class Certificate:
@@ -62,11 +63,12 @@ class Certificate:
             bool: True, if and only if the certificate contains valid `min_votes` votes, else return False
         """
         valid_votes = 0
-        iterated_senders = []
-        for sender, signature in self.votes:
-            if sender not in iterated_senders:
-                iterated_senders.append(sender)
-                if crypto.verify_signature(signature, self.block_hash, public_keys[sender]):
+        iterated_voters = []
+        for vote in self.votes:
+            voter = vote.get_voter()
+            if voter not in iterated_voters:
+                iterated_voters.append(voter)
+                if USIG.verify_ui_from_vote(vote, public_keys[voter]):
                     valid_votes += 1
         return valid_votes >= min_votes
 
