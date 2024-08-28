@@ -107,15 +107,18 @@ class Certificate:
             certificate = Certificate()
             certificate.epoch = epoch
             certificate.block_hash = block_hash
+            deserialized_votes = []
             for vote in votes:
-                if isinstance(vote, tuple) and len(vote) == 2:
-                    if not (isinstance(vote[0], int) and isinstance(vote[1], str)):
-                        logging.error("Block vote does not contain the correct type(s).\n")
+                if isinstance(vote, bytes):
+                    deserialized_vote = Vote.from_bytes(vote)
+                    if deserialized_vote is None:
+                        logging.error("Block vote cannot be deserialized.\n")
                         return None
+                    deserialized_votes.append(deserialized_vote)
                 else:
-                    logging.error("Block votes are not in the correct format.\n")
+                    logging.error("Block vote does not contain the correct type(s).\n")
                     return None
-            certificate.votes = votes
+            certificate.votes = deserialized_votes
             return certificate
         logging.error("Certificate attributes do not contain the correct type(s).\n")
         return None
