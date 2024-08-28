@@ -6,6 +6,7 @@ import socket
 import struct
 from multiprocessing import Process, Value
 from typing import NoReturn
+from vote import Vote
 from usig import USIG
 from block import Block
 from blockstatus import BlockStatus
@@ -87,7 +88,8 @@ class Streamlet:
         message.set_ui(ui)
 
         # Add leader's vote to the proposed block
-        proposed_block.add_vote(message)
+        leader_vote = Vote(self.server_id, self.epoch.value, message.calculate_hash(), ui)
+        proposed_block.add_vote(leader_vote)
 
         # Add block to server's blockchain
         self.blockchain.add_block(proposed_block)
@@ -129,7 +131,8 @@ class Streamlet:
             raise ProtocolError
         
         # Add leader's vote to the proposed block
-        proposed_block.add_vote(message)
+        leader_vote = Vote(message.get_sender(), message.get_content().get_epoch(), message.calculate_hash(), message.get_ui())
+        proposed_block.add_vote(leader_vote)
 
         # Add proposed block to server's blockchain
         proposed_block.set_parent_epoch(freshest_notarized_block.get_epoch())
@@ -152,7 +155,8 @@ class Streamlet:
         message.set_ui(ui)
 
         # Add own vote to the proposed block
-        proposed_block.add_vote(message)
+        own_vote = Vote(self.server_id, self.epoch.value, message.calculate_hash(), ui)
+        proposed_block.add_vote(own_vote)
 
         # Send vote to every server participating in the protocol
         self.communication.broadcast(message.to_bytes())
@@ -167,7 +171,8 @@ class Streamlet:
             block (Block): block
         """
         # Add valid (and not repeated) votes to the block
-        block.add_vote(message)
+        server_vote = Vote(message.get_sender(), message.get_content().get_epoch(), message.calculate_hash(), message.get_ui())
+        block.add_vote(server_vote)
         logging.debug(f"New vote for block from epoch {block.get_epoch()} (voter: {message.get_sender()}).\n")
         
         # Notarize the block if there are sufficient valid votes (2f+1)
@@ -296,7 +301,7 @@ class Streamlet:
             elif message.get_type() == MessageType.VOTE:
                 # Get block for the vote's epoch from server's blockchain
                 proposed_block = self.blockchain.get_block(block_epoch)
-                if proposed_block and sender not in [vote.get_sender() for vote in proposed_block.get_votes()]:
+                if proposed_block and sender not in [vote.get_voter() for vote in proposed_block.get_votes()]:
                     self.process_vote(message, proposed_block)
                     current_epoch_block = self.blockchain.get_block(self.epoch.value)
                     if current_epoch_block and current_epoch_block.get_status() == BlockStatus.NOTARIZED:
@@ -389,7 +394,7 @@ class Streamlet:
                         missing_block.calculate_hash()
                         valid_votes = 0
                         for vote in missing_block.get_votes():
-                            if USIG.verify_ui(vote.get_ui(), self.usig_public_keys[vote.get_sender()], vote):
+                            if USIG.verify_ui_from_vote(vote, self.usig_public_keys[vote.get_voter()]):
                                 valid_votes += 1
                         if valid_votes >= self.f+1:
                             missing_block.notarize()
