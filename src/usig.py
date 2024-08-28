@@ -60,6 +60,16 @@ class USIG:
 
     @classmethod
     def verify_ui_from_vote(cls, vote: Vote, public_key: RSAPublicKey) -> bool:
+        """
+        Verify `vote`'s unique identifier (UI) using `public_key`.
+
+        Args:
+            vote (Vote): block vote
+            public_key (RSAPublicKey): public key
+
+        Returns:
+            bool: True, if and only if the unique identifier is valid, else return False
+        """
         ui = vote.get_ui()
         content = pickle.dumps((vote.get_epoch(), vote.get_message_hash(), ui.get_sequence_number()))
         content_hash = crypto.calculate_hash(content)
