@@ -35,6 +35,12 @@ class Vote:
 
 
     def get_epoch(self) -> int:
+        """
+        Get epoch.
+
+        Returns:
+            int: epoch
+        """
         return self.epoch
 
 
