@@ -2,8 +2,8 @@ import pickle
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
 import crypto
 from ui import UI
+from vote import Vote
 from message import Message
-from certificate import Certificate
 
 class USIG:
     """
@@ -54,6 +54,14 @@ class USIG:
         message_hash = message.calculate_hash()
         message_epoch = message.get_content().get_epoch()
         content = pickle.dumps((message_epoch, message_hash, ui.get_sequence_number()))
+        content_hash = crypto.calculate_hash(content)
+        return crypto.verify_signature(ui.get_signature(), content_hash, public_key)
+
+
+    @classmethod
+    def verify_ui_from_vote(cls, vote: Vote, public_key: RSAPublicKey) -> bool:
+        ui = vote.get_ui()
+        content = pickle.dumps((vote.get_epoch(), vote.get_message_hash(), ui.get_sequence_number()))
         content_hash = crypto.calculate_hash(content)
         return crypto.verify_signature(ui.get_signature(), content_hash, public_key)
 
