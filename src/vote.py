@@ -54,6 +54,10 @@ class Vote:
         return self.message_hash
 
 
+    def get_ui(self) -> UI:
+        return self.ui
+
+
     def to_bytes(self) -> bytes:
         """
         Convert Vote to bytes.
