@@ -78,7 +78,8 @@ class Certificate:
         Returns:
             bytes: bytes from Certificate object.
         """
-        return pickle.dumps((self.epoch, self.block_hash, self.votes))
+        votes = [vote.to_bytes() for vote in self.votes]
+        return pickle.dumps((self.epoch, self.block_hash, votes))
 
 
     @staticmethod
