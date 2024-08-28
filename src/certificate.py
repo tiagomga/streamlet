@@ -24,7 +24,7 @@ class Certificate:
         else:
             self.epoch = block.get_epoch()
             self.block_hash = block.get_hash()
-            self.votes = [(sender, vote.get_signature()) for sender, vote in block.get_votes()]
+            self.votes = block.get_votes()
 
 
     def get_epoch(self) -> int:
