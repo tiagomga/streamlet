@@ -45,6 +45,12 @@ class Vote:
 
 
     def get_message_hash(self) -> str:
+        """
+        Get message hash.
+
+        Returns:
+            str: message hash
+        """
         return self.message_hash
 
 
