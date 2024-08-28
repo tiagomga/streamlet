@@ -34,6 +34,10 @@ class Vote:
         return self.voter
 
 
+    def get_epoch(self) -> int:
+        return self.epoch
+
+
     def to_bytes(self) -> bytes:
         """
         Convert Vote to bytes.
