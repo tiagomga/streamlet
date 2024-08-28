@@ -265,14 +265,15 @@ class Streamlet:
                 except TimeoutError:
                     continue
             sender = message.get_sender()
-            ui = message.get_ui()
-            if ui.is_next(self.usig_counters[sender]):
-                self.usig_counters[sender] += 1
-            else:
-                self.early_messages.append(message)
-                continue
-            if not USIG.verify_ui(ui, self.usig_public_keys[sender], message):
-                continue
+            if message.get_type() in [MessageType.PROPOSE, MessageType.VOTE, MessageType.TIMEOUT]:
+                ui = message.get_ui()
+                if ui.is_next(self.usig_counters[sender]):
+                    self.usig_counters[sender] += 1
+                else:
+                    self.early_messages.append(message)
+                    continue
+                if not USIG.verify_ui(ui, self.usig_public_keys[sender], message):
+                    continue
             block = message.get_content()
             block_epoch = block.get_epoch()
             
@@ -358,7 +359,6 @@ class Streamlet:
         """
         logging.info(f"Initiating recovery mechanism to request block from epoch {epoch}.\n")
         block_request = Block(epoch, [], "")
-        block_request.set_signature("None")
         
         message = Message(
             MessageType.RECOVERY_REQUEST,
