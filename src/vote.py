@@ -24,6 +24,10 @@ class Vote:
         self.ui = ui
 
 
+    def get_voter(self) -> int:
+        return self.voter
+
+
     def to_bytes(self) -> bytes:
         """
         Convert Vote to bytes.
