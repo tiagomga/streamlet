@@ -44,6 +44,10 @@ class Vote:
         return self.epoch
 
 
+    def get_message_hash(self) -> str:
+        return self.message_hash
+
+
     def to_bytes(self) -> bytes:
         """
         Convert Vote to bytes.
