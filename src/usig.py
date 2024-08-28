@@ -3,7 +3,6 @@ from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
 import crypto
 from ui import UI
 from vote import Vote
-from message import Message
 
 class USIG:
     """
@@ -20,7 +19,7 @@ class USIG:
         self.public_key, self.private_key = crypto.generate_keys()
 
 
-    def create_ui(self, message: Message) -> UI:
+    def create_ui(self, message: "Message") -> UI: # type: ignore
         """
         Create unique identifier (UI) for `message`.
 
@@ -39,7 +38,7 @@ class USIG:
 
 
     @classmethod
-    def verify_ui(cls, ui: UI, public_key: RSAPublicKey, message: Message) -> bool:
+    def verify_ui(cls, ui: UI, public_key: RSAPublicKey, message: "Message") -> bool: # type: ignore
         """
         Verify `message`'s unique identifier `ui` (UI) using `public_key`.
 
