@@ -25,6 +25,12 @@ class Vote:
 
 
     def get_voter(self) -> int:
+        """
+        Get ID of the voter.
+
+        Returns:
+            int: ID of the voter
+        """
         return self.voter
 
 
