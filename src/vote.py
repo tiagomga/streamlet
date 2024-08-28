@@ -55,6 +55,12 @@ class Vote:
 
 
     def get_ui(self) -> UI:
+        """
+        Get unique identifier (UI).
+
+        Returns:
+            UI: unique identifier
+        """
         return self.ui
 
 
