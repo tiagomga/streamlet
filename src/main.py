@@ -3,6 +3,7 @@ import sys
 import socket
 import logging
 import multiprocessing
+import yaml
 from server import Server
 
 HOST = "127.0.0.1"
@@ -16,6 +17,7 @@ SERVERS_CONFIGURATION = {
 }
 
 def main():
+    global SERVERS_CONFIGURATION
     if len(sys.argv) != 2:
         logging.error("Usage: python3 main.py <server_id>")
         sys.exit(1)
@@ -23,9 +25,19 @@ def main():
         server_id = int(sys.argv[1])
     except ValueError:
         sys.exit(1)
+    
     blockchain_directory = os.path.join(os.getcwd(), 'blockchain')
     if not os.path.exists(blockchain_directory):
         os.mkdir(blockchain_directory)
+    
+    config_file = os.path.join(os.getcwd(), 'config.yaml')
+    if os.path.exists(config_file):
+        with open("config.yaml", "r") as config:
+            SERVERS_CONFIGURATION = yaml.safe_load(config)
+        for id in SERVERS_CONFIGURATION:
+            SERVERS_CONFIGURATION[id].append(socket.socket(socket.AF_INET, socket.SOCK_STREAM))
+        SERVERS_CONFIGURATION[server_id][0] = HOST
+    
     server = Server(SERVERS_CONFIGURATION, server_id)
     server.run()
 
