@@ -6,7 +6,7 @@ import multiprocessing
 import yaml
 from server import Server
 
-HOST = "127.0.0.1"
+HOST = "0.0.0.0"
 PORT = 10000
 
 SERVERS_CONFIGURATION = {
