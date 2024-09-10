@@ -17,11 +17,15 @@ SERVERS_CONFIGURATION = {
 
 def main():
     global SERVERS_CONFIGURATION
-    if len(sys.argv) != 2:
+    server_id = os.environ.get("SERVER_ID")
+    if server_id is None and len(sys.argv) != 2:
         logging.error("Usage: python3 main.py <server_id>")
         sys.exit(1)
     try:
-        server_id = int(sys.argv[1])
+        if server_id:
+            server_id = int(server_id)
+        else:
+            server_id = int(sys.argv[1])
     except ValueError:
         sys.exit(1)
     
