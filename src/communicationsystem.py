@@ -177,6 +177,7 @@ class CommunicationSystem:
         self.socket.setblocking(False)
         receiver_process = Process(target=self.listen)
         receiver_process.start()
+        self.establish_connections()
 
 
     def get_message(self, timeout: float | None) -> Message:
