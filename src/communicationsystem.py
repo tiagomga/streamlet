@@ -158,6 +158,9 @@ class CommunicationSystem:
 
 
     def establish_connections(self):
+        """
+        Establish connection with servers.
+        """
         for id in list(self.configuration.keys()):
             if self.server_id != id:
                 while self.configuration[id][2].connect_ex((self.configuration[id][0], self.configuration[id][1])) != 0:
