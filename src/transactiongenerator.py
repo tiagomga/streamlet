@@ -18,6 +18,10 @@ class TransactionGenerator:
         self.process.start()
 
 
+    def get_transactions(self) -> list:
+        return self.queue.get()
+
+
     def generate_transactions(self, queue: Queue, transaction_size: int, transaction_number: int) -> NoReturn:
         """
         Generate transactions.
