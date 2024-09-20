@@ -42,6 +42,7 @@ class Streamlet:
         self.random_object = random.Random()
         self.random_object.seed(0)
         self.early_messages = []
+        self.timeout_messages = []
         self.transaction_generator = TransactionGenerator()
         self.finalized_transactions = 0
         self.total_finalized_transactions = 0
