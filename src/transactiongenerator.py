@@ -19,6 +19,12 @@ class TransactionGenerator:
 
 
     def get_transactions(self) -> list:
+        """
+        Get transactions.
+
+        Returns:
+            list: list of transactions
+        """
         return self.queue.get()
 
 
