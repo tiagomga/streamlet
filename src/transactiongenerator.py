@@ -19,6 +19,14 @@ class TransactionGenerator:
 
 
     def generate_transactions(self, queue: Queue, transaction_size: int, transaction_number: int) -> NoReturn:
+        """
+        Generate transactions.
+
+        Args:
+            queue (Queue): queue for transactions
+            transaction_size (int): transaction's size
+            transaction_number (int): number of transactions
+        """
         last_transaction = 0
         while True:
             transactions = [(last_transaction+i, random.randint(0, 100), "\x00"*transaction_size) for i in range(transaction_number)]
