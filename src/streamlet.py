@@ -20,7 +20,8 @@ class Streamlet:
     Streamlet protocol.
     """
 
-    def __init__(self, server_id: int, communication: CommunicationSystem, private_key: RSAPrivateKey, servers_public_key: dict, f: int = 1) -> None:
+    def __init__(self, server_id: int, communication: CommunicationSystem, private_key: RSAPrivateKey,
+                 servers_public_key: dict, epoch_duration: float, f: int, benchmark_threshold: int, benchmark_total: int) -> None:
         """
         Constructor.
         """
@@ -30,7 +31,7 @@ class Streamlet:
         self.servers_public_key = servers_public_key
         self.recovery_port = 15000
         self.epoch = Value("i", 0)
-        self.epoch_duration = 5
+        self.epoch_duration = epoch_duration
         self.epoch_leaders = [None]
         self.f = f
         self.num_replicas = 3*f + 1
@@ -38,6 +39,9 @@ class Streamlet:
         self.random_object = random.Random()
         self.random_object.seed(0)
         self.early_messages = []
+        self.benchmark_threshold = benchmark_threshold
+        self.benchmark_total = benchmark_total
+        self.benchmark_time = []
 
 
     def start_new_epoch(self) -> None:
