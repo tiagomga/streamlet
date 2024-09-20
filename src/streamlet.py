@@ -15,6 +15,7 @@ from messagetype import MessageType
 from blockchain import Blockchain
 from communicationsystem import CommunicationSystem
 from certificate import Certificate
+from transactiongenerator import TransactionGenerator
 
 class Streamlet:
     """
@@ -42,6 +43,10 @@ class Streamlet:
         self.random_object = random.Random()
         self.random_object.seed(0)
         self.early_messages = []
+        self.transaction_generator = TransactionGenerator()
+        self.benchmark_threshold = benchmark_threshold
+        self.benchmark_total = benchmark_total
+        self.benchmark_time = []
 
 
     def start_new_epoch(self) -> None:
@@ -60,8 +65,8 @@ class Streamlet:
         """
         Propose a new block to the blockchain.
         """
-        # Get clients' requests
-        # requests = get_requests()
+        # Get clients' transactions
+        transactions = self.transaction_generator.get_transactions()
 
         # Get latest block from the longest notarized chain
         freshest_notarized_block = self.blockchain.get_freshest_notarized_block()
@@ -69,7 +74,7 @@ class Streamlet:
         # Create block proposal
         proposed_block = Block(
             self.epoch.value,
-            [f"request {self.epoch.value}"],
+            transactions,
             freshest_notarized_block.get_hash(),
             freshest_notarized_block.get_epoch()
         )
