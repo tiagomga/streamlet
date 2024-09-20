@@ -47,6 +47,12 @@ class Block:
 
 
     def get_transactions(self) -> list:
+        """
+        Get block's transactions.
+
+        Returns:
+            list: list of transactions
+        """
         return self.transactions
 
 
