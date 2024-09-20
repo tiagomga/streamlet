@@ -51,3 +51,6 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         logging.error("Aborted execution.")
+    finally:
+        for process in multiprocessing.active_children():
+            process.terminate()
