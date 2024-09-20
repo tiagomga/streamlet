@@ -39,6 +39,12 @@ class TransactionGenerator:
 
 
     def get_transaction_number(self) -> int:
+        """
+        Get number of generated transactions.
+
+        Returns:
+            int: number of transactions
+        """
         return self.transaction_number
 
 
