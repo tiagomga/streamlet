@@ -46,6 +46,10 @@ class Block:
         return self.epoch
 
 
+    def get_transactions(self) -> list:
+        return self.transactions
+
+
     def get_hash(self) -> str:
         """
         Get block's hash.
