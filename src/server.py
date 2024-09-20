@@ -1,3 +1,4 @@
+import os
 import time
 import logging
 import crypto
@@ -55,5 +56,10 @@ class Server:
         self.communication.start()
         time.sleep(1)
         self.exchange_public_keys()
-        protocol = Streamlet(self.id, self.communication, self.private_key, self.servers_public_key)
+        epoch_duration = float(os.environ.get("EPOCH_DURATION")) if os.environ.get("EPOCH_DURATION") else 1.0
+        fault_number = int(os.environ.get("FAULT_NUMBER")) if os.environ.get("FAULT_NUMBER") else 1
+        benchmark_threshold = int(os.environ.get("BENCHMARK_THRESHOLD")) if os.environ.get("BENCHMARK_THRESHOLD") else 10000
+        benchmark_total = int(os.environ.get("BENCHMARK_TOTAL")) if os.environ.get("BENCHMARK_TOTAL") else 100000
+        protocol = Streamlet(self.id, self.communication, self.private_key, self.servers_public_key,
+                             epoch_duration, fault_number, benchmark_threshold, benchmark_total)
         protocol.start()
