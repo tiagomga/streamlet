@@ -1,6 +1,7 @@
 import sys
 import random
 import time
+import json
 import logging
 import socket
 import struct
@@ -420,6 +421,22 @@ class Streamlet:
         reply_socket.close()
         logging.info(f"Sent recovery reply to server {sender} for block in epoch {epoch}.\n")
         sys.exit(0)
+
+
+    def export_benchmark_results(self):
+        transaction_size = self.transaction_generator.get_transaction_size()
+        transaction_number = self.transaction_generator.get_transaction_number()
+        results = {
+            "EPOCH_DURATION": self.epoch_duration,
+            "FAULT_NUMBER": self.f,
+            "TRANSACTION_SIZE": transaction_size,
+            "TRANSACTION_NUMBER": transaction_number,
+            "BENCHMARK_THRESHOLD": self.benchmark_threshold,
+            "BENCHMARK_TOTAL": self.benchmark_total,
+            "BENCHMARK_TIME": self.benchmark_time
+        }
+        with open(f"benchmark_{transaction_size}_{transaction_number}.json", "w") as output:
+            json.dump(results, output, indent=2)
 
 
 class ProtocolError(Exception):
