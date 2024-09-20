@@ -1,5 +1,6 @@
 import random
 import time
+import json
 import logging
 from multiprocessing import Value
 from typing import NoReturn
@@ -299,6 +300,22 @@ class Streamlet:
             self.server_id
         ).to_bytes()
         self.communication.broadcast(message)
+
+
+    def export_benchmark_results(self):
+        transaction_size = self.transaction_generator.get_transaction_size()
+        transaction_number = self.transaction_generator.get_transaction_number()
+        results = {
+            "EPOCH_DURATION": self.epoch_duration,
+            "FAULT_NUMBER": self.f,
+            "TRANSACTION_SIZE": transaction_size,
+            "TRANSACTION_NUMBER": transaction_number,
+            "BENCHMARK_THRESHOLD": self.benchmark_threshold,
+            "BENCHMARK_TOTAL": self.benchmark_total,
+            "BENCHMARK_TIME": self.benchmark_time
+        }
+        with open(f"benchmark_{transaction_size}_{transaction_number}.json", "w") as output:
+            json.dump(results, output, indent=2)
 
 
 class ProtocolError(Exception):
