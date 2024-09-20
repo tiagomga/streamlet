@@ -48,9 +48,13 @@ class CommunicationSystem:
         except BrokenPipeError:
             logging.error(f"Server {server_id} disconnected.\n")
             self.configuration.pop(server_id)
-        # Connect to server before sending data, if it is the first time
-        except OSError:
-            sender_socket.connect(receiver_address)
+        # Reconnect before sending data to server
+        except ConnectionError:
+            while sender_socket.connect_ex(receiver_address) != 0:
+                sender_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                logging.debug(f"Retrying to establish connection with server {id}...")
+                time.sleep(0.1)
+            self.configuration[server_id][2] = sender_socket
             sender_socket.sendall(message)
 
 
