@@ -207,6 +207,7 @@ class Streamlet:
                 logging.info("Timeout triggered: epoch reached its end.\n")
             finally:
                 logging.info(f"Blockchain - {self.blockchain}\n")
+        self.export_benchmark_results()
 
 
     def process_messages(self, start_time: float) -> None:
