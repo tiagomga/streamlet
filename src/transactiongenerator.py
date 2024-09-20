@@ -29,6 +29,12 @@ class TransactionGenerator:
 
 
     def get_transaction_size(self) -> int:
+        """
+        Get size of transactions.
+
+        Returns:
+            int: transaction's size
+        """
         return self.transaction_size
 
 
