@@ -303,6 +303,9 @@ class Streamlet:
 
 
     def export_benchmark_results(self):
+        """
+        Export benchmark results to file.
+        """
         transaction_size = self.transaction_generator.get_transaction_size()
         transaction_number = self.transaction_generator.get_transaction_number()
         results = {
