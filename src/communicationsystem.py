@@ -137,7 +137,6 @@ class CommunicationSystem:
             socket (Socket): current server socket
         """
         connection_socket, connection_address = socket.accept()
-        connection_socket.setblocking(False)
         self.selector.register(connection_socket, selectors.EVENT_READ, self.receive)
 
 
@@ -175,7 +174,6 @@ class CommunicationSystem:
         """
         self.socket.bind((self.ip, self.port))
         self.socket.listen(100)
-        self.socket.setblocking(False)
         receiver_process = Process(target=self.listen)
         receiver_process.start()
         self.establish_connections()
