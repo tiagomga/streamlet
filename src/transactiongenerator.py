@@ -28,6 +28,10 @@ class TransactionGenerator:
         return self.queue.get()
 
 
+    def get_transaction_size(self) -> int:
+        return self.transaction_size
+
+
     def generate_transactions(self, queue: Queue, transaction_size: int, transaction_number: int) -> NoReturn:
         """
         Generate transactions.
