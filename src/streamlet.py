@@ -41,6 +41,8 @@ class Streamlet:
         self.random_object.seed(0)
         self.early_messages = []
         self.transaction_generator = TransactionGenerator()
+        self.finalized_transactions = 0
+        self.total_finalized_transactions = 0
         self.benchmark_threshold = benchmark_threshold
         self.benchmark_total = benchmark_total
         self.benchmark_time = []
@@ -181,6 +183,14 @@ class Streamlet:
             finalized_blocks = self.blockchain.finalize()
             if finalized_blocks:
                 logging.info(f"Blocks from epochs {', '.join([str(block.get_epoch()) for block in finalized_blocks])} were finalized.\n")
+                for block in finalized_blocks:
+                    if block.get_epoch() >= 1:
+                        self.finalized_transactions += len(block.get_transactions())
+                if self.finalized_transactions >= self.benchmark_threshold:
+                    elapsed_time = time.perf_counter() - self.benchmark_time[0]
+                    self.benchmark_time.append(elapsed_time)
+                    self.total_finalized_transactions += self.finalized_transactions
+                    self.finalized_transactions = 0
                 # Execute clients' transactions
                 # execute_transactions(finalized_blocks)
 
@@ -202,7 +212,8 @@ class Streamlet:
         Start Streamlet.
         """
         self.blockchain.add_genesis_block()
-        while True:
+        self.benchmark_time.append(time.perf_counter())
+        while self.total_finalized_transactions < self.benchmark_total:
             try:
                 self.start_new_epoch()
             except TimeoutError:
