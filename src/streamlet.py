@@ -377,7 +377,7 @@ class Streamlet:
 
         if recovery_socket is None:
             recovery_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            recovery_socket.bind(("127.0.0.1", self.recovery_port+self.server_id))
+            recovery_socket.bind(("0.0.0.0", self.recovery_port+self.server_id))
             recovery_socket.settimeout(1)
             recovery_socket.listen()
 
@@ -452,7 +452,7 @@ class Streamlet:
         reply_message = struct.pack(">I", len(reply_message)) + reply_message
 
         reply_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        reply_socket.connect(('127.0.0.1', self.recovery_port+sender))
+        reply_socket.connect((self.communication.configuration[sender][0], self.recovery_port+sender))
         reply_socket.sendall(reply_message)
         reply_socket.close()
         logging.info(f"Sent recovery reply to server {sender} for block in epoch {epoch}.\n")
