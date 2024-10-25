@@ -316,6 +316,12 @@ class Streamlet:
                     if block_epoch == self.epoch.value and not timeout:
                         waiting_time = self.epoch_duration
                         self.vote(block)
+                        if len(block.get_votes()) >= self.f+1 and block.get_status() == BlockStatus.PROPOSED:
+                            block.notarize()
+                            logging.info(f"Block from epoch {block.get_epoch()} was notarized.\n")
+                            self.finalize()
+                        if block.get_status() == BlockStatus.NOTARIZED:
+                            break
             
             # Add votes to blocks (from current and past epochs)
             elif message.get_type() == MessageType.VOTE:
